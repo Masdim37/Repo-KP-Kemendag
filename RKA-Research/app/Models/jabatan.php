@@ -3,12 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-
 class jabatan extends Model
-{
-    use SoftDeletes;
-    
+{    
     protected $table = 'jabatan'; //nama tabel memakai huruf kecil
     protected $primaryKey = 'jabatanID'; //primary key diawali dengan nama tabelnya + ID dan bertipe data string 
     protected $keyType = 'string'; //tipe data primary key selalu string
@@ -21,12 +17,5 @@ class jabatan extends Model
         'jabatan_type',
         'jabatan_level',
         'eselon',
-        'status',
-    ];
-
-    protected $casts = [
-        'deleted_at' => 'datetime',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
     ];
 }
