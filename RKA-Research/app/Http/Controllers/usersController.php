@@ -15,7 +15,7 @@ class usersController extends Controller
 {
     public function ShowLogin()
     {
-        return view('user.login');
+        return view('login');
     }
 
     public function login(Request $request)
@@ -77,12 +77,14 @@ class usersController extends Controller
     | - password
     | - password_confirmation
     */
+
+    public function ShowRegister()
+    {
+        return view('register.step1');
+    }
+
     public function register_step1(Request $request)
     {
-        if ($request->isMethod('get')) {
-            return view('user.register-step1');
-        }
-
         $validated = $request->validate([
             'name' => [
                 'required',
@@ -236,7 +238,7 @@ class usersController extends Controller
             ->get();
 
         if ($request->isMethod('get')) {
-            return view('user.register-step2', [
+            return view('register.step2', [
                 'user' => $user,
                 'jabatans' => $jabatans,
             ]);
@@ -379,7 +381,7 @@ class usersController extends Controller
         }
 
         if ($request->isMethod('get')) {
-            return view('user.register-step3', [
+            return view('register.step3', [
                 'user' => $user,
                 'email' => $user->email,
             ]);

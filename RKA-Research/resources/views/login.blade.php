@@ -41,7 +41,7 @@
 
         .badge-system {
             display: inline-block;
-            background: rgba(255,255,255,.15);
+            background: rgba(255, 255, 255, .15);
             padding: 8px 18px;
             border-radius: 30px;
             font-size: 12px;
@@ -66,19 +66,19 @@
 
         .menu-grid {
             display: grid;
-            grid-template-columns: repeat(2,1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 18px;
         }
 
         .menu-card {
-            background: rgba(255,255,255,.08);
+            background: rgba(255, 255, 255, .08);
             border-radius: 12px;
             padding: 18px;
             transition: .3s;
         }
 
         .menu-card:hover {
-            background: rgba(255,255,255,.15);
+            background: rgba(255, 255, 255, .15);
         }
 
         .menu-card h5 {
@@ -108,7 +108,7 @@
             width: 34px;
             height: 34px;
             border-radius: 50%;
-            background: rgba(255,255,255,.2);
+            background: rgba(255, 255, 255, .2);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -151,7 +151,7 @@
             background: white;
             padding: 40px;
             border-radius: 18px;
-            box-shadow: 0 10px 35px rgba(0,0,0,.08);
+            box-shadow: 0 10px 35px rgba(0, 0, 0, .08);
         }
 
         .login-logo {
@@ -205,20 +205,39 @@
             font-size: 13px;
         }
 
-        @media(max-width:992px){
+        @media(max-width:992px) {
 
-            .left{
-                display:none;
+            .left {
+                display: none;
             }
 
-            .right{
-                width:100%;
+            .right {
+                width: 100%;
             }
 
-            .login-box{
-                width:90%;
+            .login-box {
+                width: 90%;
             }
 
+        }
+
+        .register-section {
+            margin-top: 18px;
+            text-align: center;
+            color: #6c757d;
+            font-size: 13px;
+        }
+
+        .register-section a {
+            color: #0d6efd;
+            font-weight: 700;
+            text-decoration: none;
+            margin-left: 4px;
+        }
+
+        .register-section a:hover {
+            color: #0056d6;
+            text-decoration: underline;
         }
     </style>
 
@@ -226,153 +245,162 @@
 
 <body>
 
-<div class="container-login">
+    <div class="container-login">
 
-    <!-- LEFT -->
+        <!-- LEFT -->
 
-    <div class="left">
+        <div class="left">
 
-        <img src="logo.png" class="logo">
+            <img src="logo.png" class="logo">
 
-        <div class="badge-system">
-            SISTEM INFORMASI
-        </div>
-
-        <div class="title">
-            Penelitian <br>
-            <span>RKA-K/L</span>
-        </div>
-
-        <div class="desc">
-            Perancangan, Validasi, dan Evaluasi Perencanaan serta Penganggaran dalam satu sistem penelitian berbasis data.
-        </div>
-
-        <div class="menu-grid">
-
-            <div class="menu-card">
-                <h5>RKP/Renja</h5>
-                <p>Rencana Kerja Pemerintah</p>
+            <div class="badge-system">
+                SISTEM INFORMASI
             </div>
 
-            <div class="menu-card">
-                <h5>TOR/KAK</h5>
-                <p>Kerangka Acuan Kerja</p>
+            <div class="title">
+                Penelitian <br>
+                <span>RKA-K/L</span>
             </div>
 
-            <div class="menu-card">
-                <h5>RAB</h5>
-                <p>Rencana Anggaran Biaya</p>
+            <div class="desc">
+                Perancangan, Validasi, dan Evaluasi Perencanaan serta Penganggaran dalam satu sistem penelitian berbasis
+                data.
             </div>
 
-            <div class="menu-card">
-                <h5>RKA-K/L</h5>
-                <p>Rencana Kerja & Anggaran</p>
-            </div>
+            <div class="menu-grid">
 
-        </div>
-
-        <hr>
-
-        <small>ALUR SISTEM</small>
-
-        <div class="alur">
-
-            <div>
-                <div class="circle active">1</div>
-                <small>Upload</small>
-            </div>
-
-            <div>
-                <div class="circle">2</div>
-                <small>Validasi</small>
-            </div>
-
-            <div>
-                <div class="circle">3</div>
-                <small>Skor</small>
-            </div>
-
-            <div>
-                <div class="circle">4</div>
-                <small>Rekomendasi</small>
-            </div>
-
-        </div>
-
-        <div class="bottom">
-
-            <div>
-                <h3>4</h3>
-                <small>Jenis Dokumen</small>
-            </div>
-
-            <div>
-                <h3>100%</h3>
-                <small>Terintegrasi</small>
-            </div>
-
-            <div>
-                <h3>APBN</h3>
-                <small>Berbasis Data</small>
-            </div>
-
-        </div>
-
-    </div>
-
-    <!-- RIGHT -->
-
-    <div class="right">
-
-        <div class="login-box">
-
-            <img src="logo.png" class="login-logo">
-
-            <h2>Masuk ke Sistem</h2>
-
-            <p>Gunakan akun yang telah terdaftar untuk mengakses dashboard penelitian RKA-K/L.</p>
-
-            <form>
-
-                <div class="mb-3">
-                    <label class="mb-2">Username</label>
-                    <input type="text" class="form-control" placeholder="Masukkan username">
+                <div class="menu-card">
+                    <h5>RKP/Renja</h5>
+                    <p>Rencana Kerja Pemerintah</p>
                 </div>
 
-                <div class="mb-3">
-                    <label class="mb-2">Password</label>
-                    <input type="password" class="form-control" placeholder="Masukkan password">
+                <div class="menu-card">
+                    <h5>TOR/KAK</h5>
+                    <p>Kerangka Acuan Kerja</p>
                 </div>
 
-                <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="menu-card">
+                    <h5>RAB</h5>
+                    <p>Rencana Anggaran Biaya</p>
+                </div>
 
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox">
-                        <label class="form-check-label">
-                            Ingat Saya
-                        </label>
+                <div class="menu-card">
+                    <h5>RKA-K/L</h5>
+                    <p>Rencana Kerja & Anggaran</p>
+                </div>
+
+            </div>
+
+            <hr>
+
+            <small>ALUR SISTEM</small>
+
+            <div class="alur">
+
+                <div>
+                    <div class="circle active">1</div>
+                    <small>Upload</small>
+                </div>
+
+                <div>
+                    <div class="circle">2</div>
+                    <small>Validasi</small>
+                </div>
+
+                <div>
+                    <div class="circle">3</div>
+                    <small>Skor</small>
+                </div>
+
+                <div>
+                    <div class="circle">4</div>
+                    <small>Rekomendasi</small>
+                </div>
+
+            </div>
+
+            <div class="bottom">
+
+                <div>
+                    <h3>4</h3>
+                    <small>Jenis Dokumen</small>
+                </div>
+
+                <div>
+                    <h3>100%</h3>
+                    <small>Terintegrasi</small>
+                </div>
+
+                <div>
+                    <h3>APBN</h3>
+                    <small>Berbasis Data</small>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- RIGHT -->
+
+        <div class="right">
+
+            <div class="login-box">
+
+                <img src="logo.png" class="login-logo">
+
+                <h2>Masuk ke Sistem</h2>
+
+                <p>Gunakan akun yang telah terdaftar untuk mengakses dashboard penelitian RKA-K/L.</p>
+
+                <form>
+
+                    <div class="mb-3">
+                        <label class="mb-2">Username</label>
+                        <input type="text" class="form-control" placeholder="Masukkan username">
                     </div>
 
-                    <a href="#">Lupa Password?</a>
+                    <div class="mb-3">
+                        <label class="mb-2">Password</label>
+                        <input type="password" class="form-control" placeholder="Masukkan password">
+                    </div>
 
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+
+                        {{-- <div class="form-check">
+                            <input class="form-check-input" type="checkbox">
+                            <label class="form-check-label">
+                                Ingat Saya
+                            </label>
+                        </div> --}}
+
+                        <a href="#">Lupa Password?</a>
+
+                    </div>
+
+                    <button class="btn btn-login w-100">
+                        Masuk
+                    </button>
+
+                </form>
+
+                <div class="register-section">
+                    Belum punya akun?
+                    <a href="{{ url('/register') }}">
+                        Register
+                    </a>
                 </div>
 
-                <button class="btn btn-login w-100">
-                    Masuk
-                </button>
+                {{-- <div class="info">
+                    <strong>✔ Akses sistem hanya untuk pengguna yang berwenang.</strong><br>
+                    Semua aktivitas diawasi sesuai kebijakan keamanan TI Kementerian Perdagangan.
+                </div> --}}
 
-            </form>
-
-            <div class="info">
-                <strong>✔ Akses sistem hanya untuk pengguna yang berwenang.</strong><br>
-                Semua aktivitas diawasi sesuai kebijakan keamanan TI Kementerian Perdagangan.
             </div>
 
         </div>
 
     </div>
 
-</div>
-
 </body>
+
 </html>

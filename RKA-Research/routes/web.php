@@ -27,11 +27,27 @@ use App\Http\Controllers\usersController;
 //     ->name('password.success');
 
 
+Route::get('/', [usersController::class, 'ShowLogin'])->name('login');
 Route::get('/login', [usersController::class, 'ShowLogin'])->name('login');
+
 Route::post('/login', [usersController::class, 'login'])->name('login.process');
 
-Route::match(['get', 'post'], '/register/step-1', [usersController::class, 'register_step1'])
+// Route::get('/register', [usersController::class, 'ShowRegister'])->name('register');
+
+// Route::match(['get', 'post'], '/register/step-1', [usersController::class, 'register_step1'])
+//     ->name('register.step1');
+
+// Tampilkan Step 1
+Route::get('/register', [
+    usersController::class,
+    'ShowRegister',
+])->name('register');
+
+Route::post('/register/step-1', [usersController::class, 'register_step1'])
     ->name('register.step1');
+
+    // Route::view('/register', 'register-step1')
+    // ->name('register');
 
 Route::match(['get', 'post'], '/register/step-2', [usersController::class, 'register_step2'])
     ->name('register.step2');
@@ -42,9 +58,9 @@ Route::match(['get', 'post'], '/register/step-3', [usersController::class, 'regi
 Route::post('/register/resend-otp', [usersController::class, 'resend_register_otp'])
     ->name('register.resend_otp');
 
-Route::get('/register', function () {
-    return redirect()->route('register.step1');
-})->name('register');
+// Route::get('/register', function () {
+//     return redirect()->route('register.step1');
+// })->name('register');
 
 Route::get('/forgot-password', [usersController::class, 'showForgotPasswordForm'])
     ->name('forgot.password');
