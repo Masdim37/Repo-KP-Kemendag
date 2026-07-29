@@ -1540,9 +1540,8 @@
     document
         .getElementById("registerStepTwo")
         .addEventListener("submit", function (event) {
-            event.preventDefault();
-
             if (!validateForm(true)) {
+                event.preventDefault();
                 return;
             }
 
