@@ -1154,7 +1154,7 @@
             <form
                 id="resendOtpForm"
                 method="POST"
-                action="{{ url('/register/resend-otp') }}"
+                action="{{ route('register.resend_otp') }}"
             >
                 @csrf
 

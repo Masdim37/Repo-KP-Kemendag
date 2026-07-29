@@ -213,7 +213,7 @@ class usersController extends Controller
             Session::forget(['register_user_id', 'register_email']);
 
             return redirect()
-                ->route('register.step1')
+                ->route('register')
                 ->with('error', 'Data user tidak ditemukan. Silakan mulai kembali.');
         }
 
@@ -262,7 +262,6 @@ class usersController extends Controller
             $result = DB::transaction(function () use ($user, $validated) {
                 $jabatan = DB::table('jabatan')
                     ->where('jabatanID', $validated['jabatanID'])
-                    ->lockForUpdate()
                     ->first();
 
                 if (!$jabatan) {
@@ -283,11 +282,20 @@ class usersController extends Controller
                     ];
                 }
 
-                if ($jabatan->jabatan_type === 'JPT') {
-                    $roleID = 'role0003'; // LEADER
-                } else {
-                    $roleID = 'role0002'; // RESEARCHER
-                } //role0001 : SUPERADMIN
+                $leaderLevels = [
+                    'JPT_UTAMA',
+                    'JPT_MADYA',
+                    'JPT_PRATAMA',
+                    'ADMINISTRATOR',
+                ];
+
+                $roleID = in_array(
+                    $jabatan->jabatan_level,
+                    $leaderLevels,
+                    true
+                )
+                    ? 'role0003'
+                    : 'role0002';
 
                 $lockedUser->update([
                     'jabatanID' => $jabatan->jabatanID,
@@ -296,7 +304,7 @@ class usersController extends Controller
                     'data_confirmed_at' => now(),
                 ]);
 
-                // Nonaktifkan OTP lama yang belum dipakai.
+                // Nonaktifkan OTP registrasi sebelumnya.
                 DB::table('user_otps')
                     ->where('userID', $lockedUser->userID)
                     ->where('purpose', 'register_verification')
@@ -308,7 +316,11 @@ class usersController extends Controller
 
                 $otpCode = $this->generateOtpCode();
 
-                $this->storeOtp($lockedUser->userID, $otpCode, 'register_verification');
+                $this->storeOtp(
+                    $lockedUser->userID,
+                    $otpCode,
+                    'register_verification'
+                );
 
                 return [
                     'success' => true,
@@ -317,19 +329,9 @@ class usersController extends Controller
                     'message' => 'Informasi jabatan berhasil disimpan. Kode OTP telah dikirim ke email Anda.',
                 ];
             });
-
-            if (!$result['success']) {
-                return back()
-                    ->withInput()
-                    ->with('error', $result['message']);
-            }
-
-            $this->sendOtpEmail($result['user'], $result['otp_code']);
-
-            return redirect()
-                ->route('register.step3')
-                ->with('success', $result['message']);
         } catch (\Throwable $e) {
+            report($e);
+
             $message = 'Registrasi tahap 2 gagal. Silakan coba kembali.';
 
             if (config('app.debug')) {
@@ -340,6 +342,32 @@ class usersController extends Controller
                 ->withInput()
                 ->with('error', $message);
         }
+
+        if (!$result['success']) {
+            return back()
+                ->withInput()
+                ->with('error', $result['message']);
+        }
+
+        try {
+            $this->sendOtpEmail(
+                $result['user'],
+                $result['otp_code']
+            );
+        } catch (\Throwable $e) {
+            report($e);
+
+            return redirect()
+                ->route('register.step3')
+                ->with(
+                    'error',
+                    'Informasi jabatan berhasil disimpan, tetapi email OTP gagal dikirim. Silakan gunakan tombol Kirim Ulang OTP.'
+                );
+        }
+
+        return redirect()
+            ->route('register.step3')
+            ->with('success', $result['message']);
     }
 
     /*
@@ -581,6 +609,7 @@ class usersController extends Controller
                     return [
                         'success' => false,
                         'message' => 'Akun sudah aktif. Silakan login.',
+                        'redirect' => 'login',
                     ];
                 }
 
@@ -588,12 +617,20 @@ class usersController extends Controller
                     return [
                         'success' => false,
                         'message' => 'Informasi jabatan belum lengkap. Silakan lengkapi tahap 2 terlebih dahulu.',
+                        'redirect' => 'register.step2',
                     ];
                 }
+
+                // $recentOtpExists = DB::table('user_otps')
+                //     ->where('userID', $user->userID)
+                //     ->where('purpose', 'register_verification')
+                //     ->where('created_at', '>=', now()->subMinute())
+                //     ->exists();
 
                 $recentOtpExists = DB::table('user_otps')
                     ->where('userID', $user->userID)
                     ->where('purpose', 'register_verification')
+                    ->where('is_used', 0)
                     ->where('created_at', '>=', now()->subMinute())
                     ->exists();
 
@@ -709,9 +746,7 @@ class usersController extends Controller
             "Terima kasih telah melakukan registrasi pada Sistem Informasi Penelitian RKA-K/L.\n\n" .
             "Kode OTP Anda adalah: {$otpCode}\n\n" .
             "Kode OTP berlaku selama 10 menit.\n\n" .
-            "Jika Anda tidak melakukan registrasi, abaikan email ini.\n\n" .
-            "Hormat kami,\n" .
-            "Biro Perencanaan";
+            "Jika Anda tidak melakukan registrasi, abaikan email ini.";
 
         Mail::raw($messageBody, function ($message) use ($user) {
             $message->to($user->email)

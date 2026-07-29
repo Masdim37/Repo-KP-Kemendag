@@ -1359,7 +1359,7 @@
                 <div class="form-actions">
 
                     <a
-                        href="{{ route('register.step1') }}"
+                        href="{{ route('register') }}"
                         class="back-button"
                     >
                         <i class="bi bi-arrow-left"></i>
@@ -1564,18 +1564,18 @@
              * dari tabel jabatan berdasarkan jabatanID.
              */
 
-            setTimeout(() => {
-                alert(
-                    "Frontend saja: data jabatan valid dan OTP siap dikirim."
-                );
+            // setTimeout(() => {
+            //     alert(
+            //         "Frontend saja: data jabatan valid dan OTP siap dikirim."
+            //     );
 
-                submitButton.disabled = false;
+            //     submitButton.disabled = false;
 
-                submitButton.innerHTML = `
-                    <i class="bi bi-send-fill"></i>
-                    Daftar dan Kirim OTP
-                `;
-            }, 800);
+            //     submitButton.innerHTML = `
+            //         <i class="bi bi-send-fill"></i>
+            //         Daftar dan Kirim OTP
+            //     `;
+            // }, 800);
         });
 
     updatePositionDetails();

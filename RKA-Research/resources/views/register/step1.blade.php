@@ -826,6 +826,42 @@
                     Lengkapi data diri dan buat kredensial login Anda.
                 </p>
 
+                @if (session('error'))
+                    <div
+                        style="
+            margin-bottom: 12px;
+            padding: 10px 12px;
+            border: 1px solid #f3b8bf;
+            border-radius: 8px;
+            color: #b42332;
+            background: #fff1f3;
+            font-size: 12px;
+        ">
+                        {{ session('error') }}
+                    </div>
+                @endif
+
+                @if ($errors->any())
+                    <div
+                        style="
+            margin-bottom: 12px;
+            padding: 10px 12px;
+            border: 1px solid #f3b8bf;
+            border-radius: 8px;
+            color: #b42332;
+            background: #fff1f3;
+            font-size: 12px;
+        ">
+                        <strong>Data belum dapat diproses:</strong>
+
+                        <ul style="margin: 7px 0 0 17px;">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
                 <form id="registerStepOne" action="{{ route('register.step1') }}" method="POST" novalidate>
 
                     @csrf
@@ -1097,41 +1133,7 @@
     ?
 </a> --}}
 
-    @if (session('error'))
-        <div
-            style="
-            margin-bottom: 12px;
-            padding: 10px 12px;
-            border: 1px solid #f3b8bf;
-            border-radius: 8px;
-            color: #b42332;
-            background: #fff1f3;
-            font-size: 12px;
-        ">
-            {{ session('error') }}
-        </div>
-    @endif
 
-    @if ($errors->any())
-        <div
-            style="
-            margin-bottom: 12px;
-            padding: 10px 12px;
-            border: 1px solid #f3b8bf;
-            border-radius: 8px;
-            color: #b42332;
-            background: #fff1f3;
-            font-size: 12px;
-        ">
-            <strong>Data belum dapat diproses:</strong>
-
-            <ul style="margin: 7px 0 0 17px;">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
 
     <script>
         const form = document.getElementById("registerStepOne");
@@ -1258,7 +1260,7 @@
     function validateUsername() {
         fields.username.value = fields.username.value.replace(/\s/g, "");
 
-        const valid = /^[A-Za-z0-9._]{4,50}$/.test(
+        const valid = /^[A-Za-z0-9_-]{4,100}$/.test(
             fields.username.value
         );
 
