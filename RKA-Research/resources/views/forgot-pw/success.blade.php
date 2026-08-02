@@ -392,6 +392,78 @@
             font-size:7.5px;
         }
 
+
+
+        /* =========================
+           STEPPER
+        ========================= */
+        .stepper{
+            display:grid;
+            grid-template-columns:
+                24px 1fr
+                24px 1fr
+                24px 1fr
+                24px;
+            align-items:start;
+            margin:0 9px 31px;
+            text-align:center;
+        }
+
+        .step{
+            position:relative;
+            z-index:2;
+            text-align:center;
+        }
+
+        .step-circle{
+            width:25px;
+            height:25px;
+            margin:0 auto;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            border-radius:50%;
+            font-size:10px;
+            font-weight:700;
+        }
+
+        .step.completed .step-circle{
+            color:#fff;
+            background:var(--green);
+        }
+
+        .step.current .step-circle{
+            color:#fff;
+            background:var(--blue);
+            box-shadow:0 0 0 5px rgba(10,92,188,.10);
+        }
+
+        .step-label{
+            position:absolute;
+            left:50%;
+            top:31px;
+            width:74px;
+            transform:translateX(-50%);
+            font-size:8px;
+            font-weight:550;
+            white-space:nowrap;
+        }
+
+        .step.completed .step-label{
+            color:var(--green);
+        }
+
+        .step.current .step-label{
+            color:var(--blue);
+            font-weight:700;
+        }
+
+        .step-line{
+            height:1px;
+            margin-top:12px;
+            background:var(--green);
+        }
+
         /* =========================
            RIGHT PANEL
         ========================= */
@@ -408,12 +480,12 @@
 
         .success-card{
             width:100%;
-            max-width:430px;
+            max-width:440px;
             background:#fff;
             border:1px solid rgba(214,223,233,.8);
             border-radius:15px;
             box-shadow:var(--shadow);
-            padding:32px 22px 22px;
+            padding:28px 31px 31px;
             text-align:center;
         }
 
@@ -498,6 +570,9 @@
         .login-btn{
             width:100%;
             height:42px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
             border:none;
             border-radius:12px;
             background:var(--blue);
@@ -587,7 +662,18 @@
 
         @media(max-width:480px){
             .success-card{
-                padding:28px 16px 20px;
+                padding:24px 16px 24px;
+            }
+
+            .stepper{
+                margin-left:0;
+                margin-right:0;
+                margin-bottom:29px;
+            }
+
+            .step-label{
+                width:63px;
+                font-size:7px;
             }
 
             .success-title{
@@ -690,6 +776,45 @@
     <main class="right-panel">
         <section class="success-card">
 
+
+            <div class="stepper">
+
+                <div class="step completed">
+                    <div class="step-circle">
+                        <i class="bi bi-check-lg"></i>
+                    </div>
+                    <span class="step-label">Email</span>
+                </div>
+
+                <div class="step-line"></div>
+
+                <div class="step completed">
+                    <div class="step-circle">
+                        <i class="bi bi-check-lg"></i>
+                    </div>
+                    <span class="step-label">Verifikasi</span>
+                </div>
+
+                <div class="step-line"></div>
+
+                <div class="step completed">
+                    <div class="step-circle">
+                        <i class="bi bi-check-lg"></i>
+                    </div>
+                    <span class="step-label">Password Baru</span>
+                </div>
+
+                <div class="step-line"></div>
+
+                <div class="step current">
+                    <div class="step-circle">
+                        <i class="bi bi-check-circle-fill"></i>
+                    </div>
+                    <span class="step-label">Selesai</span>
+                </div>
+
+            </div>
+
             <div class="success-icon-wrap">
                 <div class="success-icon-outer">
                     <div class="success-icon-inner">
@@ -719,10 +844,10 @@
                 </ul>
             </div>
 
-            <button class="login-btn" onclick="goToLogin()">
+            <a href="{{ route('login') }}" class="login-btn">
                 <i class="bi bi-arrow-left"></i>
                 Kembali ke Halaman Login
-            </button>
+            </a>
 
         </section>
 
@@ -740,14 +865,6 @@
 </div>
 
 <a href="#" class="help-btn">?</a>
-
-<script>
-    function goToLogin() {
-        alert('Frontend only: arahkan ke halaman login.');
-        // Jika nanti ingin diarahkan:
-        // window.location.href = '/login';
-    }
-</script>
 
 </body>
 </html>

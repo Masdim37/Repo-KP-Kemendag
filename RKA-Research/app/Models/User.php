@@ -28,10 +28,10 @@ class User extends Authenticatable
         'status',
         'email_verified_at',
         'last_login_at',
-        'jabatanID',
         'is_data_confirmed',
         'data_confirmed_at',
         'roleID',
+        'jabatanID',
         'unitID',
         'satkerID',
     ];

@@ -761,6 +761,26 @@
             font-size: 12px;
         }
 
+        .server-message {
+            margin: 0 0 14px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-size: 9px;
+            line-height: 1.5;
+        }
+
+        .server-message-error {
+            color: #a52f3f;
+            border: 1px solid #f1c1c8;
+            background: #fff2f4;
+        }
+
+        .server-message-success {
+            color: #217346;
+            border: 1px solid #b9e4c6;
+            background: #eefaf2;
+        }
+
         /* =====================================================
            RESPONSIVE
         ===================================================== */
@@ -1067,12 +1087,36 @@
 
             <p class="card-description">
                 Kode OTP 6 digit telah dikirim ke
-                <span class="masked-email">ad***@gmail.com</span>.
+                <span class="masked-email">{{ $maskedEmail }}</span>.
                 Kode berlaku selama
-                <span class="duration">5 menit</span>.
+                <span class="duration">{{ $otpExpiresIn ?? 5 }} menit</span>.
             </p>
 
-            <form class="otp-form" id="otpForm">
+            <form
+                class="otp-form"
+                id="otpForm"
+                action="{{ route('forgot.password.verify') }}"
+                method="POST"
+            >
+                @csrf
+
+                @if (session('error'))
+                    <div class="server-message server-message-error">
+                        {{ session('error') }}
+                    </div>
+                @endif
+
+                @if (session('success'))
+                    <div class="server-message server-message-success">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
+                @error('otp')
+                    <div class="server-message server-message-error">
+                        {{ $message }}
+                    </div>
+                @enderror
 
                 <label class="form-label">
                     Kode OTP <span class="required">*</span>
@@ -1131,7 +1175,7 @@
 
                 </div>
 
-                <input type="hidden" name="otp" id="otpValue">
+                <input type="hidden" name="otp" id="otpValue" value="{{ old('otp') }}">
 
                 <div class="resend-row">
                     <span>Tidak menerima kode OTP?</span>
@@ -1160,11 +1204,20 @@
                     Verifikasi OTP
                 </button>
 
-                <a href="#" class="change-email">
+                <a href="{{ route('forgot.password') }}" class="change-email">
                     <i class="bi bi-arrow-left"></i>
                     Ubah Alamat Email
                 </a>
 
+            </form>
+
+            <form
+                id="resendOtpForm"
+                action="{{ route('forgot.password.resend') }}"
+                method="POST"
+                hidden
+            >
+                @csrf
             </form>
 
         </section>
@@ -1282,13 +1335,15 @@
         });
 
     otpForm.addEventListener("submit", event => {
-        event.preventDefault();
-
         if (otpValue.value.length !== otpInputs.length) {
+            event.preventDefault();
+            otpInputs[0].focus();
             return;
         }
 
-        console.log("Kode OTP:", otpValue.value);
+        verifyButton.disabled = true;
+        verifyButton.innerHTML =
+            '<i class="bi bi-hourglass-split"></i> Memverifikasi...';
     });
 
     let remainingSeconds = 57;
@@ -1330,15 +1385,12 @@
     }
 
     resendButton.addEventListener("click", () => {
-        remainingSeconds = 57;
-        startCountdown();
+        resendButton.disabled = true;
+        resendButton.textContent = "Mengirim...";
 
-        otpInputs.forEach(input => {
-            input.value = "";
-        });
-
-        otpInputs[0].focus();
-        updateOtpValue();
+        document
+            .getElementById("resendOtpForm")
+            .submit();
     });
 
     startCountdown();

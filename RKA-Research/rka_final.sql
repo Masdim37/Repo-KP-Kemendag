@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 26 Jul 2026 pada 19.58
+-- Waktu pembuatan: 02 Agu 2026 pada 19.05
 -- Versi server: 8.0.43
 -- Versi PHP: 8.2.12
 
@@ -32,6 +32,14 @@ CREATE TABLE `cache` (
   `value` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `expiration` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data untuk tabel `cache`
+--
+
+INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
+('laravel-cache-5c785c036466adea360111aa28563bfd556b5fba', 'i:2;', 1785690037),
+('laravel-cache-5c785c036466adea360111aa28563bfd556b5fba:timer', 'i:1785690037;', 1785690037);
 
 -- --------------------------------------------------------
 
@@ -245,13 +253,17 @@ CREATE TABLE `password_reset_tokens` (
 
 CREATE TABLE `roles` (
   `roleID` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `role_code` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `role_name` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `status` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `deleted_at` timestamp NULL DEFAULT NULL
+  `role_name` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data untuk tabel `roles`
+--
+
+INSERT INTO `roles` (`roleID`, `role_name`) VALUES
+('role0001', 'SUPERADMIN'),
+('role0002', 'RESEARCHER'),
+('role0003', 'LEADER');
 
 -- --------------------------------------------------------
 
@@ -290,7 +302,11 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('GsISVfYWFZ2hm8Zxkhvz0FSEegoFNNaYgzB1gres', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoib1VDYVU1RW10eldFYmVzSmRINUhkU0lqUzNGOWZ4TlplalRWYmVIVCI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7czo1OiJyb3V0ZSI7Tjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319fQ==', 1785079323);
+('LDbcrxCrbZfN7ivLSSWt4mvZE8gKW1zzUXe4Xkno', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiRkN4Wk52V3hYcHdqQ1FsQ2k1U1p0RDdOY3ZpdXNORXVYQVhiVmplUCI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJuZXciO2E6MDp7fXM6Mzoib2xkIjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7czo1OiJyb3V0ZSI7czo1OiJsb2dpbiI7fX0=', 1785690064),
+('OEQmZRX0ygrFi3s77sQA7HPiR7J3Y0AhG7wOP2vg', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiZzY3TnJjYWdrWjllZnRJVXp1QXk5MU5VRG1rblFHblZtWk9OMFNQRyI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJuZXciO2E6MDp7fXM6Mzoib2xkIjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7czo1OiJyb3V0ZSI7czo1OiJsb2dpbiI7fX0=', 1785687534),
+('vLJNiiAbor2UFtbE7Ui1owByFysqNlMWt3P2tAJb', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0', 'YTozOntzOjY6Il9mbGFzaCI7YToyOntzOjM6Im5ldyI7YTowOnt9czozOiJvbGQiO2E6MDp7fX1zOjY6Il90b2tlbiI7czo0MDoiT0J1RkFvQkhreXlDbWZVdWxIb2tQdVRPd0VHNlIwd3VMMk9ZSWloZyI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7czo1OiJyb3V0ZSI7czo1OiJsb2dpbiI7fX0=', 1785689963),
+('wd5l9K5G8TaXokooxDp0OYJdVlrWeMwzlWnAIkqg', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0', 'YTozOntzOjY6Il9mbGFzaCI7YToyOntzOjM6Im5ldyI7YTowOnt9czozOiJvbGQiO2E6MDp7fX1zOjY6Il90b2tlbiI7czo0MDoiMkd0RHREbzUwaTdJR1B3MXVGR2hEOE01Vk14OGZJbTlnNEY5WnFkSiI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7czo1OiJyb3V0ZSI7Tjt9fQ==', 1785690281),
+('wNaQekHVFuTWiACfEksJvbm1RCmG6pkJS8gyMJen', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiOHhxYU1FRUZZZzlPc2Z2OXpIWVdxQ3g1Ykx3ODBma1ZDWGFjU3FRZiI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJuZXciO2E6MDp7fXM6Mzoib2xkIjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7czo1OiJyb3V0ZSI7czo1OiJsb2dpbiI7fX0=', 1785689909);
 
 -- --------------------------------------------------------
 
@@ -329,11 +345,18 @@ CREATE TABLE `users` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `deleted_at` timestamp NULL DEFAULT NULL,
-  `roleID` varchar(8) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `jabatanID` varchar(8) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `unitID` varchar(8) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `satkerID` varchar(8) COLLATE utf8mb4_unicode_ci NOT NULL
+  `roleID` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `jabatanID` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `unitID` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `satkerID` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data untuk tabel `users`
+--
+
+INSERT INTO `users` (`userID`, `username`, `password`, `name`, `nip`, `email`, `status`, `email_verified_at`, `last_login_at`, `is_data_confirmed`, `data_confirmed_at`, `created_at`, `updated_at`, `deleted_at`, `roleID`, `jabatanID`, `unitID`, `satkerID`) VALUES
+('usr00001', 'Dhimas', '$2y$12$vdNnlca88I7fsc2eyilqLu5jwzv/sD7vZ6tAxDHJg7DwuN1ktp/cO', 'M dhimas hafizh', '111111111111111111', 'dhmzz.hfzh@gmail.com', 'active', '2026-08-02 17:01:04', '2026-08-02 17:01:35', 1, '2026-08-02 17:00:37', '2026-08-02 16:57:58', '2026-08-02 17:01:35', NULL, 'role0002', 'jbt00019', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -354,6 +377,14 @@ CREATE TABLE `user_otps` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data untuk tabel `user_otps`
+--
+
+INSERT INTO `user_otps` (`otpID`, `userID`, `otp_hash`, `purpose`, `expired_at`, `verified_at`, `attempt_count`, `max_attempt`, `is_used`, `created_at`, `updated_at`) VALUES
+('otp00001', 'usr00001', '$2y$12$7adc0mtpiW7YNTcEw7/bD.dgQpapMNWJoKmlItSXQTegCDdpkRB/K', 'register_verification', '2026-08-02 17:08:08', '2026-08-02 16:58:28', 0, 5, 1, '2026-08-02 16:58:08', '2026-08-02 16:58:28'),
+('otp00002', 'usr00001', '$2y$12$tXOAOGoGquzwdvJHAKJhS.GaNY.VYSxzhA8YAgE1NOJ.Iv8wmhMzS', 'register_verification', '2026-08-02 17:10:37', '2026-08-02 17:01:04', 0, 5, 1, '2026-08-02 17:00:37', '2026-08-02 17:01:04');
 
 --
 -- Indexes for dumped tables

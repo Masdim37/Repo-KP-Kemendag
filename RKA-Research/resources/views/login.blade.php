@@ -7,6 +7,7 @@
     <title>Login Penelitian RKA-K/L</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 
     <style>
         * {
@@ -239,6 +240,40 @@
             color: #0056d6;
             text-decoration: underline;
         }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-wrapper .form-control {
+            padding-right: 48px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            top: 50%;
+            right: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+            border: none;
+            outline: none;
+            color: #7b8794;
+            background: transparent;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 19px;
+            transition: color 0.2s ease;
+        }
+
+        .toggle-password:hover {
+            color: #0d6efd;
+        }
+
+        .toggle-password:focus {
+            color: #0d6efd;
+        }
     </style>
 
 </head>
@@ -352,32 +387,79 @@
 
                 <p>Gunakan akun yang telah terdaftar untuk mengakses dashboard penelitian RKA-K/L.</p>
 
-                <form>
+                <form
+                    action="{{ route('login.process') }}"
+                    method="POST"
+                    novalidate
+                >
+                    @csrf
+
+                    @if (session('error'))
+                        <div class="alert alert-danger py-2 px-3 mb-3" role="alert">
+                            {{ session('error') }}
+                        </div>
+                    @endif
 
                     <div class="mb-3">
-                        <label class="mb-2">Username</label>
-                        <input type="text" class="form-control" placeholder="Masukkan username">
+                        <label for="username" class="mb-2">Username</label>
+
+                        <input
+                            type="text"
+                            id="username"
+                            name="username"
+                            class="form-control @error('username') is-invalid @enderror"
+                            value="{{ old('username') }}"
+                            placeholder="Masukkan username"
+                            autocomplete="username"
+                            required
+                            autofocus
+                        >
+
+                        @error('username')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
 
                     <div class="mb-3">
-                        <label class="mb-2">Password</label>
-                        <input type="password" class="form-control" placeholder="Masukkan password">
+                        <label for="password" class="mb-2">Password</label>
+
+                        <div class="password-wrapper">
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                class="form-control @error('password') is-invalid @enderror"
+                                placeholder="Masukkan password"
+                                autocomplete="current-password"
+                                required
+                            >
+
+                            <button type="button" class="toggle-password" id="togglePassword"
+                                aria-label="Tampilkan password" title="Tampilkan password">
+
+                                <i class="bi bi-eye" id="passwordIcon"></i>
+                            </button>
+                        </div>
+
+                        @error('password')
+                            <div class="invalid-feedback d-block">
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
 
                     <div class="d-flex justify-content-between align-items-center mb-4">
 
-                        {{-- <div class="form-check">
-                            <input class="form-check-input" type="checkbox">
-                            <label class="form-check-label">
-                                Ingat Saya
-                            </label>
-                        </div> --}}
-
-                        <a href="#">Lupa Password?</a>
+                        <a href="{{ route('forgot.password') }}">Lupa Password?</a>
 
                     </div>
 
-                    <button class="btn btn-login w-100">
+                    <button
+                        type="submit"
+                        class="btn btn-login w-100"
+                    >
                         Masuk
                     </button>
 
@@ -400,6 +482,30 @@
         </div>
 
     </div>
+
+    <script>
+        const passwordInput = document.getElementById("password");
+        const togglePasswordButton = document.getElementById("togglePassword");
+        const passwordIcon = document.getElementById("passwordIcon");
+
+        togglePasswordButton.addEventListener("click", function() {
+            const passwordIsHidden = passwordInput.type === "password";
+
+            passwordInput.type = passwordIsHidden ? "text" : "password";
+
+            passwordIcon.classList.toggle("bi-eye", !passwordIsHidden);
+            passwordIcon.classList.toggle("bi-eye-slash", passwordIsHidden);
+
+            const buttonLabel = passwordIsHidden ?
+                "Sembunyikan password" :
+                "Tampilkan password";
+
+            togglePasswordButton.setAttribute("aria-label", buttonLabel);
+            togglePasswordButton.setAttribute("title", buttonLabel);
+
+            passwordInput.focus();
+        });
+    </script>
 
 </body>
 

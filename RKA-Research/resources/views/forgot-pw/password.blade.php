@@ -823,6 +823,25 @@
             font-size: 12px;
         }
 
+        .server-message {
+            margin: 0 0 14px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-size: 9px;
+            line-height: 1.5;
+        }
+
+        .server-message ul {
+            margin: 0;
+            padding-left: 16px;
+        }
+
+        .server-message-error {
+            color: #a52f3f;
+            border: 1px solid #f1c1c8;
+            background: #fff2f4;
+        }
+
         /* =====================================================
            RESPONSIVE
         ===================================================== */
@@ -1074,7 +1093,34 @@
                 sebelumnya untuk menjaga keamanan akun Anda.
             </p>
 
-            <form id="newPasswordForm" autocomplete="off">
+            <form
+                id="newPasswordForm"
+                action="{{ route('forgot.password.update') }}"
+                method="POST"
+                autocomplete="off"
+            >
+                @csrf
+                <input
+                    type="hidden"
+                    name="reset_token"
+                    value="{{ $resetToken }}"
+                >
+
+                @if (session('error'))
+                    <div class="server-message server-message-error">
+                        {{ session('error') }}
+                    </div>
+                @endif
+
+                @if ($errors->any())
+                    <div class="server-message server-message-error">
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
 
                 <div class="form-group">
 
@@ -1094,6 +1140,8 @@
                             class="password-input"
                             placeholder="Masukkan kata sandi baru"
                             autocomplete="new-password"
+                            minlength="8"
+                            required
                         >
 
                         <button
@@ -1187,6 +1235,8 @@
                             class="password-input"
                             placeholder="Ulangi kata sandi baru"
                             autocomplete="new-password"
+                            minlength="8"
+                            required
                         >
 
                         <button
@@ -1457,15 +1507,14 @@
         .getElementById("newPasswordForm")
         .addEventListener("submit", event => {
 
-            event.preventDefault();
-
             if (submitButton.disabled) {
+                event.preventDefault();
                 return;
             }
 
-            alert(
-                "Frontend saja: kata sandi baru berhasil disimpan."
-            );
+            submitButton.disabled = true;
+            submitButton.innerHTML =
+                '<i class="bi bi-hourglass-split"></i> Menyimpan...';
         });
 </script>
 

@@ -28,9 +28,10 @@ use App\Http\Controllers\usersController;
 
 
 Route::get('/', [usersController::class, 'ShowLogin'])->name('login');
-Route::get('/login', [usersController::class, 'ShowLogin'])->name('login');
 
-Route::post('/login', [usersController::class, 'login'])->name('login.process');
+Route::get('/login', [usersController::class, 'ShowLogin']);
+
+Route::post('/login-process', [usersController::class, 'login'])->name('login.process');
 
 // Route::get('/register', [usersController::class, 'ShowRegister'])->name('register');
 
@@ -46,8 +47,8 @@ Route::get('/register', [
 Route::post('/register/step-1', [usersController::class, 'register_step1'])
     ->name('register.step1');
 
-    // Route::view('/register', 'register-step1')
-    // ->name('register');
+// Route::view('/register', 'register-step1')
+// ->name('register');
 
 Route::match(['get', 'post'], '/register/step-2', [usersController::class, 'register_step2'])
     ->name('register.step2');
@@ -62,25 +63,51 @@ Route::post('/register/resend-otp', [usersController::class, 'resend_register_ot
 //     return redirect()->route('register.step1');
 // })->name('register');
 
-Route::get('/forgot-password', [usersController::class, 'showForgotPasswordForm'])
-    ->name('forgot.password');
+Route::controller(usersController::class)
+    ->prefix('lupa-password')
+    ->group(function () {
+        Route::get('/', 'ShowForgotPassword')
+            ->name('forgot.password');
 
-Route::post('/forgot-password', [usersController::class, 'sendForgotPasswordOtp'])
-    ->name('forgot.password.send');
+        Route::post('/', 'sendForgotPasswordOtp')
+            ->middleware('throttle:5,1')
+            ->name('forgot.password.send');
 
-Route::get('/forgot-password/otp', [usersController::class, 'showForgotPasswordOtpForm'])
-    ->name('forgot.password.otp');
+        Route::get('/verifikasi-otp', 'showForgotPasswordOtpForm')
+            ->name('forgot.password.otp');
 
-Route::post('/forgot-password/otp', [usersController::class, 'verifyForgotPasswordOtp'])
-    ->name('forgot.password.otp.verify');
+        Route::post('/verifikasi-otp', 'verifyForgotPasswordOtp')
+            ->middleware('throttle:10,1')
+            ->name('forgot.password.verify');
 
-Route::post('/forgot-password/resend-otp', [usersController::class, 'resendForgotPasswordOtp'])
-    ->name('forgot.password.otp.resend');
+        Route::post('/kirim-ulang-otp', 'resendForgotPasswordOtp')
+            ->middleware('throttle:3,1')
+            ->name('forgot.password.resend');
 
-Route::get('/forgot-password/reset', [usersController::class, 'showResetPasswordForm'])
-    ->name('forgot.password.reset');
+        Route::get('/password-baru', 'showResetPasswordForm')
+            ->name('forgot.password.reset');
 
-Route::post('/forgot-password/reset', [usersController::class, 'resetForgotPassword'])
-    ->name('forgot.password.update');
+        Route::post('/password-baru', 'resetForgotPassword')
+            ->middleware('throttle:5,1')
+            ->name('forgot.password.update');
+
+        Route::get('/berhasil', 'showForgotPasswordSuccess')
+            ->name('forgot.password.success');
+    });
+
+Route::controller(usersController::class)
+    ->prefix('account')
+    ->group(function () {
+        Route::get('/', 'showAccount')
+            ->name('account.show');
+
+        Route::put('/', 'updateAccount')
+            ->middleware('throttle:10,1')
+            ->name('account.update');
+
+        Route::delete('/', 'deleteAccount')
+            ->middleware('throttle:3,1')
+            ->name('account.destroy');
+    });
 
 Route::post('/logout', [usersController::class, 'logout'])->name('logout');
