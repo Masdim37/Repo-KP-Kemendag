@@ -3,29 +3,6 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\usersController;
 
-// Route::get('/', function () {
-//     return view('login');
-// });
-
-// Route::get('/login', function () {
-//     return view('login');
-// })->name('login');
-
-// Route::get('/forgot-password', function () {
-//     return view('forgot-password');
-// })->name('forgot-password');
-
-// Route::get('/verifikasi-otp', function () {
-//     return view('verify-otp');
-// })->name('otp.verify');
-
-// Route::get('/reset-password', function () {
-//     return view('reset-password');
-// })->name('reset-password');
-
-// Route::view('/password-success', 'password-success')
-//     ->name('password.success');
-
 
 Route::get('/', [usersController::class, 'ShowLogin'])->name('login');
 
@@ -33,35 +10,24 @@ Route::get('/login', [usersController::class, 'ShowLogin']);
 
 Route::post('/login-process', [usersController::class, 'login'])->name('login.process');
 
-// Route::get('/register', [usersController::class, 'ShowRegister'])->name('register');
+Route::controller(usersController::class)
+    ->prefix('register')
+    ->group(function () {
+        Route::get('/', 'ShowRegister')
+            ->name('register');
 
-// Route::match(['get', 'post'], '/register/step-1', [usersController::class, 'register_step1'])
-//     ->name('register.step1');
+        Route::post('/step-1', 'register_step1')
+            ->name('register.step1');
 
-// Tampilkan Step 1
-Route::get('/register', [
-    usersController::class,
-    'ShowRegister',
-])->name('register');
+        Route::match(['get', 'post'], '/step-2', 'register_step2')
+            ->name('register.step2');
 
-Route::post('/register/step-1', [usersController::class, 'register_step1'])
-    ->name('register.step1');
-
-// Route::view('/register', 'register-step1')
-// ->name('register');
-
-Route::match(['get', 'post'], '/register/step-2', [usersController::class, 'register_step2'])
-    ->name('register.step2');
-
-Route::match(['get', 'post'], '/register/step-3', [usersController::class, 'register_step3'])
-    ->name('register.step3');
-
-Route::post('/register/resend-otp', [usersController::class, 'resend_register_otp'])
-    ->name('register.resend_otp');
-
-// Route::get('/register', function () {
-//     return redirect()->route('register.step1');
-// })->name('register');
+        Route::match(['get', 'post'], '/step-3', 'register_step3')
+            ->name('register.step3');
+        
+        Route::post('/resend-otp', 'resend_register_otp')
+            ->name('register.resend_otp');
+    });
 
 Route::controller(usersController::class)
     ->prefix('lupa-password')
@@ -96,7 +62,7 @@ Route::controller(usersController::class)
     });
 
 Route::controller(usersController::class)
-    ->prefix('account')
+    ->prefix('Account')
     ->group(function () {
         Route::get('/', 'showAccount')
             ->name('account.show');
@@ -109,5 +75,7 @@ Route::controller(usersController::class)
             ->middleware('throttle:3,1')
             ->name('account.destroy');
     });
+
+Route::get('/Dashboard', [usersController::class, 'ShowDashboard'])->name('dashboard');
 
 Route::post('/logout', [usersController::class, 'logout'])->name('logout');

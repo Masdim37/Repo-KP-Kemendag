@@ -67,7 +67,7 @@ class usersController extends Controller
         $user->last_login_at = now();
         $user->save();
 
-        return redirect('/Homepage');
+        return redirect('/Dashboard');
     }
 
     /*
@@ -1557,7 +1557,7 @@ class usersController extends Controller
             ->orderBy('jabatan_name')
             ->get();
 
-        return view('user.account', [
+        return view('menu.user.account', [
             'user' => $user,
             'jabatans' => $jabatans,
         ]);
@@ -1803,6 +1803,11 @@ class usersController extends Controller
         return in_array($jabatanLevel, $leaderLevels, true)
             ? 'role0003'
             : 'role0002';
+    }
+
+    public function ShowDashboard()
+    {
+        return view('menu.dashboard.dashboard');
     }
 
     public function logout()
