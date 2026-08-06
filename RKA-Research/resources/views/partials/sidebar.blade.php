@@ -32,10 +32,32 @@
             'url' => Route::has('dashboard') ? route('dashboard') : url('/Dashboard'),
         ],
         [
-            'key' => 'menu2',
-            'label' => 'Menu 2',
+            'key' => 'upload',
+            'label' => 'Upload Dokumen',
             'icon' => 'bi-folder2-open',
             'url' => '#',
+            'submenus' => [
+                [
+                    'key' => 'upload-master-data',
+                    'label' => 'Upload Master Data',
+                    'url' => Route::has('upload.masterdata') ? route('upload.masterdata') : url('/Upload-Dokumen/Master-Data'),
+                ],
+                [
+                    'key' => 'upload-rka',
+                    'label' => 'Upload RKA',
+                    'url' => Route::has('upload.rka') ? route('upload.rka') : url('/upload/rka'),
+                ],
+                [
+                    'key' => 'upload-tor',
+                    'label' => 'Upload TOR/KAK',
+                    'url' => Route::has('upload.tor') ? route('upload.tor') : url('/upload/tor-kak'),
+                ],
+                [
+                    'key' => 'upload-rab',
+                    'label' => 'Upload RAB',
+                    'url' => Route::has('upload.rab') ? route('upload.rab') : url('/upload/rab'),
+                ],
+            ],
         ],
         [
             'key' => 'menu3',
@@ -91,6 +113,24 @@
             box-shadow: 12px 0 34px rgba(16, 52, 93, 0.13);
             overflow: hidden;
             transition: transform 0.25s ease;
+        }
+
+        /* --- Custom Scrollbar for Sidebar --- */
+        .sidebar-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 21px 14px 15px;
+            overflow-y: auto;
+        }
+
+        .sidebar-body::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .sidebar-body::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
         }
 
         .sidebar-header {
@@ -156,13 +196,6 @@
             line-height: 1.35;
         }
 
-        .sidebar-body {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 21px 14px 15px;
-        }
-
         .sidebar-system-label {
             padding: 0 10px;
             color: rgba(202, 226, 255, 0.62);
@@ -214,7 +247,7 @@
                 transform 0.2s ease;
         }
 
-        .sidebar-link i {
+        .sidebar-link i.icon-main {
             width: 18px;
             text-align: center;
             font-size: 15px;
@@ -244,15 +277,81 @@
             background: #91caff;
         }
 
-        .sidebar-link-badge {
-            margin-left: auto;
-            padding: 3px 7px;
-            border-radius: 20px;
-            color: #e9f6ff;
-            background: rgba(255, 255, 255, 0.15);
-            font-size: 7px;
-            font-weight: 700;
+        /* --- Dropdown Styles --- */
+        .sidebar-dropdown-container {
+            display: flex;
+            flex-direction: column;
         }
+
+        .icon-chevron {
+            margin-left: auto;
+            font-size: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-dropdown-container.open .icon-chevron {
+            transform: rotate(180deg);
+        }
+
+        .sidebar-submenu {
+            display: none;
+            flex-direction: column;
+            gap: 2px;
+            padding-left: 20px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-dropdown-container.open .sidebar-submenu {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .sidebar-sublink {
+            position: relative;
+            min-height: 35px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 13px;
+            border-radius: 8px;
+            color: rgba(238, 247, 255, 0.70);
+            text-decoration: none;
+            font-size: 9.5px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-sublink i {
+            font-size: 6px;
+            width: 15px;
+            text-align: center;
+        }
+
+        .sidebar-sublink:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateX(2px);
+        }
+
+        .sidebar-sublink.active {
+            color: #91caff;
+            font-weight: 750;
+        }
+
+        /* ------------------------- */
 
         .sidebar-footer {
             margin-top: auto;
@@ -426,18 +525,51 @@
         <nav class="sidebar-nav" aria-label="Navigasi utama">
             @foreach ($sidebarMenus as $menu)
                 @php
-                    $menuIsActive = $sidebarActiveMenu === $menu['key'];
+                    // Mengecek apakah menu memiliki submenus
+                    $hasSubmenus = isset($menu['submenus']) && count($menu['submenus']) > 0;
+                    $isSubmenuActive = false;
+
+                    if ($hasSubmenus) {
+                        foreach ($menu['submenus'] as $sub) {
+                            if ($sidebarActiveMenu === $sub['key']) {
+                                $isSubmenuActive = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    // Menu induk aktif jika key-nya sama, ATAU jika salah satu submenunya sedang aktif
+                    $menuIsActive = $sidebarActiveMenu === $menu['key'] || $isSubmenuActive;
                 @endphp
 
-                <a href="{{ $menu['url'] ?? '#' }}" class="sidebar-link {{ $menuIsActive ? 'active' : '' }}"
-                    @if ($menuIsActive) aria-current="page" @endif>
-                    <i class="bi {{ $menu['icon'] }}"></i>
-                    <span>{{ $menu['label'] }}</span>
-
-                    {{-- @if ($menuIsActive)
-                        <span class="sidebar-link-badge">Aktif</span>
-                    @endif --}}
-                </a>
+                @if ($hasSubmenus)
+                    <div class="sidebar-dropdown-container {{ $menuIsActive ? 'open' : '' }}">
+                        <a href="javascript:void(0)"
+                            class="sidebar-link sidebar-dropdown-toggle {{ $menuIsActive ? 'active' : '' }}">
+                            <i class="bi {{ $menu['icon'] }} icon-main"></i>
+                            <span>{{ $menu['label'] }}</span>
+                            <i class="bi bi-chevron-down icon-chevron"></i>
+                        </a>
+                        <div class="sidebar-submenu">
+                            @foreach ($menu['submenus'] as $submenu)
+                                @php
+                                    $subMenuIsActive = $sidebarActiveMenu === $submenu['key'];
+                                @endphp
+                                <a href="{{ $submenu['url'] }}"
+                                    class="sidebar-sublink {{ $subMenuIsActive ? 'active' : '' }}">
+                                    <i class="bi bi-circle-fill"></i>
+                                    <span>{{ $submenu['label'] }}</span>
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                @else
+                    <a href="{{ $menu['url'] ?? '#' }}" class="sidebar-link {{ $menuIsActive ? 'active' : '' }}"
+                        @if ($menuIsActive) aria-current="page" @endif>
+                        <i class="bi {{ $menu['icon'] }} icon-main"></i>
+                        <span>{{ $menu['label'] }}</span>
+                    </a>
+                @endif
             @endforeach
         </nav>
 
@@ -457,9 +589,8 @@
                 </div>
             </div>
 
-            <form action="{{ route('logout') }}" method="POST" class="sidebar-logout-form">
+            <form action="{{ route('logout') ?? '#' }}" method="POST" class="sidebar-logout-form">
                 @csrf
-
                 <button type="submit" class="sidebar-logout">
                     <i class="bi bi-box-arrow-right"></i>
                     Logout
@@ -475,10 +606,8 @@
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             const sidebar = document.getElementById("sidebar");
-            const sidebarOverlay =
-                document.getElementById("sidebarOverlay");
-            const sidebarToggle =
-                document.getElementById("sidebarToggle");
+            const sidebarOverlay = document.getElementById("sidebarOverlay");
+            const sidebarToggle = document.getElementById("sidebarToggle");
 
             if (!sidebar || !sidebarOverlay) {
                 return;
@@ -512,8 +641,18 @@
                 setSidebarState(false);
             });
 
+            // Toggling Submenus Script
+            const dropdownToggles = document.querySelectorAll('.sidebar-dropdown-toggle');
+            dropdownToggles.forEach(toggle => {
+                toggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const container = this.closest('.sidebar-dropdown-container');
+                    container.classList.toggle('open');
+                });
+            });
+
             sidebar
-                .querySelectorAll(".sidebar-link")
+                .querySelectorAll(".sidebar-link:not(.sidebar-dropdown-toggle), .sidebar-sublink")
                 .forEach(link => {
                     link.addEventListener("click", () => {
                         if (window.innerWidth <= 1024) {

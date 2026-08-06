@@ -59,6 +59,7 @@ class usersController extends Controller
             'user_id' => $user->userID,
             'user_name' => $user->name,
             'username' => $user->username,
+            'jabatan_id' => $user->jabatanID,
             'role_id' => $user->roleID,
             'unit_id' => $user->unitID,
             'satker_id' => $user->satkerID,

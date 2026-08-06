@@ -193,7 +193,7 @@
 
         $userName = data_get($user ?? null, 'name', session('user_name'));
 
-        $jabatanName = data_get($user ?? null, 'jabatan.jabatan_name');
+        $jabatanName = data_get($user ?? null, 'jabatan.jabatan_name', session('jabatan_id'));
 
         $initials = collect(explode(' ', $userName))
             ->filter()

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\usersController;
+use App\Http\Controllers\masterDataController;
 
 
 Route::get('/', [usersController::class, 'ShowLogin'])->name('login');
@@ -9,6 +10,8 @@ Route::get('/', [usersController::class, 'ShowLogin'])->name('login');
 Route::get('/login', [usersController::class, 'ShowLogin']);
 
 Route::post('/login-process', [usersController::class, 'login'])->name('login.process');
+
+Route::post('/logout', [usersController::class, 'logout'])->name('logout');
 
 Route::controller(usersController::class)
     ->prefix('register')
@@ -24,7 +27,7 @@ Route::controller(usersController::class)
 
         Route::match(['get', 'post'], '/step-3', 'register_step3')
             ->name('register.step3');
-        
+
         Route::post('/resend-otp', 'resend_register_otp')
             ->name('register.resend_otp');
     });
@@ -78,4 +81,9 @@ Route::controller(usersController::class)
 
 Route::get('/Dashboard', [usersController::class, 'ShowDashboard'])->name('dashboard');
 
-Route::post('/logout', [usersController::class, 'logout'])->name('logout');
+Route::controller(MasterDataController::class)
+    ->prefix('Upload-Dokumen/Master-Data')
+    ->group(function () {
+        Route::get('/', 'ShowUploadMasterData')->name('upload.masterdata');
+        Route::post('/Store', 'storeMasterData')->name('upload.masterdata.store');
+    });
