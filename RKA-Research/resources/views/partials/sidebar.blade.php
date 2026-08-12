@@ -45,18 +45,18 @@
                 [
                     'key' => 'upload-rka',
                     'label' => 'Upload RKA',
-                    'url' => Route::has('upload.rka') ? route('upload.rka') : url('/upload/rka'),
+                    'url' => Route::has('upload.rka') ? route('upload.rka') : url('/Upload-Dokumen/RKA'),
                 ],
                 [
-                    'key' => 'upload-tor',
-                    'label' => 'Upload TOR/KAK',
-                    'url' => Route::has('upload.tor') ? route('upload.tor') : url('/upload/tor-kak'),
+                    'key' => 'upload-tor-rab',
+                    'label' => 'Upload TOR & RAB',
+                    'url' => Route::has('upload.torrab') ? route('upload.torrab') : url('/upload/tor-rab'),
                 ],
-                [
-                    'key' => 'upload-rab',
-                    'label' => 'Upload RAB',
-                    'url' => Route::has('upload.rab') ? route('upload.rab') : url('/upload/rab'),
-                ],
+                // [
+                //     'key' => 'upload-rab',
+                //     'label' => 'Upload RAB',
+                //     'url' => Route::has('upload.rab') ? route('upload.rab') : url('/upload/rab'),
+                // ],
             ],
         ],
         [

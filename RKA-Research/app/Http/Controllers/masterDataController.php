@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\RenjaImport;
 use App\Imports\RkbmnImport;
+use App\Imports\SatkerImport;
 
 class masterDataController extends Controller
 {
@@ -159,6 +160,79 @@ class masterDataController extends Controller
         $lastNumber = (int) substr($lastDoc->documentID, 3);
         return 'doc' . str_pad($lastNumber + 1, 5, '0', STR_PAD_LEFT);
     }
+
+
+
+
+    public function ShowSatker(){
+        return view('menu.satker');
+    }
+
+    public function importDataSatker(Request $request)
+    {
+        // Validasi 'required' sudah memastikan file pasti ada
+        $request->validate([
+            'file_satker' => 'required|mimes:xlsx,xls,csv|max:51200' // Tambahkan max size biar aman (misal 50MB)
+        ]);
+
+        $allowedExtensions = ['xlsx', 'xls', 'csv'];
+
+        $extSatker = strtolower($request->file('file_satker')->getClientOriginalExtension());
+        if (!in_array($extSatker, $allowedExtensions)) {
+            return redirect()->back()
+                ->withErrors(['file_satker' => 'The SATKER file field must be a file of type: xlsx, xls, csv.'])
+                ->withInput();
+        }
+        
+        $uploadedPaths = []; // Menyimpan path untuk rollback jika terjadi error
+        $messages = [];      // Menyimpan pesan sukses
+        
+        DB::beginTransaction();
+        try {
+            // Langsung proses karena file pasti ada (berkat validasi 'required' di atas)
+            $satkerPath = $this->processSatker($request->file('file_satker'));
+            $uploadedPaths[] = $satkerPath;
+            $messages[] = 'File Master Satker berhasil diimpor dan disimpan ke database.';
+            
+            DB::commit();
+            return redirect()->back()->with('success', implode(' ', $messages));
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            // Hapus file yang terlanjur terupload
+            foreach ($uploadedPaths as $path) {
+                if (Storage::disk('public')->exists($path)) {
+                    Storage::disk('public')->delete($path);
+                }
+            }
+
+            // TAMPILKAN ERROR MENTAH KE LAYAR (DEBUGGING)
+            dd([
+                'Pesan_Error' => $e->getMessage(),
+                'Baris_Error' => $e->getLine(),
+                'File_Error'  => $e->getFile()
+            ]);
+
+            // return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    private function processSatker($file)
+    {
+        // HAPUS generateNextDocumentId() jika tidak dimasukkan ke tabel file_master
+        
+        // Sanitasi nama file
+        $cleanFileName = preg_replace('/[^A-Za-z0-9\-\_\.]/', '_', $file->getClientOriginalName());
+        $fileName = time() . '_SATKER_' . $cleanFileName;
+        $filePath = $file->storeAs('uploads/satker', $fileName, 'public');
+
+        // Import Excel (Tidak perlu mengirim $nextDocId karena di SatkerImport.php constructornya punya default = null)
+        Excel::import(new SatkerImport(), $file);
+
+        return $filePath;
+    }
+
 
     // public function storeRenja(Request $request)
     // {

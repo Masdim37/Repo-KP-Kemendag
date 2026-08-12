@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 06 Agu 2026 pada 05.24
+-- Waktu pembuatan: 12 Agu 2026 pada 03.39
 -- Versi server: 8.0.43
 -- Versi PHP: 8.2.12
 
@@ -20,6 +20,42 @@ SET time_zone = "+00:00";
 --
 -- Database: `rka_final`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `akun`
+--
+
+CREATE TABLE `akun` (
+  `kode_akun` varchar(10) NOT NULL COMMENT 'Contoh: 521111',
+  `nama_akun` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data untuk tabel `akun`
+--
+
+INSERT INTO `akun` (`kode_akun`, `nama_akun`) VALUES
+('521111', 'Belanja Keperluan Perkantoran'),
+('521114', 'Belanja Pengiriman Surat Dinas Pos Pusat'),
+('521115', 'Belanja Honor Operasional Satuan Kerja'),
+('521119', 'Belanja Barang Operasional Lainnya'),
+('521214', 'Belanja Rugi Selisih Kurs Uang Persediaan'),
+('521811', 'Belanja Barang Persediaan Barang Konsumsi'),
+('522111', 'Belanja Langganan Listrik'),
+('522112', 'Belanja Langganan Telepon'),
+('522113', 'Belanja Langganan Air'),
+('522119', 'Belanja Langganan Daya dan Jasa Lainnya'),
+('522141', 'Belanja Sewa'),
+('522142', 'Belanja Fasilitasi Sewa Rumah untuk Perwakilan Republik Indonesia di Luar Negeri'),
+('523111', 'Belanja Pemeliharaan Gedung dan Bangunan'),
+('523119', 'Belanja Pemeliharaan Gedung dan Bangunan Lainnya'),
+('523121', 'Belanja Pemeliharaan Peralatan dan Mesin'),
+('523125', 'Belanja Barang Persediaan Bahan Bakar Minyak dan Pelumas (BMP) dan Pelumas Khusus Non Pertamina'),
+('524111', 'Belanja Perjalanan Dinas Biasa'),
+('524113', 'Belanja Perjalanan Dinas Dalam Kota'),
+('524211', 'Belanja Perjalanan Dinas Biasa - Luar Negeri');
 
 -- --------------------------------------------------------
 
@@ -44,6 +80,172 @@ CREATE TABLE `cache_locks` (
   `owner` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `expiration` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `detail_belanja`
+--
+
+CREATE TABLE `detail_belanja` (
+  `id_detail_belanja` bigint UNSIGNED NOT NULL,
+  `kode_subkomponen` varchar(10) NOT NULL,
+  `kode_akun` varchar(10) NOT NULL,
+  `uraian_detail` text NOT NULL,
+  `is_bebas` tinyint(1) NOT NULL DEFAULT '0',
+  `referensi` varchar(250) DEFAULT NULL,
+  `catatan` text
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data untuk tabel `detail_belanja`
+--
+
+INSERT INTO `detail_belanja` (`id_detail_belanja`, `kode_subkomponen`, `kode_akun`, `uraian_detail`, `is_bebas`, `referensi`, `catatan`) VALUES
+(1, 'A', '521111', 'Keperluan Sehari-hari Perkantoran lebih dari 40 Pegawai (DKI Jakarta) [XX org x 1 kl]', 0, 'SBM', 'Meliputi: alat tulis kantor (ATK), barang cetak, alat-alat rumah tangga, langganan surat kabar/berita/majalah, dan air minum pegawai (SBM 2027)'),
+(2, 'A', '521111', 'Makan Rapat Biasa D.K.I. JAKARTA [XX ORG x XX KL x XX BLN]', 0, 'SBM', NULL),
+(3, 'A', '521111', 'Snack Rapat Biasa D.K.I. JAKARTA [XX ORG x XX KL x XX BLN]', 0, 'SBM', NULL),
+(4, 'A', '521111', 'Biaya pajak kendaraan/STNK roda 2', 0, NULL, NULL),
+(5, 'A', '521111', 'Biaya pajak kendaraan/STNK roda 4', 0, NULL, NULL),
+(6, 'A', '521111', 'Biaya Pajak Kepemilikan Kendaraan Roda 4', 0, NULL, NULL),
+(7, 'A', '521811', 'Pencetakan Kop Surat', 0, NULL, NULL),
+(8, 'A', '521811', 'Pencetakan Map', 0, NULL, NULL),
+(9, 'A', '521811', 'Pencetakan Amplop Surat', 0, NULL, NULL),
+(10, 'A', '521114', 'Biaya Pengiriman Surat', 0, NULL, NULL),
+(11, 'A', '521119', '(Diisi item lainnya sesuai kebutuhan)', 1, NULL, 'Belanja barang operasional lainnya yang berkaitan dengan keperluan kantor yang tidak terakomodir di dalam akun barang operasional'),
+(12, 'A', '524111', 'Biaya Transportasi Jakarta - Daerah [XX ORG x XX KL x XX DRH]', 0, 'SBM', NULL),
+(13, 'A', '524111', 'Uang Harian [XX ORG x XX HR x XX DRH]', 0, 'SBM', NULL),
+(14, 'A', '524111', 'Biaya Penginapan [XX ORG x XX HR x XX DRH]', 0, 'SBM', NULL),
+(15, 'A', '524111', 'Biaya Transportasi dari dan/atau ke Terminal Bus/Stasiun/Bandara/Pelabuhan Dalam Rangka Perjalanan Dinas Dalam Negeri [XX ORG x XX KL]', 0, 'SBM', NULL),
+(16, 'B', '524111', 'Biaya Transportasi Jakarta - Daerah [XX ORG x XX KL x XX DRH]', 0, 'SBM', NULL),
+(17, 'B', '524111', 'Uang Harian [XX ORG x XX HR x XX DRH]', 0, 'SBM', NULL),
+(18, 'B', '524111', 'Biaya Penginapan [XX ORG x XX HR x XX DRH]', 0, 'SBM', NULL),
+(19, 'B', '524111', 'Biaya Transportasi dari dan/atau ke Terminal Bus/Stasiun/Bandara/Pelabuhan Dalam Rangka Perjalanan Dinas Dalam Negeri [XX ORG x XX KL]', 0, 'SBM', NULL),
+(20, 'B', '524111', 'Uang Representasi [XX ORG x XX HR x XX DRH]', 0, 'SBM', NULL),
+(21, 'B', '522141', 'Sewa Kendaraan (Insidentil) [XX HR x XX DRH]', 0, 'SBM', 'Penganggaran berpedoman pada ketentuan yang diatur dalam SBM'),
+(22, 'B', '524211', 'Biaya Tiket [XX ORG x XX NEG x XX USD]', 0, 'SBM', NULL),
+(23, 'B', '524211', 'Lumpsum [XX ORG x XX NEG x XX HR x XX USD]', 0, 'SBM', NULL),
+(24, 'B', '524211', 'Biaya Transportasi dari dan/atau ke Terminal Bus/Stasiun/Bandara/Pelabuhan Dalam Rangka Perjalanan Dinas Luar Negeri [XX ORG x XX KL]', 0, 'SBM', NULL),
+(25, 'B', '521119', '(Diisi item lainnya sesuai kebutuhan)', 1, NULL, 'Belanja barang operasional lainnya yang berkaitan dengan keperluan pimpinan yang tidak terakomodir di dalam akun barang operasional'),
+(26, 'C', '521111', 'Makan Rapat Koordinasi Tingkat Menteri/Eselon I/Setara [XX ORG x XX KL x XX BLN]', 0, 'SBM', 'Subkomponen ini hanya dapat digunakan oleh Sekretariat Unit Eselon I'),
+(27, 'C', '521111', 'Snack Rapat Koordinasi Tingkat Menteri/Eselon I/Setara [XX ORG x XX KL x XX BLN]', 0, 'SBM', 'Subkomponen ini hanya dapat digunakan oleh Sekretariat Unit Eselon I'),
+(28, 'D', '521115', 'Honorarium Pejabat Kuasa Pengguna Anggaran [XX ORG x 12 BLN]', 0, NULL, NULL),
+(29, 'D', '521115', 'Honorarium Pejabat Pembuat Komitmen [XX ORG x 12 BLN]', 0, NULL, NULL),
+(30, 'D', '521115', 'Honorarium Pejabat Penguji Tagihan Penandatangan SPM [XX ORG x 12 BLN]', 0, NULL, NULL),
+(31, 'D', '521115', 'Honorarium Bendahara Pengeluaran [XX ORG x 12 BLN]', 0, NULL, NULL),
+(32, 'D', '521115', 'Honorarium Staf Pengelola [XX ORG x 12 BLN]', 0, NULL, NULL),
+(33, 'D', '521115', 'Honorarium Penanggung Jawab [XX ORG x 12 BLN]', 0, NULL, NULL),
+(34, 'D', '521115', 'Honorarium Koordinator [XX ORG x 12 BLN]', 0, NULL, NULL),
+(35, 'D', '521115', 'Honorarium Ketua [XX ORG x 12 BLN]', 0, NULL, NULL),
+(36, 'D', '521115', '(Diisi item lainnya sesuai kebutuhan)', 1, NULL, NULL),
+(37, 'E', '521111', 'Honorarium Petugas Pramubakti D.K.I Jakarta [XX ORG x XX BLN]', 0, 'SBM', 'Dianggarkan sebagai antisipasi bila ada honorer/pramubakti (terdaftar pada SIPEG) yang belum diangkat sebagai PPPK'),
+(38, 'E', '521111', 'Uang Lembur Pramubakti [XX ORG x XX JAM x XX BLN]', 0, 'SBM', NULL),
+(39, 'E', '521111', 'Uang Makan Pramubakti [XX ORG x XX JAM x XX BLN]', 0, 'SBM', NULL),
+(40, 'E', '521111', 'Outsourcing Tenaga Pengemudi/Satpam/Tenaga Administrasi', 0, NULL, 'Digunakan untuk satuan kerja di luar Jakarta yang tidak ditampung Biro Umum'),
+(41, 'E', '521111', 'Jasa Pengelolaan Terpadu Prasarana dan Sarana Bangunan Gedung Kementerian Perdagangan', 0, 'SBM', 'Dianggarkan oleh Biro Umum'),
+(42, 'E', '521111', '(Diisi item lainnya sesuai kebutuhan)', 1, NULL, NULL),
+(43, 'F', '522111', 'Biaya Langganan Listrik', 0, NULL, NULL),
+(44, 'F', '522112', 'Biaya Langganan Telepon', 0, NULL, NULL),
+(45, 'F', '522113', 'Biaya Langganan Air', 0, NULL, NULL),
+(46, 'F', '522119', 'Biaya Langganan TV Kabel', 0, NULL, NULL),
+(47, 'F', '522119', 'Langganan Internet', 0, NULL, 'Dianggarkan oleh Pusat Data dan Sistem Informasi'),
+(48, 'F', '522119', 'Langganan Aplikasi Zoom Meeting', 0, NULL, 'Dianggarkan oleh Pusat Data dan Sistem Informasi'),
+(49, 'F', '522119', 'Langganan Aplikasi Umum (12 Bulan)', 0, NULL, NULL),
+(50, 'F', '522119', '(Diisi item lainnya bila ada)', 1, NULL, NULL),
+(51, 'G', '522141', 'Sewa Gedung [XX UNIT x XX THN]', 0, 'RKBMN', 'Digunakan untuk sewa gedung kantor dan prasarana lainnya yang berkaitan'),
+(52, 'G', '522141', '(Diisi item lainnya bila ada)', 1, NULL, NULL),
+(53, 'H', '522141', 'Sewa Kendaraan Operasional Pejabat Eselon I (DKI Jakarta) [XX UNIT x XX BLN]', 0, 'SBM dan RKBMN', NULL),
+(54, 'H', '522141', 'Sewa Kendaraan Operasional Pejabat Eselon II (D.K.I. JAKARTA) [XX UNIT x XX BLN]', 0, 'SBM dan RKBMN', NULL),
+(55, 'H', '522141', 'Sewa Kendaraan Operasional (D.K.I. JAKARTA) [XX UNIT x XX BLN]', 0, 'SBM dan RKBMN', NULL),
+(56, 'I', '522141', 'Sewa Mesin Fotocopy [XX UNIT x XX BLN]', 0, 'SBM', NULL),
+(57, 'I', '522141', '(Diisi item lainnya sesuai kebutuhan)', 1, NULL, NULL),
+(58, 'J', '523111', 'Pemeliharaan Gedung/Bangunan Kantor Bertingkat [XX m2]', 0, 'SBM 2026', NULL),
+(59, 'J', '523111', 'Pemeliharaan Gedung/Bangunan Kantor Tidak Bertingkat [XX m2]', 0, 'SBM 2026', NULL),
+(60, 'J', '523111', 'Pemeliharaan Halaman Gedung/Bangunan Kantor [XX m2]', 0, 'SBM 2026', NULL),
+(61, 'J', '523119', 'Pemeliharaan Rumah Dinas', 0, 'SBM 2026', NULL),
+(62, 'J', '523119', '(Diisi item lainnya sesuai kebutuhan)', 1, NULL, NULL),
+(63, 'K', '523121', 'Biaya Pemeliharaan dan Operasional Kendaraan Roda 2 (D.K.I. Jakarta) [XX UNIT]', 0, 'SBM dan RKBMN', NULL),
+(64, 'K', '523121', 'Biaya Pemeliharaan dan Operasional Kendaraan Roda 4 (D.K.I. Jakarta) [XX UNIT]', 0, 'SBM dan RKBMN', NULL),
+(65, 'K', '523121', 'Biaya Pemeliharaan dan Operasional Kendaraan Dinas Pejabat Eselon II (D.K.I. Jakarta) [XX UNIT]', 0, 'SBM dan RKBMN', NULL),
+(66, 'L', '523121', 'Pemeliharaan Inventaris Kantor [XX UNIT]', 0, 'SBM dan RKBMN', NULL),
+(67, 'L', '523121', 'Pemeliharaan AC Split [XX UNIT]', 0, 'SBM dan RKBMN', NULL),
+(68, 'L', '523121', 'Pemeliharaan Printer [XX UNIT]', 0, 'SBM dan RKBMN', NULL),
+(69, 'L', '523121', 'Pemeliharaan Personal Computer/Notebook [XX UNIT]', 0, 'SBM dan RKBMN', NULL),
+(70, 'L', '523125', 'Persediaan Bahan Bakar Minyak untuk Mesin Genset', 0, NULL, NULL),
+(71, 'M', '522119', 'Pakaian Seragam Dinas Pegawai/Perawat (D.K.I. Jakarta) [XX ORG x XX STEL]', 0, 'SBM dan Jumlah Pegawai', NULL),
+(72, 'N', '524211', 'Tiket Jakarta - Negara Tujuan [XX ORG x XX IDR]', 0, NULL, NULL),
+(73, 'N', '524211', 'Barang Pindahan Jakarta - Negara Tujuan [XX M3 x XX IDR]', 0, NULL, NULL),
+(74, 'N', '524211', 'Pakaian Jakarta - Negara Tujuan', 0, NULL, NULL),
+(75, 'N', '524211', 'Uang Harian Tiba Jakarta - Negara Tujuan [XX HR x XX IDR]', 0, NULL, NULL),
+(76, 'N', '521119', 'Bantuan Biaya Pendidikan Anak (BBPA) [XX ORG x XX TH]', 0, NULL, NULL),
+(77, 'O', '522142', 'Fasilitasi Sewa Rumah Atase Perdagangan di XX', 0, NULL, NULL),
+(78, 'O', '522142', 'Fasilitasi Sewa Rumah ITPC di XX', 0, NULL, NULL),
+(79, 'O', '522142', 'Deposit Fasilitasi Sewa Rumah Atase Perdagangan di XX', 0, NULL, NULL),
+(80, 'O', '522142', 'Deposit Fasilitasi Sewa Rumah ITPC di XX', 0, NULL, NULL),
+(81, 'P', '521214', 'Penyelesaian Kurang Setor Sisa UP karena Selisih Kurs', 0, NULL, NULL),
+(82, 'P', '521214', '(Diisi item lainnya sesuai kebutuhan)', 1, NULL, NULL),
+(83, 'Q', '521119', 'Dana Operasional Menteri', 0, 'Sesuai ketentuan yang berlaku', NULL),
+(84, 'R', '521111', 'Makan Rapat Koordinasi Tingkat Menteri/Eselon I/Setara [XX ORG x XX KL x XX BLN]', 0, NULL, NULL),
+(85, 'R', '521111', 'Snack Rapat Koordinasi Tingkat Menteri/Eselon I/Setara [XX ORG x XX KL x XX BLN]', 0, NULL, NULL),
+(86, 'R', '521111', 'Langganan Koran/Majalah/Surat Kabar', 0, NULL, NULL),
+(87, 'R', '521114', 'Biaya Pengiriman Surat', 0, NULL, NULL),
+(88, 'R', '521119', 'Sewa Tanaman Hias [XX BLN x XX PKT]', 0, NULL, NULL),
+(89, 'R', '521811', 'Pencetakan Kop Surat', 0, NULL, NULL),
+(90, 'R', '521811', 'Pencetakan Map', 0, NULL, NULL),
+(91, 'R', '521811', 'Pencetakan Amplop Surat', 0, NULL, NULL),
+(92, 'R', '521811', 'Pencetakan Bahan Pimpinan', 0, NULL, NULL),
+(93, 'R', '521811', 'Pencetakan Kartu Ucapan Hari Besar Keagamaan [XX BUAH x XX KL]', 0, NULL, NULL),
+(94, 'R', '524111', 'Biaya Transportasi Jakarta - Daerah [XX ORG x XX KL x XX DRH]', 0, 'SBM', NULL),
+(95, 'R', '524111', 'Uang Harian [XX ORG x XX HR x XX DRH]', 0, 'SBM', NULL),
+(96, 'R', '524111', 'Biaya Penginapan [XX ORG x XX HR x XX DRH]', 0, 'SBM', NULL),
+(97, 'R', '524111', 'Biaya Transportasi dari dan/atau ke Terminal Bus/Stasiun/Bandara/Pelabuhan Dalam Rangka Perjalanan Dinas Dalam Negeri [XX ORG x XX KL]', 0, 'SBM', NULL),
+(98, 'R', '524111', 'Uang Representasi [XX ORG x XX HR x XX DRH]', 0, 'SBM', NULL),
+(99, 'R', '522141', 'Sewa Kendaraan (Insidentil) Kegiatan di Daerah [XX UNIT x XX HR x XX DRH]', 0, NULL, NULL),
+(100, 'R', '524113', 'Satuan Biaya Transport Kegiatan Dalam Kabupaten Kota Pergi Pulang (PP) [XX ORG x XX KL x XX BLN]', 0, 'SBM', NULL),
+(101, 'R', '524211', 'Biaya Tiket [XX ORG x XX NEG x XX USD]', 0, 'SBM', NULL),
+(102, 'R', '524211', 'Lumpsum [XX ORG x XX NEG x XX HR x XX USD]', 0, 'SBM', NULL),
+(103, 'R', '524211', 'Biaya Transportasi dari dan/atau ke Terminal Bus/Stasiun/Bandara/Pelabuhan Dalam Rangka Perjalanan Dinas Luar Negeri [XX ORG x XX KL]', 0, 'SBM', NULL),
+(104, 'S', '521119', 'Dana Operasional Wakil Menteri', 0, 'Sesuai ketentuan yang berlaku', NULL),
+(105, 'T', '521111', 'Makan Rapat Koordinasi Tingkat Menteri/Eselon I/Setara [XX ORG x XX KL x XX BLN]', 0, NULL, NULL),
+(106, 'T', '521111', 'Snack Rapat Koordinasi Tingkat Menteri/Eselon I/Setara [XX ORG x XX KL x XX BLN]', 0, NULL, NULL),
+(107, 'T', '521111', 'Langganan Koran/Majalah/Surat Kabar', 0, NULL, NULL),
+(108, 'T', '521114', 'Biaya Pengiriman Surat', 0, NULL, NULL),
+(109, 'T', '521119', 'Sewa Tanaman Hias [XX BLN x XX PKT]', 0, NULL, NULL),
+(110, 'T', '521811', 'Pencetakan Kop Surat', 0, NULL, NULL),
+(111, 'T', '521811', 'Pencetakan Map', 0, NULL, NULL),
+(112, 'T', '521811', 'Pencetakan Amplop Surat', 0, NULL, NULL),
+(113, 'T', '521811', 'Pencetakan Bahan Pimpinan', 0, NULL, NULL),
+(114, 'T', '521811', 'Pencetakan Kartu Ucapan Hari Besar Keagamaan [XX BUAH x XX KL]', 0, NULL, NULL),
+(115, 'T', '524111', 'Biaya Transportasi Jakarta - Daerah [XX ORG x XX KL x XX DRH]', 0, 'SBM', NULL),
+(116, 'T', '524111', 'Uang Harian [XX ORG x XX HR x XX DRH]', 0, 'SBM', NULL),
+(117, 'T', '524111', 'Biaya Penginapan [XX ORG x XX HR x XX DRH]', 0, 'SBM', NULL),
+(118, 'T', '524111', 'Biaya Transportasi dari dan/atau ke Terminal Bus/Stasiun/Bandara/Pelabuhan Dalam Rangka Perjalanan Dinas Dalam Negeri [XX ORG x XX KL]', 0, 'SBM', NULL),
+(119, 'T', '524111', 'Uang Representasi [XX ORG x XX HR x XX DRH]', 0, 'SBM', NULL),
+(120, 'T', '522141', 'Sewa Kendaraan (Insidentil) Kegiatan di Daerah [XX UNIT x XX HR x XX DRH]', 0, NULL, NULL),
+(121, 'T', '524113', 'Satuan Biaya Transport Kegiatan Dalam Kabupaten Kota Pergi Pulang (PP) [XX ORG x XX KL x XX BLN]', 0, 'SBM', NULL),
+(122, 'T', '524211', 'Biaya Tiket [XX ORG x XX NEG x XX USD]', 0, 'SBM', NULL),
+(123, 'T', '524211', 'Lumpsum [XX ORG x XX NEG x XX HR x XX USD]', 0, 'SBM', NULL),
+(124, 'T', '524211', 'Biaya Transportasi dari dan/atau ke Terminal Bus/Stasiun/Bandara/Pelabuhan Dalam Rangka Perjalanan Dinas Luar Negeri [XX ORG x XX KL]', 0, 'SBM', NULL),
+(125, 'U', '521111', 'Makan Rapat Koordinasi Tingkat Menteri/Eselon I/Setara [XX ORG x XX KL x XX BLN]', 0, NULL, NULL),
+(126, 'U', '521111', 'Snack Rapat Koordinasi Tingkat Menteri/Eselon I/Setara [XX ORG x XX KL x XX BLN]', 0, NULL, NULL),
+(127, 'U', '521111', 'Langganan Koran/Majalah/Surat Kabar', 0, NULL, NULL),
+(128, 'U', '521114', 'Biaya Pengiriman Surat', 0, NULL, NULL),
+(129, 'U', '521119', 'Sewa Tanaman Hias [XX BLN x XX PKT]', 0, NULL, NULL),
+(130, 'U', '521811', 'Pencetakan Kop Surat', 0, NULL, NULL),
+(131, 'U', '521811', 'Pencetakan Map', 0, NULL, NULL),
+(132, 'U', '521811', 'Pencetakan Amplop Surat', 0, NULL, NULL),
+(133, 'U', '521811', 'Pencetakan Bahan Pimpinan', 0, NULL, NULL),
+(134, 'U', '521811', 'Pencetakan Kartu Ucapan Hari Besar Keagamaan [XX BUAH x XX KL]', 0, NULL, NULL),
+(135, 'U', '524111', 'Biaya Transportasi Jakarta - Daerah [XX ORG x XX KL x XX DRH]', 0, 'SBM', NULL),
+(136, 'U', '524111', 'Uang Harian [XX ORG x XX HR x XX DRH]', 0, 'SBM', NULL),
+(137, 'U', '524111', 'Biaya Penginapan [XX ORG x XX HR x XX DRH]', 0, 'SBM', NULL),
+(138, 'U', '524111', 'Biaya Transportasi dari dan/atau ke Terminal Bus/Stasiun/Bandara/Pelabuhan Dalam Rangka Perjalanan Dinas Dalam Negeri [XX ORG x XX KL]', 0, 'SBM', NULL),
+(139, 'U', '524111', 'Uang Representasi [XX ORG x XX HR x XX DRH]', 0, 'SBM', NULL),
+(140, 'U', '522141', 'Sewa Kendaraan (Insidentil) Kegiatan di Daerah [XX UNIT x XX HR x XX DRH]', 0, NULL, NULL),
+(141, 'U', '524113', 'Satuan Biaya Transport Kegiatan Dalam Kabupaten Kota Pergi Pulang (PP) [XX ORG x XX KL x XX BLN]', 0, 'SBM', NULL),
+(142, 'U', '524211', 'Biaya Tiket [XX ORG x XX NEG x XX USD]', 0, 'SBM', NULL),
+(143, 'U', '524211', 'Lumpsum [XX ORG x XX NEG x XX HR x XX USD]', 0, 'SBM', NULL),
+(144, 'U', '524211', 'Biaya Transportasi dari dan/atau ke Terminal Bus/Stasiun/Bandara/Pelabuhan Dalam Rangka Perjalanan Dinas Luar Negeri [XX ORG x XX KL]', 0, 'SBM', NULL);
 
 -- --------------------------------------------------------
 
@@ -232,6 +434,94 @@ CREATE TABLE `job_batches` (
 -- --------------------------------------------------------
 
 --
+-- Struktur dari tabel `kegiatan`
+--
+
+CREATE TABLE `kegiatan` (
+  `kode_kegiatan` varchar(50) NOT NULL,
+  `nama_kegiatan` varchar(255) NOT NULL,
+  `kode_program` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data untuk tabel `kegiatan`
+--
+
+INSERT INTO `kegiatan` (`kode_kegiatan`, `nama_kegiatan`, `kode_program`) VALUES
+('3702', 'Peningkatan Pengelolaan Perencanaan', 'WA'),
+('3703', 'Pengembangan Sumber Daya Manusia dan Organisasi', 'WA'),
+('3704', 'Peningkatan Pengelolaan Keuangan', 'WA'),
+('3705', 'Pembinaan Administrasi dan Pelayanan Pelaksanaan Tugas Kementerian Perdagangan', 'WA'),
+('3706', 'Penyusunan Perangkat dan Pelayanan Hukum Bidang Perdagangan', 'WA'),
+('3707', 'Pengelolaan Pendidikan dan Pelatihan Aparatur Perdagangan', 'WA'),
+('3709', 'Pelayanan Informasi Publik', 'WA'),
+('3710', 'Penanganan Isu Strategis Perdagangan Lintas Sektor', 'WA'),
+('3711', 'Penyelidikan Kasus Dumping Dan Subsidi', 'EE'),
+('3712', 'Peningkatan Penyelidikan Tindakan Pengamanan (Safeguard)', 'EE'),
+('3713', 'Penyelenggaraan Kantor Dagang Ekonomi Indonesia di Taiwan', 'WA'),
+('3714', 'Penyelenggaraan Atase Perdagangan', 'EE'),
+('3716', 'Peningkatan Penggunaan dan Pemasaran Produk Dalam Negeri', 'EF'),
+('3718', 'Peningkatan Sarana dan Prasarana Aparatur Kementerian Perdagangan', 'WA'),
+('3719', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen Perdagangan Dalam Negeri', 'WA'),
+('3720', 'Peningkatan Stabilitas Harga dan Pasokan Barang Kebutuhan Pokok dan Barang Penting', 'EF'),
+('3722', 'Pembinaan Pelaku Usaha Perdagangan', 'EF'),
+('3723', 'Penyelenggaraan Akademi Metrologi', 'WA'),
+('3724', 'Pengembangan Kebijakan dan Pemberdayaan Konsumen', 'EF'),
+('3725', 'Penguatan Lembaga Perlindungan Konsumen Nasional', 'EF'),
+('3726', 'Peningkatan Tertib Ukur', 'EF'),
+('3727', 'Peningkatan Efektivitas Pengawasan Barang Beredar dan Jasa', 'EF'),
+('3729', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen Perdagangan Luar Negeri', 'WA'),
+('3730', 'Pengelolaan Ekspor Produk Pertanian dan Kehutanan', 'EE'),
+('3731', 'Pengelolaan Ekspor Produk Industri dan Pertambangan', 'EE'),
+('3732', 'Peningkatan Pelayanan Pengujian Mutu Barang', 'EF'),
+('3733', 'Standardisasi dan Pengendalian Mutu', 'EF'),
+('3734', 'Peningkatan Pelayanan Kalibrasi', 'EF'),
+('3735', 'Peningkatan Pelayanan Sertifikasi', 'EF'),
+('3736', 'Pengelolaan Fasilitasi Ekspor dan Impor', 'EE'),
+('3737', 'Pengelolaan Impor', 'EE'),
+('3738', 'Peningkatan Peran dan Pemanfaatan Perundingan Perdagangan Internasional', 'EE'),
+('3739', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen Perundingan Perdagangan Internasional', 'WA'),
+('3740', 'Perundingan Perdagangan Jasa', 'EE'),
+('3741', 'Perundingan di Forum Organisasi Perdagangan Dunia', 'EE'),
+('3742', 'Perundingan Perdagangan ASEAN dan Mitra ASEAN', 'EE'),
+('3743', 'Perundingan Perdagangan Bilateral', 'EE'),
+('3744', 'Perundingan Perdagangan di Forum Antar Kawasan dan Organisasi Internasional', 'EE'),
+('3745', 'Peningkatan Pengamanan dan Perlindungan Akses Pasar', 'EE'),
+('3746', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Inspektorat Jenderal', 'WA'),
+('3747', 'Peningkatan Pengawasan Internal dan Akuntabilitas Aparatur Kementerian Perdagangan Wilayah I', 'WA'),
+('3748', 'Peningkatan Pengawasan Internal dan Akuntabilitas Aparatur Kementerian Perdagangan Wilayah II', 'WA'),
+('3749', 'Peningkatan Pengawasan Internal dan Akuntabilitas Aparatur Kementerian Perdagangan Wilayah III', 'WA'),
+('3750', 'Peningkatan Pengawasan Internal dan Akuntabilitas Aparatur Kementerian Perdagangan Wilayah IV', 'WA'),
+('3751', 'Peningkatan Kualitas Promosi dan Kelembagaan Ekspor', 'EE'),
+('3752', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen PEN', 'WA'),
+('3753', 'Pengembangan Pasar dan Informasi Ekspor', 'EE'),
+('3756', 'Pengembangan SDM Ekspor dan Jasa Perdagangan', 'EE'),
+('3758', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Badan Pengawas Perdagangan Berjangka Komoditi', 'WA'),
+('3759', 'Pengawasan Perdagangan Berjangka Komoditi, Sistem Resi Gudang, dan Pasar Lelang Komoditas', 'EF'),
+('3760', 'Pembinaan dan Pengembangan Sistem Resi Gudang Dan Pasar Lelang Komoditas', 'EF'),
+('3761', 'Peningkatan Pelayanan Hukum', 'EF'),
+('3762', 'Pembinaan dan Pengembangan Perdagangan Berjangka Komoditi', 'EF'),
+('3763', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Badan Kebijakan Perdagangan', 'WA'),
+('3777', 'Pengembangan Promosi Indonesia Trade Promotion Center (ITPC)', 'EE'),
+('3973', 'Layanan Advokasi Perdagangan', 'EE'),
+('3974', 'Pengembangan Perdagangan Dalam Negeri Daerah', 'EF'),
+('3977', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen Perlindungan Konsumen dan Tertib Niaga', 'WA'),
+('3992', 'Peningkatan Tertib Niaga', 'EF'),
+('5048', 'Pengembangan Sistem Informasi Perdagangan', 'WA'),
+('5090', 'Pengembangan Sarana Perdagangan dan Kapasitas Logistik', 'EF'),
+('6410', 'Dukungan Manajemen dan Pelaksanaan Tugas Teknis Lainnya Sekretariat Jenderal', 'WA'),
+('6900', 'Pengelolaan Jabatan Fungsional Perdagangan', 'WA'),
+('6901', 'Dukungan terhadap kebijakan perdagangan domestik', 'WA'),
+('6902', 'Dukungan terhadap kebijakan ekspor impor dan pengamanan perdagangan', 'WA'),
+('6903', 'Dukungan terhadap kebijakan perdagangan internasional', 'WA'),
+('6904', 'Pengembangan Ekspor Jasa dan Produk Kreatif', 'EE'),
+('6905', 'Pengembangan Ekspor Produk Primer', 'EE'),
+('6906', 'Pengembangan Ekspor Produk Manufaktur', 'EE'),
+('6907', 'Pengembangan Perdagangan Melalui Sistem Elektronik dan Perdagangan Jasa', 'EF');
+
+-- --------------------------------------------------------
+
+--
 -- Struktur dari tabel `migrations`
 --
 
@@ -253,6 +543,208 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Struktur dari tabel `old_satker`
+--
+
+CREATE TABLE `old_satker` (
+  `satkerID` varchar(8) NOT NULL,
+  `kode_unit_eselon1` varchar(50) DEFAULT NULL,
+  `nama_unit_eselon1` varchar(255) DEFAULT NULL,
+  `kode_unit_eselon2` varchar(50) DEFAULT NULL,
+  `nama_unit_eselon2` varchar(255) DEFAULT NULL,
+  `kode_satker` varchar(50) NOT NULL,
+  `nama_satker` varchar(255) NOT NULL,
+  `kode_program` varchar(50) DEFAULT NULL,
+  `nama_program` varchar(255) DEFAULT NULL,
+  `kode_kegiatan` varchar(50) DEFAULT NULL,
+  `nama_kegiatan` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data untuk tabel `old_satker`
+--
+
+INSERT INTO `old_satker` (`satkerID`, `kode_unit_eselon1`, `nama_unit_eselon1`, `kode_unit_eselon2`, `nama_unit_eselon2`, `kode_satker`, `nama_satker`, `kode_program`, `nama_program`, `kode_kegiatan`, `nama_kegiatan`, `created_at`, `updated_at`) VALUES
+('stk00001', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '352590', 'ATASE PERDAGANGAN DI HANOI (VIETNAM)', 'WA', 'Program Dukungan Manajemen', '6410', 'Dukungan Manajemen dan Pelaksanaan Tugas Teknis Lainnya Sekretariat Jenderal', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00002', '01', 'Sekretariat Jenderal', '01.22', 'Pusat Data dan Sistem Informasi', '403442', 'PUSAT DATA DAN SISTEM INFORMASI', 'WA', 'Program Dukungan Manajemen', '5048', 'Pengembangan Sistem Informasi Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00003', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412188', 'ATASE PERDAGANGAN DI BANGKOK (THAILAND)', 'WA', 'Program Dukungan Manajemen', '6410', 'Dukungan Manajemen dan Pelaksanaan Tugas Teknis Lainnya Sekretariat Jenderal', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00004', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412194', 'ATASE PERDAGANGAN DI KUALA LUMPUR (MALAYSIA)', 'WA', 'Program Dukungan Manajemen', '6410', 'Dukungan Manajemen dan Pelaksanaan Tugas Teknis Lainnya Sekretariat Jenderal', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00005', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412208', 'ATASE PERDAGANGAN DI BRUSSEL (BELGIA)', 'WA', 'Program Dukungan Manajemen', '6410', 'Dukungan Manajemen dan Pelaksanaan Tugas Teknis Lainnya Sekretariat Jenderal', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00006', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412214', 'ATASE PERDAGANGAN DI WASHINGTON DC (USA)', 'WA', 'Program Dukungan Manajemen', '6410', 'Dukungan Manajemen dan Pelaksanaan Tugas Teknis Lainnya Sekretariat Jenderal', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00007', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412220', 'ATASE PERDAGANGAN DI DEN HAAG (NEDERLAND)', 'WA', 'Program Dukungan Manajemen', '6410', 'Dukungan Manajemen dan Pelaksanaan Tugas Teknis Lainnya Sekretariat Jenderal', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00008', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412239', 'ATASE PERDAGANGAN DI LONDON (INGGRIS)', 'WA', 'Program Dukungan Manajemen', '6410', 'Dukungan Manajemen dan Pelaksanaan Tugas Teknis Lainnya Sekretariat Jenderal', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00009', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412245', 'ATASE PERDAGANGAN DI TOKYO (JEPANG)', 'WA', 'Program Dukungan Manajemen', '6410', 'Dukungan Manajemen dan Pelaksanaan Tugas Teknis Lainnya Sekretariat Jenderal', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00010', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412251', 'ATASE PERDAGANGAN DI CANBERRA (AUSTRALIA)', 'WA', 'Program Dukungan Manajemen', '6410', 'Dukungan Manajemen dan Pelaksanaan Tugas Teknis Lainnya Sekretariat Jenderal', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00011', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412260', 'ATASE PERDAGANGAN DI SINGAPURA (SINGAPURA)', 'WA', 'Program Dukungan Manajemen', '6410', 'Dukungan Manajemen dan Pelaksanaan Tugas Teknis Lainnya Sekretariat Jenderal', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00012', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412276', 'KONSUL PERDAGANGAN DI HONGKONG (HONGKONG)', 'WA', 'Program Dukungan Manajemen', '6410', 'Dukungan Manajemen dan Pelaksanaan Tugas Teknis Lainnya Sekretariat Jenderal', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00013', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412282', 'ATASE PERDAGANGAN DI MANILA (PHILIPINA)', 'WA', 'Program Dukungan Manajemen', '6410', 'Dukungan Manajemen dan Pelaksanaan Tugas Teknis Lainnya Sekretariat Jenderal', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00014', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412291', 'ATASE PERDAGANGAN DI CAIRO (MESIR)', 'WA', 'Program Dukungan Manajemen', '6410', 'Dukungan Manajemen dan Pelaksanaan Tugas Teknis Lainnya Sekretariat Jenderal', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00015', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412302', 'ATASE PERDAGANGAN DI MOSCOW (FEDERASI RUSIA)', 'WA', 'Program Dukungan Manajemen', '6410', 'Dukungan Manajemen dan Pelaksanaan Tugas Teknis Lainnya Sekretariat Jenderal', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00016', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412311', 'ATASE PERDAGANGAN PTRI DI JENEWA (SWISS)', 'WA', 'Program Dukungan Manajemen', '6410', 'Dukungan Manajemen dan Pelaksanaan Tugas Teknis Lainnya Sekretariat Jenderal', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00017', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412327', 'ATASE PERDAGANGAN DI SEOUL (KOREA SELATAN)', 'WA', 'Program Dukungan Manajemen', '6410', 'Dukungan Manajemen dan Pelaksanaan Tugas Teknis Lainnya Sekretariat Jenderal', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00018', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412333', 'ATASE PERDAGANGAN DI PARIS (PERANCIS)', 'WA', 'Program Dukungan Manajemen', '6410', 'Dukungan Manajemen dan Pelaksanaan Tugas Teknis Lainnya Sekretariat Jenderal', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00019', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412358', 'ATASE PERDAGANGAN DI BERLIN (JERMAN)', 'WA', 'Program Dukungan Manajemen', '6410', 'Dukungan Manajemen dan Pelaksanaan Tugas Teknis Lainnya Sekretariat Jenderal', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00020', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412364', 'ATASE PERDAGANGAN DI RIYADH (ARAB SAUDI)', 'WA', 'Program Dukungan Manajemen', '6410', 'Dukungan Manajemen dan Pelaksanaan Tugas Teknis Lainnya Sekretariat Jenderal', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00021', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412370', 'ATASE PERDAGANGAN DI NEW DELHI (INDIA)', 'WA', 'Program Dukungan Manajemen', '6410', 'Dukungan Manajemen dan Pelaksanaan Tugas Teknis Lainnya Sekretariat Jenderal', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00022', '01', 'Sekretariat Jenderal', '01.24', 'Pusat Pembinaan Jabatan Fungsional Perdagangan', '412389', 'PUSAT PEMBINAAN JABATAN FUNGSIONAL PERDAGANGAN', 'WA', 'Program Dukungan Manajemen', '6900', 'Pengelolaan Jabatan Fungsional Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00023', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412409', 'ATASE PERDAGANGAN DI ROMA (ITALY)', 'WA', 'Program Dukungan Manajemen', '6410', 'Dukungan Manajemen dan Pelaksanaan Tugas Teknis Lainnya Sekretariat Jenderal', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00024', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412415', 'ATASE PERDAGANGAN DI MADRID (SPANYOL)', 'WA', 'Program Dukungan Manajemen', '6410', 'Dukungan Manajemen dan Pelaksanaan Tugas Teknis Lainnya Sekretariat Jenderal', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00025', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412421', 'ATASE PERDAGANGAN DI OTTAWA (CANADA)', 'WA', 'Program Dukungan Manajemen', '6410', 'Dukungan Manajemen dan Pelaksanaan Tugas Teknis Lainnya Sekretariat Jenderal', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00026', '01', 'Sekretariat Jenderal', '01.03', 'Biro Keuangan', '423011', 'SEKRETARIAT JENDERAL KEMENTERIAN PERDAGANGAN', 'WA', 'Program Dukungan Manajemen', '6410', 'Dukungan Manajemen dan Pelaksanaan Tugas Teknis Lainnya Sekretariat Jenderal', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00027', '01', 'Sekretariat Jenderal', '01.23', 'Indonesian Trade Promotion Center (ITPC)', '423018', 'PUSAT PROMOSI PERDAGANGAN INDONESIA (ITPC)', 'EE', 'Program Perdagangan Luar Negeri', '3777', 'Pengembangan Promosi Indonesia Trade Promotion Center (ITPC)', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00028', '01', 'Sekretariat Jenderal', '01.23', 'Indonesian Trade Promotion Center (ITPC)', '423018', 'PUSAT PROMOSI PERDAGANGAN INDONESIA (ITPC)', 'WA', 'Program Dukungan Manajemen', '6410', 'Dukungan Manajemen dan Pelaksanaan Tugas Teknis Lainnya Sekretariat Jenderal', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00029', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '447003', 'ATASE PERDAGANGAN DI ANKARA (TURKI)', 'WA', 'Program Dukungan Manajemen', '6410', 'Dukungan Manajemen dan Pelaksanaan Tugas Teknis Lainnya Sekretariat Jenderal', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00030', '01', 'Sekretariat Jenderal', '01.16', 'Biro Advokasi Perdagangan', '447024', 'BIRO ADVOKASI PERDAGANGAN', 'EE', 'Program Perdagangan Luar Negeri', '3973', 'Layanan Advokasi Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00031', '01', 'Sekretariat Jenderal', '01.16', 'Biro Advokasi Perdagangan', '447024', 'BIRO ADVOKASI PERDAGANGAN', 'WA', 'Program Dukungan Manajemen', '6410', 'Dukungan Manajemen dan Pelaksanaan Tugas Teknis Lainnya Sekretariat Jenderal', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00032', '01', 'Sekretariat Jenderal', '01.17', 'Badan Perlindungan Konsumen Nasional', '447757', 'BADAN PERLINDUNGAN KONSUMEN NASIONAL', 'WA', 'Program Dukungan Manajemen', '6410', 'Dukungan Manajemen dan Pelaksanaan Tugas Teknis Lainnya Sekretariat Jenderal', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00033', '01', 'Sekretariat Jenderal', '01.25', 'Pusat Pelatihan Sumber Daya Manusia Ekspor Dan Jasa Perdagangan', '447776', 'BALAI PELATIHAN SUMBER DAYA MANUSIA METROLOGI, MUTU, DAN JASA PERDAGANGAN', 'WA', 'Program Dukungan Manajemen', '6410', 'Dukungan Manajemen dan Pelaksanaan Tugas Teknis Lainnya Sekretariat Jenderal', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00034', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '524472', 'INDONESIAN TRADE NEGOTIATOR /DUBES WTO DI JENEWA', 'WA', 'Program Dukungan Manajemen', '6410', 'Dukungan Manajemen dan Pelaksanaan Tugas Teknis Lainnya Sekretariat Jenderal', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00035', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '560202', 'ATASE PERDAGANGAN DI BEIJING', 'WA', 'Program Dukungan Manajemen', '6410', 'Dukungan Manajemen dan Pelaksanaan Tugas Teknis Lainnya Sekretariat Jenderal', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00036', '01', 'Sekretariat Jenderal', '01.25', 'Pusat Pelatihan Sumber Daya Manusia Ekspor Dan Jasa Perdagangan', '690008', 'PUSAT PELATIHAN SUMBER DAYA MANUSIA EKSPOR DAN JASA PERDAGANGAN', 'WA', 'Program Dukungan Manajemen', '6410', 'Dukungan Manajemen dan Pelaksanaan Tugas Teknis Lainnya Sekretariat Jenderal', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00037', '01', 'Sekretariat Jenderal', '01.01', 'Biro Perencanaan', '447353', 'BIRO PERENCANAAN', 'WA', 'Program Dukungan Manajemen', '3702', 'Peningkatan Pengelolaan Perencanaan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00038', '01', 'Sekretariat Jenderal', '01.02', 'Biro Organisasi dan Sumber Daya Manusia', '403441', 'BIRO ORGANISASI DAN SUMBER DAYA MANUSIA', 'WA', 'Program Dukungan Manajemen', '3703', 'Pengembangan Sumber Daya Manusia dan Organisasi', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00039', '01', 'Sekretariat Jenderal', '01.03', 'Biro Keuangan', '423011', 'SEKRETARIAT JENDERAL KEMENTERIAN PERDAGANGAN', 'WA', 'Program Dukungan Manajemen', '3704', 'Peningkatan Pengelolaan Keuangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00040', '01', 'Sekretariat Jenderal', '01.04', 'Biro Umum dan Layanan Pengadaan', '447362', 'BIRO UMUM DAN LAYANAN PENGADAAN', 'WA', 'Program Dukungan Manajemen', '3705', 'Pembinaan Administrasi dan Pelayanan Pelaksanaan Tugas Kementerian Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00041', '01', 'Sekretariat Jenderal', '01.04', 'Biro Umum dan Layanan Pengadaan', '447362', 'BIRO UMUM DAN LAYANAN PENGADAAN', 'WA', 'Program Dukungan Manajemen', '3718', 'Peningkatan Sarana dan Prasarana Aparatur Kementerian Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00042', '01', 'Sekretariat Jenderal', '01.05', 'Biro Hukum', '447022', 'BIRO HUKUM', 'WA', 'Program Dukungan Manajemen', '3706', 'Penyusunan Perangkat dan Pelayanan Hukum Bidang Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00043', '01', 'Sekretariat Jenderal', '01.06', 'Pusat Pendidikan dan Pelatihan Aparatur Perdagangan', '423027', 'PUSAT PENDIDIKAN DAN PELATIHAN APARATUR PERDAGANGAN', 'WA', 'Program Dukungan Manajemen', '3707', 'Pengelolaan Pendidikan dan Pelatihan Aparatur Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00044', '01', 'Sekretariat Jenderal', '01.25', 'Pusat Pelatihan Sumber Daya Manusia Ekspor dan Jasa Perdagangan', '447776', 'BALAI PELATIHAN SUMBER DAYA MANUSIA METROLOGI, MUTU, DAN JASA PERDAGANGAN', 'EE', 'Program Perdagangan Luar Negeri', '3756', ' Pengembangan SDM Ekspor dan Jasa Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00045', '01', 'Sekretariat Jenderal', '01.25', 'Pusat Pelatihan Sumber Daya Manusia Ekspor dan Jasa Perdagangan', '690008', 'PUSAT PELATIHAN SUMBER DAYA MANUSIA EKSPOR DAN JASA PERDAGANGAN', 'EE', 'Program Perdagangan Luar Negeri', '3756', ' Pengembangan SDM Ekspor dan Jasa Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00046', '01', 'Sekretariat Jenderal', '01.06', 'Pusat Pendidikan dan Pelatihan Aparatur Perdagangan', '690682', 'BALAI PELATIHAN APARATUR PERDAGANGAN PADANG', 'WA', 'Program Dukungan Manajemen', '3707', 'Pengelolaan Pendidikan dan Pelatihan Aparatur Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00047', '01', 'Sekretariat Jenderal', '01.06', 'Pusat Pendidikan dan Pelatihan Aparatur Perdagangan', '690683', 'BALAI PELATIHAN APARATUR PERDAGANGAN MAKASSAR', 'WA', 'Program Dukungan Manajemen', '3707', 'Pengelolaan Pendidikan dan Pelatihan Aparatur Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00048', '01', 'Sekretariat Jenderal', '01.06', 'Pusat Pendidikan dan Pelatihan Aparatur Perdagangan', '690684', 'BALAI PELATIHAN APARATUR PERDAGANGAN YOGYAKARTA', 'WA', 'Program Dukungan Manajemen', '3707', 'Pengelolaan Pendidikan dan Pelatihan Aparatur Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00049', '01', 'Sekretariat Jenderal', '01.06', 'Pusat Pendidikan dan Pelatihan Aparatur Perdagangan', '690685', 'BALAI PELATIHAN APARATUR METROLOGI DAN MUTU', 'WA', 'Program Dukungan Manajemen', '3707', 'Pengelolaan Pendidikan dan Pelatihan Aparatur Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00050', '01', 'Sekretariat Jenderal', '01.07', 'Pusat Pendidikan dan Pelatihan Aparatur Perdagangan / Akademi Metrologi (UPT)', '423005', 'AKADEMI METROLOGI DAN INSTRUMENTASI', 'WA', 'Program Dukungan Manajemen', '3723', 'Penyelenggaraan Akademi Metrologi', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00051', '01', 'Sekretariat Jenderal', '01.08', 'Biro Hubungan Masyarakat', '423012', 'BIRO HUBUNGAN MASYARAKAT', 'WA', 'Program Dukungan Manajemen', '3709', 'Pelayanan Informasi Publik', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00052', '01', 'Sekretariat Jenderal', '01.09', 'Pusat Penanganan Isu Strategis', '447023', 'PUSAT PENANGANAN ISU STRATEGIS', 'WA', 'Program Dukungan Manajemen', '3710', 'Penanganan Isu Strategis Perdagangan Lintas Sektor', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00053', '01', 'Sekretariat Jenderal', '01.10', 'Komite Anti-Dumping Indonesia', '423011', 'SEKRETARIAT JENDERAL KEMENTERIAN PERDAGANGAN', 'EE', 'Program Perdagangan Luar Negeri', '3711', 'Penyelidikan Kasus Dumping Dan Subsidi', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00054', '01', 'Sekretariat Jenderal', '01.11', 'Komite Pengamanan Perdagangan Indonesia', '423011', 'SEKRETARIAT JENDERAL KEMENTERIAN PERDAGANGAN', 'EE', 'Program Perdagangan Luar Negeri', '3712', 'Peningkatan Penyelidikan Tindakan Pengamanan (Safeguard)', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00055', '01', 'Sekretariat Jenderal', '01.12', 'Kantor Dagang Ekonomi Indonesia', '568263', 'KANTOR DAGANG DAN EKONOMI INDONESIA DI TAIPEI', 'WA', 'Program Dukungan Manajemen', '3713', 'Penyelenggaraan Kantor Dagang Ekonomi Indonesia di Taiwan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00056', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '352590', 'ATASE PERDAGANGAN DI HANOI (VIETNAM)', 'EE', 'Program Perdagangan Luar Negeri', '3714', 'Penyelenggaraan Atase Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00057', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412188', 'ATASE PERDAGANGAN DI BANGKOK (THAILAND)', 'EE', 'Program Perdagangan Luar Negeri', '3714', 'Penyelenggaraan Atase Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00058', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412194', 'ATASE PERDAGANGAN DI KUALA LUMPUR (MALAYSIA)', 'EE', 'Program Perdagangan Luar Negeri', '3714', 'Penyelenggaraan Atase Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00059', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412208', 'ATASE PERDAGANGAN DI BRUSSEL (BELGIA)', 'EE', 'Program Perdagangan Luar Negeri', '3714', 'Penyelenggaraan Atase Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00060', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412214', 'ATASE PERDAGANGAN DI WASHINGTON DC (USA)', 'EE', 'Program Perdagangan Luar Negeri', '3714', 'Penyelenggaraan Atase Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00061', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412220', 'ATASE PERDAGANGAN DI DEN HAAG (NEDERLAND)', 'EE', 'Program Perdagangan Luar Negeri', '3714', 'Penyelenggaraan Atase Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00062', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412239', 'ATASE PERDAGANGAN DI LONDON (INGGRIS)', 'EE', 'Program Perdagangan Luar Negeri', '3714', 'Penyelenggaraan Atase Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00063', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412245', 'ATASE PERDAGANGAN DI TOKYO (JEPANG)', 'EE', 'Program Perdagangan Luar Negeri', '3714', 'Penyelenggaraan Atase Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00064', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412251', 'ATASE PERDAGANGAN DI CANBERRA (AUSTRALIA)', 'EE', 'Program Perdagangan Luar Negeri', '3714', 'Penyelenggaraan Atase Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00065', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412260', 'ATASE PERDAGANGAN DI SINGAPURA (SINGAPURA)', 'EE', 'Program Perdagangan Luar Negeri', '3714', 'Penyelenggaraan Atase Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00066', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412276', 'KONSUL PERDAGANGAN DI HONGKONG (HONGKONG)', 'EE', 'Program Perdagangan Luar Negeri', '3714', 'Penyelenggaraan Atase Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00067', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412282', 'ATASE PERDAGANGAN DI MANILA (PHILIPINA)', 'EE', 'Program Perdagangan Luar Negeri', '3714', 'Penyelenggaraan Atase Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00068', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412291', 'ATASE PERDAGANGAN DI CAIRO (MESIR)', 'EE', 'Program Perdagangan Luar Negeri', '3714', 'Penyelenggaraan Atase Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00069', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412302', 'ATASE PERDAGANGAN DI MOSCOW (FEDERASI RUSIA)', 'EE', 'Program Perdagangan Luar Negeri', '3714', 'Penyelenggaraan Atase Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00070', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412311', 'ATASE PERDAGANGAN PTRI DI JENEWA (SWISS)', 'EE', 'Program Perdagangan Luar Negeri', '3714', 'Penyelenggaraan Atase Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00071', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412327', 'ATASE PERDAGANGAN DI SEOUL (KOREA SELATAN)', 'EE', 'Program Perdagangan Luar Negeri', '3714', 'Penyelenggaraan Atase Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00072', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412333', 'ATASE PERDAGANGAN DI PARIS (PERANCIS)', 'EE', 'Program Perdagangan Luar Negeri', '3714', 'Penyelenggaraan Atase Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00073', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412358', 'ATASE PERDAGANGAN DI BERLIN (JERMAN)', 'EE', 'Program Perdagangan Luar Negeri', '3714', 'Penyelenggaraan Atase Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00074', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412364', 'ATASE PERDAGANGAN DI RIYADH (ARAB SAUDI)', 'EE', 'Program Perdagangan Luar Negeri', '3714', 'Penyelenggaraan Atase Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00075', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412370', 'ATASE PERDAGANGAN DI NEW DELHI (INDIA)', 'EE', 'Program Perdagangan Luar Negeri', '3714', 'Penyelenggaraan Atase Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00076', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412409', 'ATASE PERDAGANGAN DI ROMA (ITALY)', 'EE', 'Program Perdagangan Luar Negeri', '3714', 'Penyelenggaraan Atase Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00077', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412415', 'ATASE PERDAGANGAN DI MADRID (SPANYOL)', 'EE', 'Program Perdagangan Luar Negeri', '3714', 'Penyelenggaraan Atase Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00078', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '412421', 'ATASE PERDAGANGAN DI OTTAWA (CANADA)', 'EE', 'Program Perdagangan Luar Negeri', '3714', 'Penyelenggaraan Atase Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00079', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '447003', 'ATASE PERDAGANGAN DI ANKARA (TURKI)', 'EE', 'Program Perdagangan Luar Negeri', '3714', 'Penyelenggaraan Atase Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00080', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '524472', 'INDONESIAN TRADE NEGOTIATOR /DUBES WTO DI JENEWA', 'EE', 'Program Perdagangan Luar Negeri', '3714', 'Penyelenggaraan Atase Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00081', '01', 'Sekretariat Jenderal', '01.13', 'Atase Perdagangan', '560202', 'ATASE PERDAGANGAN DI BEIJING', 'EE', 'Program Perdagangan Luar Negeri', '3714', 'Penyelenggaraan Atase Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00082', '01', 'Sekretariat Jenderal', '01.17', 'Badan Perlindungan Konsumen Nasional', '447757', 'BADAN PERLINDUNGAN KONSUMEN NASIONAL', 'EF', 'Program Perdagangan Dalam Negeri', '3725', 'Penguatan Lembaga Perlindungan Konsumen Nasional', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00083', '02', 'Direktorat Jenderal Perdagangan Dalam Negeri', '02.01', 'Sekretariat Direktorat Jenderal Perdagangan Dalam Negeri', '447718', 'SEKRETARIAT DITJEN PERDAGANGAN DALAM NEGERI', 'EF', 'Program Perdagangan Dalam Negeri', '3974', 'Pengembangan Perdagangan Dalam Negeri Daerah', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00084', '02', 'Direktorat Jenderal Perdagangan Dalam Negeri', '02.09', 'Direktorat Sarana Perdagangan dan Logistik', '447724', 'DIREKTORAT SARANA PERDAGANGAN DAN LOGISTIK', 'EF', 'Program Perdagangan Dalam Negeri', '5090', 'Pengembangan Sarana Perdagangan dan Kapasitas Logistik ', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00085', '02', 'Direktorat Jenderal Perdagangan Dalam Negeri', '02.10', 'Direktorat Perdagangan Melalui Sistem Elektronik dan Perdagangan Jasa', '690009', 'DIREKTORAT PERDAGANGAN MELALUI SISTEM ELEKTRONIK DAN PERDAGANGAN JASA', 'EF', 'Program Perdagangan Dalam Negeri', '6907', 'Pengembangan Perdagangan Melalui Sistem Elektronik dan Perdagangan Jasa', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00086', '02', 'Direktorat Jenderal Perdagangan Dalam Negeri', '02.02', 'Direktorat Barang Kebutuhan Pokok Dan Barang Penting', '412503', 'DIREKTORAT BARANG KEBUTUHAN POKOK DAN BARANG PENTING', 'WA', 'Program Dukungan Manajemen', '3719', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen Perdagangan Dalam Negeri', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00087', '02', 'Direktorat Jenderal Perdagangan Dalam Negeri', '02.08', 'Direktorat Penggunaan Dan Pemasaran Produk Dalam Negeri', '423033', 'DIREKTORAT PENGGUNAAN DAN PEMASARAN PRODUK DALAM NEGERI', 'WA', 'Program Dukungan Manajemen', '3719', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen Perdagangan Dalam Negeri', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00088', '02', 'Direktorat Jenderal Perdagangan Dalam Negeri', '02.01', 'Sekretariat Direktorat Jenderal Perdagangan Dalam Negeri', '447718', 'SEKRETARIAT DITJEN PERDAGANGAN DALAM NEGERI', 'WA', 'Program Dukungan Manajemen', '3719', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen Perdagangan Dalam Negeri', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00089', '02', 'Direktorat Jenderal Perdagangan Dalam Negeri', '02.09', 'Direktorat Sarana Perdagangan Dan Logistik', '447724', 'DIREKTORAT SARANA PERDAGANGAN DAN LOGISTIK', 'WA', 'Program Dukungan Manajemen', '3719', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen Perdagangan Dalam Negeri', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00090', '02', 'Direktorat Jenderal Perdagangan Dalam Negeri', '02.03', 'Direktorat Bina Usaha Perdagangan', '447749', 'DIREKTORAT BINA USAHA PERDAGANGAN', 'WA', 'Program Dukungan Manajemen', '3719', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen Perdagangan Dalam Negeri', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00091', '02', 'Direktorat Jenderal Perdagangan Dalam Negeri', '02.10', 'Direktorat Perdagangan Melalui Sistem Elektronik Dan Perdagangan Jasa', '690009', 'DIREKTORAT PERDAGANGAN MELALUI SISTEM ELEKTRONIK DAN PERDAGANGAN JASA', 'WA', 'Program Dukungan Manajemen', '3719', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen Perdagangan Dalam Negeri', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00092', '02', 'Direktorat Jenderal Perdagangan Dalam Negeri', '02.02', 'Direktorat Barang Kebutuhan Pokok dan Barang Penting', '412503', 'DIREKTORAT BARANG KEBUTUHAN POKOK DAN BARANG PENTING', 'EF', 'Program Perdagangan Dalam Negeri', '3720', 'Peningkatan Stabilitas Harga dan Pasokan Barang Kebutuhan Pokok dan Barang Penting', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00093', '02', 'Direktorat Jenderal Perdagangan Dalam Negeri', '02.03', 'Direktorat Bina Usaha Perdagangan', '447749', 'DIREKTORAT BINA USAHA PERDAGANGAN', 'EF', 'Program Perdagangan Dalam Negeri', '3722', 'Pembinaan Pelaku Usaha Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00094', '02', 'Direktorat Jenderal Perdagangan Dalam Negeri', '02.08', 'Direktorat Penggunaan dan Pemasaran Produk Dalam Negeri', '423033', 'DIREKTORAT PENGGUNAAN DAN PEMASARAN PRODUK DALAM NEGERI', 'EF', 'Program Perdagangan Dalam Negeri', '3716', 'Peningkatan Penggunaan dan Pemasaran Produk Dalam Negeri', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00095', '03', 'Direktorat Jenderal Perdagangan Luar Negeri', '03.01', 'Sekretariat Direktorat Jenderal Perdagangan Luar Negeri', '412477', 'SEKRETARIAT DIREKTORAT JENDERAL PERDAGANGAN LUAR NEGERI', 'WA', 'Program Dukungan Manajemen', '3729', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen Perdagangan Luar Negeri', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00096', '03', 'Direktorat Jenderal Perdagangan Luar Negeri', '03.02', 'Direktorat Ekspor Produk Pertanian Dan Kehutanan', '447378', 'DIREKTORAT EKSPOR PRODUK PERTANIAN DAN KEHUTANAN', 'WA', 'Program Dukungan Manajemen', '3729', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen Perdagangan Luar Negeri', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00097', '03', 'Direktorat Jenderal Perdagangan Luar Negeri', '03.03', 'Direktorat Ekspor Produk Industri Dan Pertambangan', '447384', 'DIREKTORAT EKSPOR PRODUK INDUSTRI DAN PERTAMBANGAN', 'WA', 'Program Dukungan Manajemen', '3729', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen Perdagangan Luar Negeri', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00098', '03', 'Direktorat Jenderal Perdagangan Luar Negeri', '03.09', 'Direktorat Impor', '447390', 'DIREKTORAT IMPOR', 'WA', 'Program Dukungan Manajemen', '3729', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen Perdagangan Luar Negeri', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00099', '03', 'Direktorat Jenderal Perdagangan Luar Negeri', '03.08', 'Direktorat Fasilitasi Ekspor Dan Impor', '447404', 'DIREKTORAT FASILITASI EKSPOR DAN IMPOR', 'WA', 'Program Dukungan Manajemen', '3729', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen Perdagangan Luar Negeri', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00100', '03', 'Direktorat Jenderal Perdagangan Luar Negeri', '03.10', 'Direktorat Pengamanan Perdagangan', '447567', 'DIREKTORAT PENGAMANAN PERDAGANGAN', 'WA', 'Program Dukungan Manajemen', '3729', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen Perdagangan Luar Negeri', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00101', '03', 'Direktorat Jenderal Perdagangan Luar Negeri', '03.02', 'Direktorat Ekspor Produk Pertanian dan Kehutanan', '447378', 'DIREKTORAT EKSPOR PRODUK PERTANIAN DAN KEHUTANAN', 'EE', 'Program Perdagangan Luar Negeri', '3730', 'Pengelolaan Ekspor Produk Pertanian dan Kehutanan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00102', '03', 'Direktorat Jenderal Perdagangan Luar Negeri', '03.03', 'Direktorat Ekspor Produk Industri dan Pertambangan', '447384', 'DIREKTORAT EKSPOR PRODUK INDUSTRI DAN PERTAMBANGAN', 'EE', 'Program Perdagangan Luar Negeri', '3731', 'Pengelolaan Ekspor Produk Industri dan Pertambangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00103', '03', 'Direktorat Jenderal Perdagangan Luar Negeri', '03.08', 'Direktorat Fasilitasi Ekspor dan Impor', '447404', 'DIREKTORAT FASILITASI EKSPOR DAN IMPOR', 'EE', 'Program Perdagangan Luar Negeri', '3736', 'Pengelolaan Fasilitasi Ekspor dan Impor', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00104', '03', 'Direktorat Jenderal Perdagangan Luar Negeri', '03.09', 'Direktorat Impor', '447390', 'DIREKTORAT IMPOR', 'EE', 'Program Perdagangan Luar Negeri', '3737', 'Pengelolaan Impor', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00105', '03', 'Direktorat Jenderal Perdagangan Luar Negeri', '03.10', 'Direktorat Pengamanan Perdagangan', '447567', 'DIREKTORAT PENGAMANAN PERDAGANGAN', 'EE', 'Program Perdagangan Luar Negeri', '3745', 'Peningkatan Pengamanan dan Perlindungan Akses Pasar', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00106', '04', 'Direktorat Jenderal Perundingan Perdagangan Internasional', '04.01', 'Sekretariat Direktorat Jenderal Perundingan Perdagangan Internasional', '561708', 'DIREKTORAT JENDERAL PERUNDINGAN PERDAGANGAN INTERNASIONAL', 'EE', 'Program Perdagangan Luar Negeri', '3738', 'Peningkatan Peran dan Pemanfaatan Perundingan Perdagangan Internasional', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00107', '04', 'Direktorat Jenderal Perundingan Perdagangan Internasional', '04.01', 'Sekretariat Direktorat Jenderal Perundingan Perdagangan Internasional', '561708', 'DIREKTORAT JENDERAL PERUNDINGAN PERDAGANGAN INTERNASIONAL', 'WA', 'Program Dukungan Manajemen', '3739', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen Perundingan Perdagangan Internasional', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00108', '04', 'Direktorat Jenderal Perundingan Perdagangan Internasional', '04.02', 'Direktorat Perundingan Organisasi Perdagangan Dunia', '561708', 'DIREKTORAT JENDERAL PERUNDINGAN PERDAGANGAN INTERNASIONAL', 'EE', 'Program Perdagangan Luar Negeri', '3741', 'Perundingan di Forum Organisasi Perdagangan Dunia', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00109', '04', 'Direktorat Jenderal Perundingan Perdagangan Internasional', '04.03', 'Direktorat Perundingan Asean', '561708', 'DIREKTORAT JENDERAL PERUNDINGAN PERDAGANGAN INTERNASIONAL', 'EE', 'Program Perdagangan Luar Negeri', '3742', 'Perundingan Perdagangan ASEAN dan Mitra ASEAN', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00110', '04', 'Direktorat Jenderal Perundingan Perdagangan Internasional', '04.04', 'Direktorat Perundingan Bilateral', '561708', 'DIREKTORAT JENDERAL PERUNDINGAN PERDAGANGAN INTERNASIONAL', 'EE', 'Program Perdagangan Luar Negeri', '3743', 'Perundingan Perdagangan Bilateral', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00111', '04', 'Direktorat Jenderal Perundingan Perdagangan Internasional', '04.05', 'Direktorat Perundingan Perdagangan Jasa', '561708', 'DIREKTORAT JENDERAL PERUNDINGAN PERDAGANGAN INTERNASIONAL', 'EE', 'Program Perdagangan Luar Negeri', '3740', 'Perundingan Perdagangan Jasa', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00112', '04', 'Direktorat Jenderal Perundingan Perdagangan Internasional', '04.06', 'Direktorat Perundingan Antar Kawasan dan Organisasi Internasional', '561708', 'DIREKTORAT JENDERAL PERUNDINGAN PERDAGANGAN INTERNASIONAL', 'EE', 'Program Perdagangan Luar Negeri', '3744', 'Perundingan Perdagangan di Forum Antar Kawasan dan Organisasi Internasional ', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00113', '05', 'Inspektorat Jenderal', '05.01', 'Sekretariat Inspektorat Jenderal', '423058', 'INSPEKTORAT JENDERAL KEMENTERIAN PERDAGANGAN', 'WA', 'Program Dukungan Manajemen', '3746', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Inspektorat Jenderal', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00114', '05', 'Inspektorat Jenderal', '05.02', 'Inspektorat I', '423058', 'INSPEKTORAT JENDERAL KEMENTERIAN PERDAGANGAN', 'WA', 'Program Dukungan Manajemen', '3747', 'Peningkatan Pengawasan Internal dan Akuntabilitas Aparatur Kementerian Perdagangan Wilayah I', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00115', '05', 'Inspektorat Jenderal', '05.03', 'Inspektorat II', '423058', 'INSPEKTORAT JENDERAL KEMENTERIAN PERDAGANGAN', 'WA', 'Program Dukungan Manajemen', '3748', 'Peningkatan Pengawasan Internal dan Akuntabilitas Aparatur Kementerian Perdagangan Wilayah II', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00116', '05', 'Inspektorat Jenderal', '05.04', 'Inspektorat III', '423058', 'INSPEKTORAT JENDERAL KEMENTERIAN PERDAGANGAN', 'WA', 'Program Dukungan Manajemen', '3749', 'Peningkatan Pengawasan Internal dan Akuntabilitas Aparatur Kementerian Perdagangan Wilayah III', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00117', '05', 'Inspektorat Jenderal', '05.05', 'Inspektorat IV', '423058', 'INSPEKTORAT JENDERAL KEMENTERIAN PERDAGANGAN', 'WA', 'Program Dukungan Manajemen', '3750', 'Peningkatan Pengawasan Internal dan Akuntabilitas Aparatur Kementerian Perdagangan Wilayah IV', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00118', '06', 'Direktorat Jenderal Pengembangan Ekspor Nasional', '06.08', 'Direktorat Pengembangan Ekspor Produk Primer', '447562', 'DIREKTORAT PENGEMBANGAN EKSPOR PRODUK PRIMER', 'EE', 'Program Perdagangan Luar Negeri', '6905', 'Pengembangan Ekspor Produk Primer', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00119', '06', 'Direktorat Jenderal Pengembangan Ekspor Nasional', '06.09', 'Direktorat Pengembangan Ekspor Produk Manufaktur', '690006', 'DIREKTORAT PENGEMBANGAN EKSPOR PRODUK MANUFAKTUR', 'EE', 'Program Perdagangan Luar Negeri', '6906', 'Pengembangan Ekspor Produk Manufaktur', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00120', '06', 'Direktorat Jenderal Pengembangan Ekspor Nasional', '06.07', 'Direktorat Pengembangan Ekspor Jasa dan Produk Kreatif ', '690007', 'DIREKTORAT PENGEMBANGAN EKSPOR JASA DAN PRODUK KREATIF', 'EE', 'Program Perdagangan Luar Negeri', '6904', 'Pengembangan Ekspor Jasa dan Produk Kreatif', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00121', '06', 'Direktorat Jenderal Pengembangan Ekspor Nasional', '06.01', 'Sekretariat Direktorat Jenderal Pengembangan Ekspor Nasional', '412483', 'SEKRETARIAT DIREKTORAT JENDERAL PENGEMBANGAN EKSPOR NASIONAL', 'EE', 'Program Perdagangan Luar Negeri', '3751', 'Peningkatan Kualitas Promosi dan Kelembagaan Ekspor', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00122', '06', 'Direktorat Jenderal Pengembangan Ekspor Nasional', '06.01', 'Sekretariat Direktorat Jenderal Pengembangan Ekspor Nasional', '412483', 'SEKRETARIAT DIREKTORAT JENDERAL PENGEMBANGAN EKSPOR NASIONAL', 'WA', 'Program Dukungan Manajemen', '3752', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen PEN', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00123', '06', 'Direktorat Jenderal Pengembangan Ekspor Nasional', '06.02', 'Direktorat Pengembangan Pasar Dan Informasi Ekspor', '447554', 'DIREKTORAT PENGEMBANGAN PASAR DAN INFORMASI EKSPOR', 'WA', 'Program Dukungan Manajemen', '3752', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen PEN', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00124', '06', 'Direktorat Jenderal Pengembangan Ekspor Nasional', '06.08', 'Direktorat Pengembangan Ekspor Produk Primer', '447562', 'DIREKTORAT PENGEMBANGAN EKSPOR PRODUK PRIMER', 'WA', 'Program Dukungan Manajemen', '3752', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen PEN', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00125', '06', 'Direktorat Jenderal Pengembangan Ekspor Nasional', '06.09', 'Direktorat Pengembangan Ekspor Produk Manufaktur', '690006', 'DIREKTORAT PENGEMBANGAN EKSPOR PRODUK MANUFAKTUR', 'WA', 'Program Dukungan Manajemen', '3752', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen PEN', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00126', '06', 'Direktorat Jenderal Pengembangan Ekspor Nasional', '06.07', 'Direktorat Pengembangan Ekspor Jasa Dan Produk Kreatif', '690007', 'DIREKTORAT PENGEMBANGAN EKSPOR JASA DAN PRODUK KREATIF', 'WA', 'Program Dukungan Manajemen', '3752', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen PEN', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00127', '06', 'Direktorat Jenderal Pengembangan Ekspor Nasional', '06.02', 'Direktorat Pengembangan Pasar dan Informasi Ekspor', '447554', 'DIREKTORAT PENGEMBANGAN PASAR DAN INFORMASI EKSPOR', 'EE', 'Program Perdagangan Luar Negeri', '3753', 'Pengembangan Pasar dan Informasi Ekspor', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00128', '07', 'Badan Pengawas Perdagangan Berjangka Komoditi', '07.05', 'Biro Pembinaan dan Pengembangan Perdagangan Berjangka Komoditi', '412492', 'BADAN PENGAWAS PERDAGANGAN BERJANGKA KOMODITI', 'EF', 'Program Perdagangan Dalam Negeri', '3762', 'Pembinaan dan Pengembangan Perdagangan Berjangka Komoditi', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00129', '07', 'Badan Pengawas Perdagangan Berjangka Komoditi', '07.01', 'Sekretariat Badan Pengawas Perdagangan Berjangka Komoditi', '412492', 'BADAN PENGAWAS PERDAGANGAN BERJANGKA KOMODITI', 'WA', 'Program Dukungan Manajemen', '3758', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Badan Pengawas Perdagangan Berjangka Komoditi', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00130', '07', 'Badan Pengawas Perdagangan Berjangka Komoditi', '07.02', 'Biro Pengawasan Perdagangan Berjangka Komoditi, Sistem Resi Gudang, dan Pasar Lelang Komoditas', '412492', 'BADAN PENGAWAS PERDAGANGAN BERJANGKA KOMODITI', 'EF', 'Program Perdagangan Dalam Negeri', '3759', 'Pengawasan Perdagangan Berjangka Komoditi, Sistem Resi Gudang, dan Pasar Lelang Komoditas', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00131', '07', 'Badan Pengawas Perdagangan Berjangka Komoditi', '07.03', 'Biro Pembinaan dan Pengembangan Sistem Resi Gudang dan Pasar Lelang Komoditas', '412492', 'BADAN PENGAWAS PERDAGANGAN BERJANGKA KOMODITI', 'EF', 'Program Perdagangan Dalam Negeri', '3760', 'Pembinaan dan Pengembangan Sistem Resi Gudang Dan Pasar Lelang Komoditas', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00132', '07', 'Badan Pengawas Perdagangan Berjangka Komoditi', '07.04', 'Biro Peraturan Perundang-Undangan dan Penindakan', '412492', 'BADAN PENGAWAS PERDAGANGAN BERJANGKA KOMODITI', 'EF', 'Program Perdagangan Dalam Negeri', '3761', 'Peningkatan Pelayanan Hukum', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00133', '08', 'Badan Kebijakan Perdagangan', '08.01', 'Sekretariat Badan Kebijakan Perdagangan', '423064', 'BADAN KEBIJAKAN PERDAGANGAN', 'WA', 'Program Dukungan Manajemen', '3763', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Badan Kebijakan Perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00134', '08', 'Badan Kebijakan Perdagangan', '08.02', 'Pusat Kebijakan Perdagangan Domestik', '423064', 'BADAN KEBIJAKAN PERDAGANGAN', 'WA', 'Program Dukungan Manajemen', '6901', 'Dukungan terhadap kebijakan perdagangan domestik', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00135', '08', 'Badan Kebijakan Perdagangan', '08.03', 'Pusat Kebijakan Ekspor Impor dan Pengamanan Perdagangan', '423064', 'BADAN KEBIJAKAN PERDAGANGAN', 'WA', 'Program Dukungan Manajemen', '6902', 'Dukungan terhadap kebijakan ekspor impor dan pengamanan perdagangan', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00136', '08', 'Badan Kebijakan Perdagangan', '08.04', 'Pusat Kebijakan Perdagangan Internasional', '423064', 'BADAN KEBIJAKAN PERDAGANGAN', 'WA', 'Program Dukungan Manajemen', '6903', 'Dukungan terhadap kebijakan perdagangan internasional', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00137', '09', 'Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '09.21', 'Direktorat Tertib Niaga', '403444', 'DIREKTORAT TERTIB NIAGA', 'EF', 'Program Perdagangan Dalam Negeri', '3992', 'Peningkatan Tertib Niaga', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00138', '09', 'Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '09.21', 'Direktorat Tertib Niaga', '403444', 'DIREKTORAT TERTIB NIAGA', 'WA', 'Program Dukungan Manajemen', '3977', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen Perlindungan Konsumen dan Tertib Niaga', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00139', '09', 'Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '09.04', 'Direktorat Metrologi', '412512', 'DIREKTORAT METROLOGI', 'WA', 'Program Dukungan Manajemen', '3977', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen Perlindungan Konsumen dan Tertib Niaga', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00140', '09', 'Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '09.21', 'Direktorat Tertib Niaga', '447005', 'BALAI PENGAWASAN TERTIB NIAGA MEDAN', 'EF', 'Program Perdagangan Dalam Negeri', '3992', 'Peningkatan Tertib Niaga', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00141', '09', 'Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '09.21', 'Direktorat Tertib Niaga', '447005', 'BALAI PENGAWASAN TERTIB NIAGA MEDAN', 'WA', 'Program Dukungan Manajemen', '3977', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen Perlindungan Konsumen dan Tertib Niaga', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00142', '09', 'Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '09.21', 'Direktorat Tertib Niaga', '447007', 'BALAI PENGAWASAN TERTIB NIAGA BEKASI', 'EF', 'Program Perdagangan Dalam Negeri', '3992', 'Peningkatan Tertib Niaga', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00143', '09', 'Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '09.21', 'Direktorat Tertib Niaga', '447007', 'BALAI PENGAWASAN TERTIB NIAGA BEKASI', 'WA', 'Program Dukungan Manajemen', '3977', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen Perlindungan Konsumen dan Tertib Niaga', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00144', '09', 'Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '09.04', 'Direktorat Metrologi', '447008', 'BALAI PENGUJIAN ALAT UKUR, ALAT TAKAR, ALAT TIMBANG, DAN ALAT PERLENGKAPAN', 'WA', 'Program Dukungan Manajemen', '3977', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen Perlindungan Konsumen dan Tertib Niaga', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00145', '09', 'Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '09.04', 'Direktorat Metrologi', '447010', 'BALAI PENGELOLAAN STANDAR UKURAN METROLOGI LEGAL', 'WA', 'Program Dukungan Manajemen', '3977', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen Perlindungan Konsumen dan Tertib Niaga', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00146', '09', 'Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '09.21', 'Direktorat Tertib Niaga', '447015', 'BALAI PENGAWASAN TERTIB NIAGA SURABAYA', 'EF', 'Program Perdagangan Dalam Negeri', '3992', 'Peningkatan Tertib Niaga', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00147', '09', 'Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '09.21', 'Direktorat Tertib Niaga', '447015', 'BALAI PENGAWASAN TERTIB NIAGA SURABAYA', 'WA', 'Program Dukungan Manajemen', '3977', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen Perlindungan Konsumen dan Tertib Niaga', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00148', '09', 'Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '09.21', 'Direktorat Tertib Niaga', '447017', 'BALAI PENGAWASAN TERTIB NIAGA MAKASSAR', 'EF', 'Program Perdagangan Dalam Negeri', '3992', 'Peningkatan Tertib Niaga', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00149', '09', 'Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '09.21', 'Direktorat Tertib Niaga', '447017', 'BALAI PENGAWASAN TERTIB NIAGA MAKASSAR', 'WA', 'Program Dukungan Manajemen', '3977', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen Perlindungan Konsumen dan Tertib Niaga', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00150', '09', 'Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '09.01', 'Sekretariat Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '447365', 'SEKRETARIAT DITJEN PERLINDUNGAN KONSUMEN DAN TERTIB NIAGA', 'WA', 'Program Dukungan Manajemen', '3977', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen Perlindungan Konsumen dan Tertib Niaga', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00151', '09', 'Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '09.05', 'Direktorat Pengawasan Barang Beredar Dan Jasa', '447730', 'DIREKTORAT PENGAWASAN BARANG BEREDAR DAN JASA', 'WA', 'Program Dukungan Manajemen', '3977', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen Perlindungan Konsumen dan Tertib Niaga', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00152', '09', 'Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '09.02', 'Direktorat Pemberdayaan Konsumen', '447755', 'DIREKTORAT PEMBERDAYAAN KONSUMEN', 'WA', 'Program Dukungan Manajemen', '3977', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen Perlindungan Konsumen dan Tertib Niaga', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00153', '09', 'Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '09.04', 'Direktorat Metrologi', '447761', 'BALAI STANDARDISASI METROLOGI LEGAL REGIONAL I', 'WA', 'Program Dukungan Manajemen', '3977', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen Perlindungan Konsumen dan Tertib Niaga', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00154', '09', 'Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '09.04', 'Direktorat Metrologi', '447770', 'BALAI STANDARDISASI METROLOGI LEGAL REGIONAL IV', 'WA', 'Program Dukungan Manajemen', '3977', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen Perlindungan Konsumen dan Tertib Niaga', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00155', '09', 'Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '09.04', 'Direktorat Metrologi', '447775', 'BALAI STANDARDISASI METROLOGI LEGAL REGIONAL II', 'WA', 'Program Dukungan Manajemen', '3977', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen Perlindungan Konsumen dan Tertib Niaga', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00156', '09', 'Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '09.04', 'Direktorat Metrologi', '447777', 'BALAI STANDARDISASI METROLOGI LEGAL REGIONAL III', 'WA', 'Program Dukungan Manajemen', '3977', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen Perlindungan Konsumen dan Tertib Niaga', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00157', '09', 'Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '09.20', 'Direktorat Standardisasi Dan Pengendalian Mutu', '448044', 'DIREKTORAT STANDARDISASI DAN PENGENDALIAN MUTU', 'WA', 'Program Dukungan Manajemen', '3977', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen Perlindungan Konsumen dan Tertib Niaga', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00158', '09', 'Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '09.20', 'Direktorat Standardisasi Dan Pengendalian Mutu', '647927', 'BALAI PENGUJIAN MUTU BARANG', 'WA', 'Program Dukungan Manajemen', '3977', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen Perlindungan Konsumen dan Tertib Niaga', '2026-08-09 17:02:34', '2026-08-09 17:02:34');
+INSERT INTO `old_satker` (`satkerID`, `kode_unit_eselon1`, `nama_unit_eselon1`, `kode_unit_eselon2`, `nama_unit_eselon2`, `kode_satker`, `nama_satker`, `kode_program`, `nama_program`, `kode_kegiatan`, `nama_kegiatan`, `created_at`, `updated_at`) VALUES
+('stk00159', '09', 'Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '09.20', 'Direktorat Standardisasi Dan Pengendalian Mutu', '647931', 'BALAI KALIBRASI', 'WA', 'Program Dukungan Manajemen', '3977', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen Perlindungan Konsumen dan Tertib Niaga', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00160', '09', 'Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '09.20', 'Direktorat Standardisasi Dan Pengendalian Mutu', '890563', 'BALAI SERTIFIKASI', 'WA', 'Program Dukungan Manajemen', '3977', 'Dukungan Manajemen dan Dukungan Teknis Lainnya Ditjen Perlindungan Konsumen dan Tertib Niaga', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00161', '09', 'Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '09.02', 'Direktorat Pemberdayaan Konsumen', '447755', 'DIREKTORAT PEMBERDAYAAN KONSUMEN', 'EF', 'Program Perdagangan Dalam Negeri', '3724', 'Pengembangan Kebijakan dan Pemberdayaan Konsumen', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00162', '09', 'Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '09.04', 'Direktorat Metrologi', '412512', 'DIREKTORAT METROLOGI', 'EF', 'Program Perdagangan Dalam Negeri', '3726', 'Peningkatan Tertib Ukur', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00163', '09', 'Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '09.04', 'Direktorat Metrologi', '447008', 'BALAI PENGUJIAN ALAT UKUR, ALAT TAKAR, ALAT TIMBANG, DAN ALAT PERLENGKAPAN', 'EF', 'Program Perdagangan Dalam Negeri', '3726', 'Peningkatan Tertib Ukur', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00164', '09', 'Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '09.04', 'Direktorat Metrologi', '447010', 'BALAI PENGELOLAAN STANDAR UKURAN METROLOGI LEGAL', 'EF', 'Program Perdagangan Dalam Negeri', '3726', 'Peningkatan Tertib Ukur', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00165', '09', 'Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '09.04', 'Direktorat Metrologi', '447761', 'BALAI STANDARDISASI METROLOGI LEGAL REGIONAL I', 'EF', 'Program Perdagangan Dalam Negeri', '3726', 'Peningkatan Tertib Ukur', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00166', '09', 'Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '09.04', 'Direktorat Metrologi', '447770', 'BALAI STANDARDISASI METROLOGI LEGAL REGIONAL IV', 'EF', 'Program Perdagangan Dalam Negeri', '3726', 'Peningkatan Tertib Ukur', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00167', '09', 'Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '09.04', 'Direktorat Metrologi', '447775', 'BALAI STANDARDISASI METROLOGI LEGAL REGIONAL II', 'EF', 'Program Perdagangan Dalam Negeri', '3726', 'Peningkatan Tertib Ukur', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00168', '09', 'Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '09.04', 'Direktorat Metrologi', '447777', 'BALAI STANDARDISASI METROLOGI LEGAL REGIONAL III', 'EF', 'Program Perdagangan Dalam Negeri', '3726', 'Peningkatan Tertib Ukur', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00169', '09', 'Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '09.05', 'Direktorat Pengawasan Barang Beredar dan Jasa', '447730', 'DIREKTORAT PENGAWASAN BARANG BEREDAR DAN JASA', 'EF', 'Program Perdagangan Dalam Negeri', '3727', 'Peningkatan Efektivitas Pengawasan Barang Beredar dan Jasa', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00170', '09', 'Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '09.20', 'Direktorat Standardisasi Dan Pengendalian Mutu', '647927', 'BALAI PENGUJIAN MUTU BARANG', 'EF', 'Program Perdagangan Dalam Negeri', '3732', 'Peningkatan Pelayanan Pengujian Mutu Barang', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00171', '09', 'Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '09.20', 'Direktorat Standardisasi Dan Pengendalian Mutu', '647931', 'BALAI KALIBRASI', 'EF', 'Program Perdagangan Dalam Negeri', '3734', 'Peningkatan Pelayanan Kalibrasi', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00172', '09', 'Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '09.20', 'Direktorat Standardisasi Dan Pengendalian Mutu', '890563', 'BALAI SERTIFIKASI', 'EF', 'Program Perdagangan Dalam Negeri', '3735', 'Peningkatan Pelayanan Sertifikasi', '2026-08-09 17:02:34', '2026-08-09 17:02:34'),
+('stk00173', '09', 'Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '09.20', 'Direktorat Standardisasi dan Pengendalian Mutu', '448044', 'DIREKTORAT STANDARDISASI DAN PENGENDALIAN MUTU', 'EF', 'Program Perdagangan Dalam Negeri', '3733', 'Standardisasi dan Pengendalian Mutu', '2026-08-09 17:02:34', '2026-08-09 17:02:34');
+
+-- --------------------------------------------------------
+
+--
 -- Struktur dari tabel `password_reset_tokens`
 --
 
@@ -261,6 +753,26 @@ CREATE TABLE `password_reset_tokens` (
   `token` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `program`
+--
+
+CREATE TABLE `program` (
+  `kode_program` varchar(50) NOT NULL,
+  `nama_program` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data untuk tabel `program`
+--
+
+INSERT INTO `program` (`kode_program`, `nama_program`) VALUES
+('EE', 'Program Perdagangan Luar Negeri'),
+('EF', 'Program Perdagangan Dalam Negeri'),
+('WA', 'Program Dukungan Manajemen');
 
 -- --------------------------------------------------------
 
@@ -46873,15 +47385,293 @@ INSERT INTO `roles` (`roleID`, `role_name`) VALUES
 --
 
 CREATE TABLE `satker` (
-  `satkerID` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `satker_code` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `satker_name` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `satker_type` varchar(80) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `status` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `unitID` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `kode_satker` varchar(50) NOT NULL,
+  `nama_satker` varchar(255) NOT NULL,
+  `kode_unit_eselon2` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data untuk tabel `satker`
+--
+
+INSERT INTO `satker` (`kode_satker`, `nama_satker`, `kode_unit_eselon2`) VALUES
+('352590', 'ATASE PERDAGANGAN DI HANOI (VIETNAM)', '01.13'),
+('403441', 'BIRO ORGANISASI DAN SUMBER DAYA MANUSIA', '01.02'),
+('403442', 'PUSAT DATA DAN SISTEM INFORMASI', '01.22'),
+('403444', 'DIREKTORAT TERTIB NIAGA', '09.21'),
+('412188', 'ATASE PERDAGANGAN DI BANGKOK (THAILAND)', '01.13'),
+('412194', 'ATASE PERDAGANGAN DI KUALA LUMPUR (MALAYSIA)', '01.13'),
+('412208', 'ATASE PERDAGANGAN DI BRUSSEL (BELGIA)', '01.13'),
+('412214', 'ATASE PERDAGANGAN DI WASHINGTON DC (USA)', '01.13'),
+('412220', 'ATASE PERDAGANGAN DI DEN HAAG (NEDERLAND)', '01.13'),
+('412239', 'ATASE PERDAGANGAN DI LONDON (INGGRIS)', '01.13'),
+('412245', 'ATASE PERDAGANGAN DI TOKYO (JEPANG)', '01.13'),
+('412251', 'ATASE PERDAGANGAN DI CANBERRA (AUSTRALIA)', '01.13'),
+('412260', 'ATASE PERDAGANGAN DI SINGAPURA (SINGAPURA)', '01.13'),
+('412276', 'KONSUL PERDAGANGAN DI HONGKONG (HONGKONG)', '01.13'),
+('412282', 'ATASE PERDAGANGAN DI MANILA (PHILIPINA)', '01.13'),
+('412291', 'ATASE PERDAGANGAN DI CAIRO (MESIR)', '01.13'),
+('412302', 'ATASE PERDAGANGAN DI MOSCOW (FEDERASI RUSIA)', '01.13'),
+('412311', 'ATASE PERDAGANGAN PTRI DI JENEWA (SWISS)', '01.13'),
+('412327', 'ATASE PERDAGANGAN DI SEOUL (KOREA SELATAN)', '01.13'),
+('412333', 'ATASE PERDAGANGAN DI PARIS (PERANCIS)', '01.13'),
+('412358', 'ATASE PERDAGANGAN DI BERLIN (JERMAN)', '01.13'),
+('412364', 'ATASE PERDAGANGAN DI RIYADH (ARAB SAUDI)', '01.13'),
+('412370', 'ATASE PERDAGANGAN DI NEW DELHI (INDIA)', '01.13'),
+('412389', 'PUSAT PEMBINAAN JABATAN FUNGSIONAL PERDAGANGAN', '01.24'),
+('412409', 'ATASE PERDAGANGAN DI ROMA (ITALY)', '01.13'),
+('412415', 'ATASE PERDAGANGAN DI MADRID (SPANYOL)', '01.13'),
+('412421', 'ATASE PERDAGANGAN DI OTTAWA (CANADA)', '01.13'),
+('412477', 'SEKRETARIAT DIREKTORAT JENDERAL PERDAGANGAN LUAR NEGERI', '03.01'),
+('412483', 'SEKRETARIAT DIREKTORAT JENDERAL PENGEMBANGAN EKSPOR NASIONAL', '06.01'),
+('412492', 'BADAN PENGAWAS PERDAGANGAN BERJANGKA KOMODITI', '07.01'),
+('412503', 'DIREKTORAT BARANG KEBUTUHAN POKOK DAN BARANG PENTING', '02.02'),
+('412512', 'DIREKTORAT METROLOGI', '09.04'),
+('423005', 'AKADEMI METROLOGI DAN INSTRUMENTASI', '01.07'),
+('423011', 'SEKRETARIAT JENDERAL KEMENTERIAN PERDAGANGAN', '01.03'),
+('423012', 'BIRO HUBUNGAN MASYARAKAT', '01.08'),
+('423018', 'PUSAT PROMOSI PERDAGANGAN INDONESIA (ITPC)', '01.23'),
+('423027', 'PUSAT PENDIDIKAN DAN PELATIHAN APARATUR PERDAGANGAN', '01.06'),
+('423033', 'DIREKTORAT PENGGUNAAN DAN PEMASARAN PRODUK DALAM NEGERI', '02.08'),
+('423058', 'INSPEKTORAT JENDERAL KEMENTERIAN PERDAGANGAN', '05.01'),
+('423064', 'BADAN KEBIJAKAN PERDAGANGAN', '08.01'),
+('447003', 'ATASE PERDAGANGAN DI ANKARA (TURKI)', '01.13'),
+('447005', 'BALAI PENGAWASAN TERTIB NIAGA MEDAN', '09.21'),
+('447007', 'BALAI PENGAWASAN TERTIB NIAGA BEKASI', '09.21'),
+('447008', 'BALAI PENGUJIAN ALAT UKUR, ALAT TAKAR, ALAT TIMBANG, DAN ALAT PERLENGKAPAN', '09.04'),
+('447010', 'BALAI PENGELOLAAN STANDAR UKURAN METROLOGI LEGAL', '09.04'),
+('447015', 'BALAI PENGAWASAN TERTIB NIAGA SURABAYA', '09.21'),
+('447017', 'BALAI PENGAWASAN TERTIB NIAGA MAKASSAR', '09.21'),
+('447022', 'BIRO HUKUM', '01.05'),
+('447023', 'PUSAT PENANGANAN ISU STRATEGIS', '01.09'),
+('447024', 'BIRO ADVOKASI PERDAGANGAN', '01.16'),
+('447353', 'BIRO PERENCANAAN', '01.01'),
+('447362', 'BIRO UMUM DAN LAYANAN PENGADAAN', '01.04'),
+('447365', 'SEKRETARIAT DITJEN PERLINDUNGAN KONSUMEN DAN TERTIB NIAGA', '09.01'),
+('447378', 'DIREKTORAT EKSPOR PRODUK PERTANIAN DAN KEHUTANAN', '03.02'),
+('447384', 'DIREKTORAT EKSPOR PRODUK INDUSTRI DAN PERTAMBANGAN', '03.03'),
+('447390', 'DIREKTORAT IMPOR', '03.09'),
+('447404', 'DIREKTORAT FASILITASI EKSPOR DAN IMPOR', '03.08'),
+('447554', 'DIREKTORAT PENGEMBANGAN PASAR DAN INFORMASI EKSPOR', '06.02'),
+('447562', 'DIREKTORAT PENGEMBANGAN EKSPOR PRODUK PRIMER', '06.08'),
+('447567', 'DIREKTORAT PENGAMANAN PERDAGANGAN', '03.10'),
+('447718', 'SEKRETARIAT DITJEN PERDAGANGAN DALAM NEGERI', '02.01'),
+('447724', 'DIREKTORAT SARANA PERDAGANGAN DAN LOGISTIK', '02.09'),
+('447730', 'DIREKTORAT PENGAWASAN BARANG BEREDAR DAN JASA', '09.05'),
+('447749', 'DIREKTORAT BINA USAHA PERDAGANGAN', '02.03'),
+('447755', 'DIREKTORAT PEMBERDAYAAN KONSUMEN', '09.02'),
+('447757', 'BADAN PERLINDUNGAN KONSUMEN NASIONAL', '01.17'),
+('447761', 'BALAI STANDARDISASI METROLOGI LEGAL REGIONAL I', '09.04'),
+('447770', 'BALAI STANDARDISASI METROLOGI LEGAL REGIONAL IV', '09.04'),
+('447775', 'BALAI STANDARDISASI METROLOGI LEGAL REGIONAL II', '09.04'),
+('447776', 'BALAI PELATIHAN SUMBER DAYA MANUSIA METROLOGI, MUTU, DAN JASA PERDAGANGAN', '01.25'),
+('447777', 'BALAI STANDARDISASI METROLOGI LEGAL REGIONAL III', '09.04'),
+('448044', 'DIREKTORAT STANDARDISASI DAN PENGENDALIAN MUTU', '09.20'),
+('524472', 'INDONESIAN TRADE NEGOTIATOR /DUBES WTO DI JENEWA', '01.13'),
+('560202', 'ATASE PERDAGANGAN DI BEIJING', '01.13'),
+('561708', 'DIREKTORAT JENDERAL PERUNDINGAN PERDAGANGAN INTERNASIONAL', '04.01'),
+('568263', 'KANTOR DAGANG DAN EKONOMI INDONESIA DI TAIPEI', '01.12'),
+('647927', 'BALAI PENGUJIAN MUTU BARANG', '09.20'),
+('647931', 'BALAI KALIBRASI', '09.20'),
+('690006', 'DIREKTORAT PENGEMBANGAN EKSPOR PRODUK MANUFAKTUR', '06.09'),
+('690007', 'DIREKTORAT PENGEMBANGAN EKSPOR JASA DAN PRODUK KREATIF', '06.07'),
+('690008', 'PUSAT PELATIHAN SUMBER DAYA MANUSIA EKSPOR DAN JASA PERDAGANGAN', '01.25'),
+('690009', 'DIREKTORAT PERDAGANGAN MELALUI SISTEM ELEKTRONIK DAN PERDAGANGAN JASA', '02.10'),
+('690682', 'BALAI PELATIHAN APARATUR PERDAGANGAN PADANG', '01.06'),
+('690683', 'BALAI PELATIHAN APARATUR PERDAGANGAN MAKASSAR', '01.06'),
+('690684', 'BALAI PELATIHAN APARATUR PERDAGANGAN YOGYAKARTA', '01.06'),
+('690685', 'BALAI PELATIHAN APARATUR METROLOGI DAN MUTU', '01.06'),
+('890563', 'BALAI SERTIFIKASI', '09.20');
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `satker_kegiatan`
+--
+
+CREATE TABLE `satker_kegiatan` (
+  `kode_satker` varchar(50) NOT NULL,
+  `kode_kegiatan` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data untuk tabel `satker_kegiatan`
+--
+
+INSERT INTO `satker_kegiatan` (`kode_satker`, `kode_kegiatan`) VALUES
+('447353', '3702'),
+('403441', '3703'),
+('423011', '3704'),
+('447362', '3705'),
+('447022', '3706'),
+('423027', '3707'),
+('690682', '3707'),
+('690683', '3707'),
+('690684', '3707'),
+('690685', '3707'),
+('423012', '3709'),
+('447023', '3710'),
+('423011', '3711'),
+('423011', '3712'),
+('568263', '3713'),
+('352590', '3714'),
+('412188', '3714'),
+('412194', '3714'),
+('412208', '3714'),
+('412214', '3714'),
+('412220', '3714'),
+('412239', '3714'),
+('412245', '3714'),
+('412251', '3714'),
+('412260', '3714'),
+('412276', '3714'),
+('412282', '3714'),
+('412291', '3714'),
+('412302', '3714'),
+('412311', '3714'),
+('412327', '3714'),
+('412333', '3714'),
+('412358', '3714'),
+('412364', '3714'),
+('412370', '3714'),
+('412409', '3714'),
+('412415', '3714'),
+('412421', '3714'),
+('447003', '3714'),
+('524472', '3714'),
+('560202', '3714'),
+('423033', '3716'),
+('447362', '3718'),
+('412503', '3719'),
+('423033', '3719'),
+('447718', '3719'),
+('447724', '3719'),
+('447749', '3719'),
+('690009', '3719'),
+('412503', '3720'),
+('447749', '3722'),
+('423005', '3723'),
+('447755', '3724'),
+('447757', '3725'),
+('412512', '3726'),
+('447008', '3726'),
+('447010', '3726'),
+('447761', '3726'),
+('447770', '3726'),
+('447775', '3726'),
+('447777', '3726'),
+('447730', '3727'),
+('412477', '3729'),
+('447378', '3729'),
+('447384', '3729'),
+('447390', '3729'),
+('447404', '3729'),
+('447567', '3729'),
+('447378', '3730'),
+('447384', '3731'),
+('647927', '3732'),
+('448044', '3733'),
+('647931', '3734'),
+('890563', '3735'),
+('447404', '3736'),
+('447390', '3737'),
+('561708', '3738'),
+('561708', '3739'),
+('561708', '3740'),
+('561708', '3741'),
+('561708', '3742'),
+('561708', '3743'),
+('561708', '3744'),
+('447567', '3745'),
+('423058', '3746'),
+('423058', '3747'),
+('423058', '3748'),
+('423058', '3749'),
+('423058', '3750'),
+('412483', '3751'),
+('412483', '3752'),
+('447554', '3752'),
+('447562', '3752'),
+('690006', '3752'),
+('690007', '3752'),
+('447554', '3753'),
+('447776', '3756'),
+('690008', '3756'),
+('412492', '3758'),
+('412492', '3759'),
+('412492', '3760'),
+('412492', '3761'),
+('412492', '3762'),
+('423064', '3763'),
+('423018', '3777'),
+('447024', '3973'),
+('447718', '3974'),
+('403444', '3977'),
+('412512', '3977'),
+('447005', '3977'),
+('447007', '3977'),
+('447008', '3977'),
+('447010', '3977'),
+('447015', '3977'),
+('447017', '3977'),
+('447365', '3977'),
+('447730', '3977'),
+('447755', '3977'),
+('447761', '3977'),
+('447770', '3977'),
+('447775', '3977'),
+('447777', '3977'),
+('448044', '3977'),
+('647927', '3977'),
+('647931', '3977'),
+('890563', '3977'),
+('403444', '3992'),
+('447005', '3992'),
+('447007', '3992'),
+('447015', '3992'),
+('447017', '3992'),
+('403442', '5048'),
+('447724', '5090'),
+('352590', '6410'),
+('412188', '6410'),
+('412194', '6410'),
+('412208', '6410'),
+('412214', '6410'),
+('412220', '6410'),
+('412239', '6410'),
+('412245', '6410'),
+('412251', '6410'),
+('412260', '6410'),
+('412276', '6410'),
+('412282', '6410'),
+('412291', '6410'),
+('412302', '6410'),
+('412311', '6410'),
+('412327', '6410'),
+('412333', '6410'),
+('412358', '6410'),
+('412364', '6410'),
+('412370', '6410'),
+('412409', '6410'),
+('412415', '6410'),
+('412421', '6410'),
+('423011', '6410'),
+('423018', '6410'),
+('447003', '6410'),
+('447024', '6410'),
+('447757', '6410'),
+('447776', '6410'),
+('524472', '6410'),
+('560202', '6410'),
+('690008', '6410'),
+('412389', '6900'),
+('423064', '6901'),
+('423064', '6902'),
+('423064', '6903'),
+('690007', '6904'),
+('447562', '6905'),
+('690006', '6906'),
+('690009', '6907');
 
 -- --------------------------------------------------------
 
@@ -46903,26 +47693,227 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('2cu9Y4dD2EwpDnKDB1DEC4XEqzIkv2lKMAz4CDvp', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0', 'YToxMDp7czo2OiJfdG9rZW4iO3M6NDA6InF0U3JhamhROWhwYnRrdk4xbFBXckNZYzNneWtRbk5NTGJmZDZ3T0giO3M6OToiX3ByZXZpb3VzIjthOjI6e3M6MzoidXJsIjtzOjQ4OiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvVXBsb2FkLURva3VtZW4vTWFzdGVyLURhdGEiO3M6NToicm91dGUiO3M6MTc6InVwbG9hZC5tYXN0ZXJkYXRhIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo3OiJ1c2VyX2lkIjtzOjg6InVzcjAwMDAxIjtzOjk6InVzZXJfbmFtZSI7czoxNToiTSBkaGltYXMgaGFmaXpoIjtzOjg6InVzZXJuYW1lIjtzOjY6IkRoaW1hcyI7czoxMDoiamFiYXRhbl9pZCI7czo4OiJqYnQwMDAxOSI7czo3OiJyb2xlX2lkIjtzOjg6InJvbGUwMDAyIjtzOjc6InVuaXRfaWQiO047czo5OiJzYXRrZXJfaWQiO047fQ==', 1785986359),
-('KwEjqnDY7LFCPWyHVKcikoqTxWC017WDJuA4Z957', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiZXBUNU84UUNDMk9sUlFVeFdHN0h1MWZDYW5KSlBpdGZlZjFySzJPVSI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7czo1OiJyb3V0ZSI7czo1OiJsb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1785979032),
-('Rxq7QE3kjjsX8fxh3YthKJtnD3iuIXsCKOf6bEpy', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiY2dhcUp6a21JRTlkMVNjRzNpZk9vQjlNUWRaaWoyYVJLUWdTMkdUOSI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7czo1OiJyb3V0ZSI7czo1OiJsb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1785986256),
-('x4V1WxP99ArKwmKPXNJpsJm4ky15s147WpRHuS9k', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0', 'YToxMDp7czo2OiJfdG9rZW4iO3M6NDA6Ikw2MlkzWmtObVB1WmVkdDJta3NEekh3cjNNTG1PRG9WdDM4TDZIaUUiO3M6OToiX3ByZXZpb3VzIjthOjI6e3M6MzoidXJsIjtzOjQ4OiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvVXBsb2FkLURva3VtZW4vTWFzdGVyLURhdGEiO3M6NToicm91dGUiO3M6MTc6InVwbG9hZC5tYXN0ZXJkYXRhIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo3OiJ1c2VyX2lkIjtzOjg6InVzcjAwMDAxIjtzOjk6InVzZXJfbmFtZSI7czoxNToiTSBkaGltYXMgaGFmaXpoIjtzOjg6InVzZXJuYW1lIjtzOjY6IkRoaW1hcyI7czoxMDoiamFiYXRhbl9pZCI7czo4OiJqYnQwMDAxOSI7czo3OiJyb2xlX2lkIjtzOjg6InJvbGUwMDAyIjtzOjc6InVuaXRfaWQiO047czo5OiJzYXRrZXJfaWQiO047fQ==', 1785979051);
+('2NOnax0d7QFwnkGCck0Kfr2ON0qJNtGzIB1mEm3T', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiNTc4OXdiUUxRc0FiM0QwR3gyVkF2S3BINlA2MTVQNkZWZnFSclpFaCI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7czo1OiJyb3V0ZSI7czo1OiJsb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1786498665),
+('MMznm3NCbBGkZ3xJRzlmzH0uTiOrT9dRmnwyyS6q', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiUXgyd3dUQ3Zwb0tBOE1nVFpLOExSdVR4RTIwaXI2emlaT0FQYkNjbCI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7czo1OiJyb3V0ZSI7czo1OiJsb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1786428583),
+('R3B4ghpkgDWvGaBmeBKd0NlwyYQPOWiKNiUWrTXr', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0', 'YToxMDp7czo2OiJfdG9rZW4iO3M6NDA6Im9OQ3B0MG9vdk5JYVpKWXVncWRnYmMyOU1aaFVVWkJ3eVJZS3Fwdk0iO3M6OToiX3ByZXZpb3VzIjthOjI6e3M6MzoidXJsIjtzOjQwOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvVXBsb2FkLURva3VtZW4vUktBIjtzOjU6InJvdXRlIjtzOjEwOiJ1cGxvYWQucmthIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo3OiJ1c2VyX2lkIjtzOjg6InVzcjAwMDAxIjtzOjk6InVzZXJfbmFtZSI7czoxNToiTSBkaGltYXMgaGFmaXpoIjtzOjg6InVzZXJuYW1lIjtzOjY6IkRoaW1hcyI7czoxMDoiamFiYXRhbl9pZCI7czo4OiJqYnQwMDAxOSI7czo3OiJyb2xlX2lkIjtzOjg6InJvbGUwMDAyIjtzOjc6InVuaXRfaWQiO047czo5OiJzYXRrZXJfaWQiO047fQ==', 1786428630),
+('tABCWyoJ0uvdybKbHQomOaL8YKBSGzHBLSkY4N2f', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:153.0) Gecko/20100101 Firefox/153.0', 'YToxMDp7czo2OiJfdG9rZW4iO3M6NDA6ImN2UWJtRExCaHp6N0pxQmJMekVMU3pyblZ2eFpINVpaNEJFTDNNN1oiO3M6OToiX3ByZXZpb3VzIjthOjI6e3M6MzoidXJsIjtzOjQwOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvVXBsb2FkLURva3VtZW4vUktBIjtzOjU6InJvdXRlIjtzOjEwOiJ1cGxvYWQucmthIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo3OiJ1c2VyX2lkIjtzOjg6InVzcjAwMDAxIjtzOjk6InVzZXJfbmFtZSI7czoxNToiTSBkaGltYXMgaGFmaXpoIjtzOjg6InVzZXJuYW1lIjtzOjY6IkRoaW1hcyI7czoxMDoiamFiYXRhbl9pZCI7czo4OiJqYnQwMDAxOSI7czo3OiJyb2xlX2lkIjtzOjg6InJvbGUwMDAyIjtzOjc6InVuaXRfaWQiO047czo5OiJzYXRrZXJfaWQiO047fQ==', 1786498721);
 
 -- --------------------------------------------------------
 
 --
--- Struktur dari tabel `unit`
+-- Struktur dari tabel `subkomponen`
 --
 
-CREATE TABLE `unit` (
-  `unitID` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `unit_code` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `unit_name` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `parentUnitID` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `status` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE `subkomponen` (
+  `kode_subkomponen` varchar(10) NOT NULL,
+  `nama_subkomponen` varchar(255) NOT NULL,
+  `deskripsi` text
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data untuk tabel `subkomponen`
+--
+
+INSERT INTO `subkomponen` (`kode_subkomponen`, `nama_subkomponen`, `deskripsi`) VALUES
+('A', 'Operasional Kantor', 'terdiri dari item : Belanja Bahan dan ATK (tidak menjadi persediaan), Keperluan Sehari-Hari Perkantoran, Makan dan Snack Rapat Biasa, Langganan Koran/Majalah/Surat Kabar, Pajak dan STNK Kendaraan Dinas, dll'),
+('B', 'Operasional Pimpinan', 'terdiri dari item : belanja perjalanan dinas pimpinan (setingkat Eselon II ke atas) dan keperluan operasional pimpinan lainnya'),
+('C', 'Jamuan Pertemuan Pimpinan', 'terdiri dari item : Makan dan Snack Rapat Pimpinan (kegiatan rapat yang dihadiri oleh Eselon I/Setara)'),
+('D', 'Honorarium Operasional Satuan Kerja', 'Terdiri dari : Honor tidak tetap yang digunakan untuk kegiatan yang terkait dengan operasional kegiatan satker seperti, honor pejabat KPA, honor PPK, honor pejabat penguji SPP dan penanda tangan SPM, Honor Bendahara Pengeluaran/Pemegang Uang Muka, Honor Staf Pengelola Keuangan, Honor Pengelola PNBP (honor atasan langsung, bendahara dan sekretariat), honor Tim SAI (Pengelola SAK dan SIMAK-BMN), Honor Pejabat Pengadaan Barang/Jasa, Honor Panitia Pengadaan Barang/Jasa, Honor Panitia Pemeriksa Penerima Barang/Jasa, untuk pengadaan yang tidak menghasilkan Aset Tetap/Aset Lainnya, termasuk juga vakasi.'),
+('E', 'Honorarium dan Dukungan Tenaga Kerja', 'terdiri dari item : Pengadaan Jasa Tenaga Alih Daya, Honorarium Tenaga Alih Daya/Pramubakti/Satpam/Pengemudi/Kesehatan/Tenaga Administrasi, Jaminan Kesehatan dan Jaminan Ketenagakerjaan, Lembur dan Uang Makan'),
+('F', 'Langganan Daya dan Jasa', 'terdiri dari item : belanja langganan daya dan jasa (pelanggan tetap)'),
+('G', 'Sewa Gedung dan Bangunan', 'terdiri dari item : belanja sewa gedung dan bangunan untuk satker yang berlokasi di dalam negeri maupun luar negeri'),
+('H', 'Sewa Kendaraan Operasional', 'terdiri dari item : belanja sewa kendaraan operasional'),
+('I', 'Sewa Peralatan dan Mesin', 'terdiri dari item : belanja sewa peralatan dan mesin keperluan perkantoran'),
+('J', 'Pemeliharaan dan Operasional Gedung dan Bangunan', 'terdiri dari item : belanja pemeliharaan dan operasional gedung dan bangunan'),
+('K', 'Pemeliharaan dan Operasional Kendaraan', 'terdiri dari item : belanja pemeliharaan dan operasional kendaraan'),
+('L', 'Pemeliharaan dan Operasional Peralatan dan Mesin', 'terdiri dari item : belanja pemeliharaan dan operasional peralatan dan mesin'),
+('M', 'Pengadaan Pakaian Dinas', 'terdiri dari item : belanja pakaian seragam dinas pegawai, termasuk pimpinan'),
+('N', 'Fasilitasi Mutasi Pejabat/Pegawai dan Bantuan Biaya Pendidikan Anak (BBPA) Perwakilan Perdagangan di Luar Negeri', 'terdiri dari item : belanja fasilitasi mutasi pejabat/pegawai dan bantuan biaya pendidikan anak'),
+('O', 'Fasilitasi Sewa Rumah', 'terdiri dari item : Sewa Rumah/Wisma Perwakilan Perdagangan di Luar Negeri'),
+('P', 'Penyelesaian Rugi Selisih Kurs', '-'),
+('Q', 'Dana Operasional Menteri', 'terdiri dari item : Dana Operasional Menteri'),
+('R', 'Dukungan Administrasi dan Akomodasi Menteri', 'terdiri dari item : Operasional Pendukung Khusus Menteri'),
+('S', 'Dana Operasional Wakil Menteri', 'terdiri dari item : Dana Operasional Wakil Menteri'),
+('T', 'Dukungan Administrasi dan Akomodasi Wakil Menteri', 'terdiri dari item : Operasional Pendukung Khusus Wakil Menteri'),
+('U', 'Dukungan Administrasi dan Akomodasi Staf Ahli/Staf Khusus', 'terdiri dari item : Operasional Pendukung Khusus Staf Ahli/Staf Khusus');
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `subkomponen_akun`
+--
+
+CREATE TABLE `subkomponen_akun` (
+  `kode_subkomponen` varchar(50) NOT NULL,
+  `kode_akun` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data untuk tabel `subkomponen_akun`
+--
+
+INSERT INTO `subkomponen_akun` (`kode_subkomponen`, `kode_akun`) VALUES
+('A', '521111'),
+('C', '521111'),
+('E', '521111'),
+('R', '521111'),
+('T', '521111'),
+('U', '521111'),
+('A', '521114'),
+('R', '521114'),
+('T', '521114'),
+('U', '521114'),
+('D', '521115'),
+('A', '521119'),
+('B', '521119'),
+('N', '521119'),
+('Q', '521119'),
+('R', '521119'),
+('S', '521119'),
+('T', '521119'),
+('U', '521119'),
+('P', '521214'),
+('A', '521811'),
+('R', '521811'),
+('T', '521811'),
+('U', '521811'),
+('F', '522111'),
+('F', '522112'),
+('F', '522113'),
+('F', '522119'),
+('M', '522119'),
+('B', '522141'),
+('G', '522141'),
+('H', '522141'),
+('I', '522141'),
+('R', '522141'),
+('T', '522141'),
+('U', '522141'),
+('O', '522142'),
+('J', '523111'),
+('J', '523119'),
+('K', '523121'),
+('L', '523121'),
+('L', '523125'),
+('A', '524111'),
+('B', '524111'),
+('R', '524111'),
+('T', '524111'),
+('U', '524111'),
+('R', '524113'),
+('T', '524113'),
+('U', '524113'),
+('B', '524211'),
+('N', '524211'),
+('R', '524211'),
+('T', '524211'),
+('U', '524211');
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `unit_eselon_1`
+--
+
+CREATE TABLE `unit_eselon_1` (
+  `kode_unit_eselon1` varchar(50) NOT NULL,
+  `nama_unit_eselon1` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data untuk tabel `unit_eselon_1`
+--
+
+INSERT INTO `unit_eselon_1` (`kode_unit_eselon1`, `nama_unit_eselon1`) VALUES
+('01', 'Sekretariat Jenderal'),
+('02', 'Direktorat Jenderal Perdagangan Dalam Negeri'),
+('03', 'Direktorat Jenderal Perdagangan Luar Negeri'),
+('04', 'Direktorat Jenderal Perundingan Perdagangan Internasional'),
+('05', 'Inspektorat Jenderal'),
+('06', 'Direktorat Jenderal Pengembangan Ekspor Nasional'),
+('07', 'Badan Pengawas Perdagangan Berjangka Komoditi'),
+('08', 'Badan Kebijakan Perdagangan'),
+('09', 'Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga');
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `unit_eselon_2`
+--
+
+CREATE TABLE `unit_eselon_2` (
+  `kode_unit_eselon2` varchar(50) NOT NULL,
+  `nama_unit_eselon2` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `kode_unit_eselon1` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data untuk tabel `unit_eselon_2`
+--
+
+INSERT INTO `unit_eselon_2` (`kode_unit_eselon2`, `nama_unit_eselon2`, `kode_unit_eselon1`) VALUES
+('01.01', 'Biro Perencanaan', '01'),
+('01.02', 'Biro Organisasi dan Sumber Daya Manusia', '01'),
+('01.03', 'Biro Keuangan', '01'),
+('01.04', 'Biro Umum dan Layanan Pengadaan', '01'),
+('01.05', 'Biro Hukum', '01'),
+('01.06', 'Pusat Pendidikan dan Pelatihan Aparatur Perdagangan', '01'),
+('01.07', 'Pusat Pendidikan dan Pelatihan Aparatur Perdagangan / Akademi Metrologi (UPT)', '01'),
+('01.08', 'Biro Hubungan Masyarakat', '01'),
+('01.09', 'Pusat Penanganan Isu Strategis', '01'),
+('01.10', 'Komite Anti-Dumping Indonesia', '01'),
+('01.11', 'Komite Pengamanan Perdagangan Indonesia', '01'),
+('01.12', 'Kantor Dagang Ekonomi Indonesia', '01'),
+('01.13', 'Atase Perdagangan', '01'),
+('01.16', 'Biro Advokasi Perdagangan', '01'),
+('01.17', 'Badan Perlindungan Konsumen Nasional', '01'),
+('01.22', 'Pusat Data dan Sistem Informasi', '01'),
+('01.23', 'Indonesian Trade Promotion Center (ITPC)', '01'),
+('01.24', 'Pusat Pembinaan Jabatan Fungsional Perdagangan', '01'),
+('01.25', 'Pusat Pelatihan Sumber Daya Manusia Ekspor dan Jasa Perdagangan', '01'),
+('02.01', 'Sekretariat Direktorat Jenderal Perdagangan Dalam Negeri', '02'),
+('02.02', 'Direktorat Barang Kebutuhan Pokok dan Barang Penting', '02'),
+('02.03', 'Direktorat Bina Usaha Perdagangan', '02'),
+('02.08', 'Direktorat Penggunaan dan Pemasaran Produk Dalam Negeri', '02'),
+('02.09', 'Direktorat Sarana Perdagangan dan Logistik', '02'),
+('02.10', 'Direktorat Perdagangan Melalui Sistem Elektronik dan Perdagangan Jasa', '02'),
+('03.01', 'Sekretariat Direktorat Jenderal Perdagangan Luar Negeri', '03'),
+('03.02', 'Direktorat Ekspor Produk Pertanian dan Kehutanan', '03'),
+('03.03', 'Direktorat Ekspor Produk Industri dan Pertambangan', '03'),
+('03.08', 'Direktorat Fasilitasi Ekspor dan Impor', '03'),
+('03.09', 'Direktorat Impor', '03'),
+('03.10', 'Direktorat Pengamanan Perdagangan', '03'),
+('04.01', 'Sekretariat Direktorat Jenderal Perundingan Perdagangan Internasional', '04'),
+('04.02', 'Direktorat Perundingan Organisasi Perdagangan Dunia', '04'),
+('04.03', 'Direktorat Perundingan Asean', '04'),
+('04.04', 'Direktorat Perundingan Bilateral', '04'),
+('04.05', 'Direktorat Perundingan Perdagangan Jasa', '04'),
+('04.06', 'Direktorat Perundingan Antar Kawasan dan Organisasi Internasional', '04'),
+('05.01', 'Sekretariat Inspektorat Jenderal', '05'),
+('05.02', 'Inspektorat I', '05'),
+('05.03', 'Inspektorat II', '05'),
+('05.04', 'Inspektorat III', '05'),
+('05.05', 'Inspektorat IV', '05'),
+('06.01', 'Sekretariat Direktorat Jenderal Pengembangan Ekspor Nasional', '06'),
+('06.02', 'Direktorat Pengembangan Pasar dan Informasi Ekspor', '06'),
+('06.07', 'Direktorat Pengembangan Ekspor Jasa dan Produk Kreatif', '06'),
+('06.08', 'Direktorat Pengembangan Ekspor Produk Primer', '06'),
+('06.09', 'Direktorat Pengembangan Ekspor Produk Manufaktur', '06'),
+('07.01', 'Sekretariat Badan Pengawas Perdagangan Berjangka Komoditi', '07'),
+('07.02', 'Biro Pengawasan Perdagangan Berjangka Komoditi, Sistem Resi Gudang, dan Pasar Lelang Komoditas', '07'),
+('07.03', 'Biro Pembinaan dan Pengembangan Sistem Resi Gudang dan Pasar Lelang Komoditas', '07'),
+('07.04', 'Biro Peraturan Perundang-Undangan dan Penindakan', '07'),
+('07.05', 'Biro Pembinaan dan Pengembangan Perdagangan Berjangka Komoditi', '07'),
+('08.01', 'Sekretariat Badan Kebijakan Perdagangan', '08'),
+('08.02', 'Pusat Kebijakan Perdagangan Domestik', '08'),
+('08.03', 'Pusat Kebijakan Ekspor Impor dan Pengamanan Perdagangan', '08'),
+('08.04', 'Pusat Kebijakan Perdagangan Internasional', '08'),
+('09.01', 'Sekretariat Direktorat Jenderal Perlindungan Konsumen dan Tertib Niaga', '09'),
+('09.02', 'Direktorat Pemberdayaan Konsumen', '09'),
+('09.04', 'Direktorat Metrologi', '09'),
+('09.05', 'Direktorat Pengawasan Barang Beredar dan Jasa', '09'),
+('09.20', 'Direktorat Standardisasi dan Pengendalian Mutu', '09'),
+('09.21', 'Direktorat Tertib Niaga', '09');
 
 -- --------------------------------------------------------
 
@@ -46946,17 +47937,15 @@ CREATE TABLE `users` (
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `deleted_at` timestamp NULL DEFAULT NULL,
   `roleID` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `jabatanID` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `unitID` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `satkerID` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL
+  `jabatanID` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data untuk tabel `users`
 --
 
-INSERT INTO `users` (`userID`, `username`, `password`, `name`, `nip`, `email`, `status`, `email_verified_at`, `last_login_at`, `is_data_confirmed`, `data_confirmed_at`, `created_at`, `updated_at`, `deleted_at`, `roleID`, `jabatanID`, `unitID`, `satkerID`) VALUES
-('usr00001', 'Dhimas', '$2y$12$vdNnlca88I7fsc2eyilqLu5jwzv/sD7vZ6tAxDHJg7DwuN1ktp/cO', 'M dhimas hafizh', '111111111111111111', 'dhmzz.hfzh@gmail.com', 'active', '2026-08-02 17:01:04', '2026-08-06 03:17:43', 1, '2026-08-02 17:00:37', '2026-08-02 16:57:58', '2026-08-06 03:17:43', NULL, 'role0002', 'jbt00019', NULL, NULL);
+INSERT INTO `users` (`userID`, `username`, `password`, `name`, `nip`, `email`, `status`, `email_verified_at`, `last_login_at`, `is_data_confirmed`, `data_confirmed_at`, `created_at`, `updated_at`, `deleted_at`, `roleID`, `jabatanID`) VALUES
+('usr00001', 'Dhimas', '$2y$12$vdNnlca88I7fsc2eyilqLu5jwzv/sD7vZ6tAxDHJg7DwuN1ktp/cO', 'M dhimas hafizh', '111111111111111111', 'dhmzz.hfzh@gmail.com', 'active', '2026-08-02 17:01:04', '2026-08-12 01:38:32', 1, '2026-08-02 17:00:37', '2026-08-02 16:57:58', '2026-08-12 01:38:32', NULL, 'role0002', 'jbt00019');
 
 -- --------------------------------------------------------
 
@@ -46991,6 +47980,12 @@ INSERT INTO `user_otps` (`otpID`, `userID`, `otp_hash`, `purpose`, `expired_at`,
 --
 
 --
+-- Indeks untuk tabel `akun`
+--
+ALTER TABLE `akun`
+  ADD PRIMARY KEY (`kode_akun`);
+
+--
 -- Indeks untuk tabel `cache`
 --
 ALTER TABLE `cache`
@@ -47003,6 +47998,13 @@ ALTER TABLE `cache`
 ALTER TABLE `cache_locks`
   ADD PRIMARY KEY (`key`),
   ADD KEY `cache_locks_expiration_index` (`expiration`);
+
+--
+-- Indeks untuk tabel `detail_belanja`
+--
+ALTER TABLE `detail_belanja`
+  ADD PRIMARY KEY (`id_detail_belanja`),
+  ADD KEY `idx_detail_subkomponen_akun` (`kode_subkomponen`,`kode_akun`);
 
 --
 -- Indeks untuk tabel `failed_jobs`
@@ -47037,16 +48039,35 @@ ALTER TABLE `job_batches`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indeks untuk tabel `kegiatan`
+--
+ALTER TABLE `kegiatan`
+  ADD PRIMARY KEY (`kode_kegiatan`),
+  ADD KEY `kode_program` (`kode_program`);
+
+--
 -- Indeks untuk tabel `migrations`
 --
 ALTER TABLE `migrations`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indeks untuk tabel `old_satker`
+--
+ALTER TABLE `old_satker`
+  ADD PRIMARY KEY (`satkerID`);
+
+--
 -- Indeks untuk tabel `password_reset_tokens`
 --
 ALTER TABLE `password_reset_tokens`
   ADD PRIMARY KEY (`email`);
+
+--
+-- Indeks untuk tabel `program`
+--
+ALTER TABLE `program`
+  ADD PRIMARY KEY (`kode_program`);
 
 --
 -- Indeks untuk tabel `renja`
@@ -47077,8 +48098,16 @@ ALTER TABLE `roles`
 -- Indeks untuk tabel `satker`
 --
 ALTER TABLE `satker`
-  ADD PRIMARY KEY (`satkerID`),
-  ADD KEY `unitID` (`unitID`);
+  ADD PRIMARY KEY (`kode_satker`),
+  ADD KEY `kode_unit_eselon2` (`kode_unit_eselon2`);
+
+--
+-- Indeks untuk tabel `satker_kegiatan`
+--
+ALTER TABLE `satker_kegiatan`
+  ADD PRIMARY KEY (`kode_satker`,`kode_kegiatan`),
+  ADD KEY `kode_satker` (`kode_satker`,`kode_kegiatan`),
+  ADD KEY `kode_kegiatan` (`kode_kegiatan`);
 
 --
 -- Indeks untuk tabel `sessions`
@@ -47089,10 +48118,31 @@ ALTER TABLE `sessions`
   ADD KEY `sessions_last_activity_index` (`last_activity`);
 
 --
--- Indeks untuk tabel `unit`
+-- Indeks untuk tabel `subkomponen`
 --
-ALTER TABLE `unit`
-  ADD PRIMARY KEY (`unitID`);
+ALTER TABLE `subkomponen`
+  ADD PRIMARY KEY (`kode_subkomponen`);
+
+--
+-- Indeks untuk tabel `subkomponen_akun`
+--
+ALTER TABLE `subkomponen_akun`
+  ADD PRIMARY KEY (`kode_subkomponen`,`kode_akun`),
+  ADD KEY `kode_subkomponen` (`kode_subkomponen`,`kode_akun`),
+  ADD KEY `kode_akun` (`kode_akun`);
+
+--
+-- Indeks untuk tabel `unit_eselon_1`
+--
+ALTER TABLE `unit_eselon_1`
+  ADD PRIMARY KEY (`kode_unit_eselon1`);
+
+--
+-- Indeks untuk tabel `unit_eselon_2`
+--
+ALTER TABLE `unit_eselon_2`
+  ADD PRIMARY KEY (`kode_unit_eselon2`),
+  ADD KEY `kode_unit_eselon1` (`kode_unit_eselon1`);
 
 --
 -- Indeks untuk tabel `users`
@@ -47100,10 +48150,8 @@ ALTER TABLE `unit`
 ALTER TABLE `users`
   ADD PRIMARY KEY (`userID`),
   ADD UNIQUE KEY `users_email_unique` (`password`),
-  ADD KEY `roleID` (`roleID`,`jabatanID`,`unitID`,`satkerID`),
-  ADD KEY `jabatanID` (`jabatanID`),
-  ADD KEY `unitID` (`unitID`),
-  ADD KEY `satkerID` (`satkerID`);
+  ADD KEY `roleID` (`roleID`,`jabatanID`),
+  ADD KEY `jabatanID` (`jabatanID`);
 
 --
 -- Indeks untuk tabel `user_otps`
@@ -47118,6 +48166,12 @@ ALTER TABLE `user_otps`
 --
 -- AUTO_INCREMENT untuk tabel yang dibuang
 --
+
+--
+-- AUTO_INCREMENT untuk tabel `detail_belanja`
+--
+ALTER TABLE `detail_belanja`
+  MODIFY `id_detail_belanja` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=145;
 
 --
 -- AUTO_INCREMENT untuk tabel `failed_jobs`
@@ -47142,6 +48196,18 @@ ALTER TABLE `migrations`
 --
 
 --
+-- Ketidakleluasaan untuk tabel `detail_belanja`
+--
+ALTER TABLE `detail_belanja`
+  ADD CONSTRAINT `fk_detail_subkomponen_akun` FOREIGN KEY (`kode_subkomponen`,`kode_akun`) REFERENCES `subkomponen_akun` (`kode_subkomponen`, `kode_akun`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Ketidakleluasaan untuk tabel `kegiatan`
+--
+ALTER TABLE `kegiatan`
+  ADD CONSTRAINT `kegiatan_ibfk_1` FOREIGN KEY (`kode_program`) REFERENCES `program` (`kode_program`);
+
+--
 -- Ketidakleluasaan untuk tabel `renja`
 --
 ALTER TABLE `renja`
@@ -47151,16 +48217,34 @@ ALTER TABLE `renja`
 -- Ketidakleluasaan untuk tabel `satker`
 --
 ALTER TABLE `satker`
-  ADD CONSTRAINT `satker_ibfk_1` FOREIGN KEY (`unitID`) REFERENCES `unit` (`unitID`);
+  ADD CONSTRAINT `satker_ibfk_1` FOREIGN KEY (`kode_unit_eselon2`) REFERENCES `unit_eselon_2` (`kode_unit_eselon2`);
+
+--
+-- Ketidakleluasaan untuk tabel `satker_kegiatan`
+--
+ALTER TABLE `satker_kegiatan`
+  ADD CONSTRAINT `satker_kegiatan_ibfk_1` FOREIGN KEY (`kode_satker`) REFERENCES `satker` (`kode_satker`),
+  ADD CONSTRAINT `satker_kegiatan_ibfk_2` FOREIGN KEY (`kode_kegiatan`) REFERENCES `kegiatan` (`kode_kegiatan`);
+
+--
+-- Ketidakleluasaan untuk tabel `subkomponen_akun`
+--
+ALTER TABLE `subkomponen_akun`
+  ADD CONSTRAINT `subkomponen_akun_ibfk_1` FOREIGN KEY (`kode_subkomponen`) REFERENCES `subkomponen` (`kode_subkomponen`),
+  ADD CONSTRAINT `subkomponen_akun_ibfk_2` FOREIGN KEY (`kode_akun`) REFERENCES `akun` (`kode_akun`);
+
+--
+-- Ketidakleluasaan untuk tabel `unit_eselon_2`
+--
+ALTER TABLE `unit_eselon_2`
+  ADD CONSTRAINT `unit_eselon_2_ibfk_1` FOREIGN KEY (`kode_unit_eselon1`) REFERENCES `unit_eselon_1` (`kode_unit_eselon1`);
 
 --
 -- Ketidakleluasaan untuk tabel `users`
 --
 ALTER TABLE `users`
   ADD CONSTRAINT `users_ibfk_1` FOREIGN KEY (`roleID`) REFERENCES `roles` (`roleID`),
-  ADD CONSTRAINT `users_ibfk_2` FOREIGN KEY (`jabatanID`) REFERENCES `jabatan` (`jabatanID`),
-  ADD CONSTRAINT `users_ibfk_3` FOREIGN KEY (`unitID`) REFERENCES `unit` (`unitID`),
-  ADD CONSTRAINT `users_ibfk_4` FOREIGN KEY (`satkerID`) REFERENCES `satker` (`satkerID`);
+  ADD CONSTRAINT `users_ibfk_2` FOREIGN KEY (`jabatanID`) REFERENCES `jabatan` (`jabatanID`);
 
 --
 -- Ketidakleluasaan untuk tabel `user_otps`

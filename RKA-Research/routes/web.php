@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\usersController;
 use App\Http\Controllers\masterDataController;
+use App\Http\Controllers\rkaController;
+use App\Http\Controllers\torrabController;
 
 
 Route::get('/', [usersController::class, 'ShowLogin'])->name('login');
@@ -87,3 +89,21 @@ Route::controller(MasterDataController::class)
         Route::get('/', 'ShowUploadMasterData')->name('upload.masterdata');
         Route::post('/Store', 'storeMasterData')->name('upload.masterdata.store');
     });
+
+Route::controller(rkaController::class)
+    ->prefix('Upload-Dokumen/RKA')
+    ->group(function () {
+        Route::get('/', 'ShowUploadRka')->name('upload.rka');
+        // Route::post('/Store', 'storeRka')->name('upload.rka.store');
+    });
+
+Route::controller(torrabController::class)
+    ->prefix('Upload-Dokumen/tor-rb')
+    ->group(function () {
+        Route::get('/', 'ShowUploadTorRab')->name('upload.torrab');
+        // Route::post('/Store', 'storeRka')->name('upload.rka.store');
+    });
+
+Route::get('/satker', [MasterDataController::class, 'ShowSatker']);
+
+Route::post('/satker-store', [MasterDataController::class, 'importDataSatker'])->name('upload.satker.store');
