@@ -161,9 +161,6 @@ class masterDataController extends Controller
         return 'doc' . str_pad($lastNumber + 1, 5, '0', STR_PAD_LEFT);
     }
 
-
-
-
     public function ShowSatker(){
         return view('menu.satker');
     }

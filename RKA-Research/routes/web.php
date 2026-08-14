@@ -94,7 +94,7 @@ Route::controller(rkaController::class)
     ->prefix('Upload-Dokumen/RKA')
     ->group(function () {
         Route::get('/', 'ShowUploadRka')->name('upload.rka');
-        // Route::post('/Store', 'storeRka')->name('upload.rka.store');
+        Route::post('/Store', 'storeRka')->name('upload.rka.store');
     });
 
 Route::controller(torrabController::class)

@@ -7,22 +7,19 @@
 
     <title>Upload RKA | Penelitian RKA-K/L</title>
 
-    <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-    >
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <style>
         :root {
             --primary: #0759b7;
-            --primary-light: #eef5ff;
+            --primary-light: #edf5ff;
             --primary-dark: #06498f;
             --success: #159957;
             --danger: #df4052;
             --text-primary: #18365b;
             --text-secondary: #607995;
             --text-muted: #91a4b9;
-            --background: #f3f6fa;
+            --background: #f4f7fb;
             --border: #dbe5ee;
             --white: #ffffff;
         }
@@ -99,7 +96,7 @@
             align-items: center;
             justify-content: center;
             border: 1px solid var(--border);
-            border-radius: 9px;
+            border-radius: 10px;
             color: var(--text-primary);
             background: #ffffff;
             font-size: 18px;
@@ -112,9 +109,9 @@
         .header-eyebrow {
             overflow: hidden;
             color: #879bb1;
-            font-size: 7.5px;
+            font-size: 10px;
             font-weight: 700;
-            letter-spacing: 0.8px;
+            letter-spacing: 0.9px;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
@@ -122,7 +119,7 @@
         .header-title {
             margin-top: 3px;
             color: var(--text-primary);
-            font-size: 14px;
+            font-size: 17px;
             font-weight: 800;
         }
 
@@ -136,7 +133,7 @@
         .header-user-text {
             text-align: right;
             color: var(--text-secondary);
-            font-size: 8.5px;
+            font-size: 11px;
             line-height: 1.4;
         }
 
@@ -145,7 +142,7 @@
             max-width: 200px;
             overflow: hidden;
             color: var(--text-primary);
-            font-size: 10px;
+            font-size: 12px;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
@@ -177,12 +174,12 @@
 
         .upload-card {
             width: 100%;
-            max-width: 780px;
+            max-width: 860px;
             margin: 0 auto;
             border: 1px solid var(--border);
-            border-radius: 14px;
+            border-radius: 16px;
             background: var(--white);
-            box-shadow: 0 8px 25px rgba(38, 68, 103, 0.07);
+            box-shadow: 0 14px 38px rgba(38, 68, 103, 0.08);
             overflow: hidden;
         }
 
@@ -190,13 +187,13 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 18px 21px;
+            padding: 22px 24px;
             border-bottom: 1px solid #e6ecf2;
         }
 
         .card-header-icon {
-            width: 35px;
-            height: 35px;
+            width: 42px;
+            height: 44px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -204,35 +201,36 @@
             border-radius: 10px;
             color: var(--primary);
             background: var(--primary-light);
-            font-size: 15px;
+            font-size: 19px;
         }
 
         .card-title {
-            font-size: 13px;
+            font-size: 18px;
             font-weight: 800;
         }
 
         .card-description {
             margin-top: 3px;
             color: var(--text-muted);
-            font-size: 8.5px;
+            font-size: 11px;
+            line-height: 1.5;
         }
 
         .upload-form {
-            padding: 22px;
+            padding: 24px;
         }
 
         /* UPLOAD */
 
         .upload-zone {
             position: relative;
-            min-height: 205px;
+            min-height: 220px;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 25px;
-            border: 2px dashed #6aa6ff;
-            border-radius: 12px;
+            padding: 30px;
+            border: 2px dashed #8ebcff;
+            border-radius: 14px;
             background: #f8fbff;
             text-align: center;
             cursor: pointer;
@@ -265,16 +263,16 @@
         }
 
         .upload-icon {
-            width: 50px;
-            height: 50px;
+            width: 58px;
+            height: 58px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 13px;
+            margin: 0 auto 15px;
             border-radius: 50%;
             color: #1967d2;
             background: #e1edff;
-            font-size: 20px;
+            font-size: 25px;
         }
 
         .upload-zone.has-file .upload-icon {
@@ -283,27 +281,28 @@
         }
 
         .upload-title {
-            font-size: 12px;
+            font-size: 15px;
             font-weight: 800;
         }
 
         .upload-description {
             margin-top: 5px;
             color: var(--text-muted);
-            font-size: 8.5px;
+            font-size: 11px;
+            line-height: 1.5;
         }
 
         .choose-file-button {
-            min-width: 105px;
-            height: 36px;
+            min-width: 124px;
+            height: 40px;
             margin-top: 13px;
             padding: 0 17px;
             border: 0;
-            border-radius: 9px;
+            border-radius: 10px;
             color: #ffffff;
             background: var(--primary);
             box-shadow: 0 5px 12px rgba(7, 89, 183, 0.2);
-            font-size: 9px;
+            font-size: 11px;
             font-weight: 700;
         }
 
@@ -316,10 +315,10 @@
             align-items: center;
             justify-content: space-between;
             gap: 12px;
-            margin-top: 14px;
-            padding: 10px 12px;
+            margin-top: 16px;
+            padding: 12px 14px;
             border: 1px solid #b9e4cc;
-            border-radius: 9px;
+            border-radius: 10px;
             color: #297347;
             background: #effaf4;
             text-align: left;
@@ -339,12 +338,12 @@
         .selected-file-info i {
             flex-shrink: 0;
             color: var(--success);
-            font-size: 16px;
+            font-size: 18px;
         }
 
         .selected-file-name {
             overflow: hidden;
-            font-size: 9px;
+            font-size: 11px;
             font-weight: 700;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -353,7 +352,7 @@
         .selected-file-size {
             margin-top: 2px;
             color: #6c8b79;
-            font-size: 7.5px;
+            font-size: 10px;
         }
 
         .remove-file-button {
@@ -375,8 +374,8 @@
             gap: 4px;
             margin-top: 10px;
             color: #8ca0b7;
-            font-size: 8px;
-            line-height: 1.5;
+            font-size: 10px;
+            line-height: 1.55;
         }
 
         .file-note::before {
@@ -389,7 +388,8 @@
             display: none;
             margin-top: 6px;
             color: var(--danger);
-            font-size: 8px;
+            font-size: 10px;
+            font-weight: 600;
         }
 
         .error-message.show {
@@ -407,7 +407,7 @@
         .form-grid {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 15px 18px;
+            gap: 18px 20px;
         }
 
         .form-group.full-width {
@@ -418,7 +418,7 @@
             display: block;
             margin-bottom: 7px;
             color: #344e6c;
-            font-size: 9px;
+            font-size: 11px;
             font-weight: 700;
         }
 
@@ -428,14 +428,14 @@
 
         .form-control {
             width: 100%;
-            height: 42px;
+            height: 44px;
             padding: 0 12px;
             border: 1px solid #d4dee8;
-            border-radius: 9px;
+            border-radius: 10px;
             outline: none;
             color: var(--text-primary);
             background: #ffffff;
-            font-size: 9px;
+            font-size: 11px;
             transition: 0.2s ease;
         }
 
@@ -478,6 +478,50 @@
             pointer-events: none;
         }
 
+        .upload-zone:focus-visible {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(7, 89, 183, 0.10);
+        }
+
+        .upload-zone.has-error .upload-icon {
+            color: var(--danger);
+            background: #ffe7ea;
+        }
+
+        .selected-file-info i {
+            color: var(--success);
+        }
+
+        select.form-control {
+            padding-right: 36px;
+            appearance: none;
+            background-image:
+                linear-gradient(45deg, transparent 50%, #8193a7 50%),
+                linear-gradient(135deg, #8193a7 50%, transparent 50%);
+            background-position:
+                calc(100% - 17px) 19px,
+                calc(100% - 12px) 19px;
+            background-size: 5px 5px, 5px 5px;
+            background-repeat: no-repeat;
+        }
+
+        select.form-control:disabled {
+            opacity: 1;
+            color: #8a9aac;
+            background-color: #f2f5f8;
+        }
+
+        .form-control.is-valid {
+            border-color: #a9d8bd;
+            box-shadow: 0 0 0 3px rgba(21, 153, 87, 0.05);
+        }
+
+        .form-control.is-invalid {
+            border-color: #ef9aa4;
+            box-shadow: 0 0 0 3px rgba(223, 64, 82, 0.05);
+        }
+
         /* STATUS */
 
         .status-list {
@@ -498,8 +542,8 @@
             border-radius: 20px;
             color: #98a8b8;
             background: #f7f9fb;
-            font-size: 7.5px;
-            font-weight: 600;
+            font-size: 9px;
+            font-weight: 700;
         }
 
         .status-chip::before {
@@ -529,19 +573,19 @@
         }
 
         .save-button {
-            min-width: 180px;
-            height: 41px;
+            min-width: 190px;
+            height: 44px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
             padding: 0 20px;
             border: 0;
-            border-radius: 9px;
+            border-radius: 10px;
             color: #ffffff;
             background: var(--primary);
             box-shadow: 0 6px 14px rgba(7, 89, 183, 0.2);
-            font-size: 9px;
+            font-size: 11px;
             font-weight: 700;
         }
 
@@ -583,7 +627,7 @@
 
         .toast-message i {
             color: var(--success);
-            font-size: 15px;
+            font-size: 19px;
         }
 
         /* FOOTER */
@@ -664,7 +708,16 @@
             }
 
             .upload-zone {
-                min-height: 185px;
+                min-height: 190px;
+                padding: 24px 18px;
+            }
+
+            .selected-file {
+                align-items: flex-start;
+            }
+
+            .selected-file-name {
+                max-width: 220px;
             }
 
             .save-button {
@@ -680,860 +733,560 @@
 
 <body>
 
-@php
-    $userName = data_get(
-        $user ?? null,
-        'name',
-        session('user_name', 'M Dhimas Hafizh')
-    );
+    @php
+        $userName = data_get($user ?? null, 'name', session('user_name', 'M Dhimas Hafizh'));
 
-    $jabatanName = data_get(
-        $user ?? null,
-        'jabatan.jabatan_name',
-        session('jabatan_name', 'Perencana Ahli Muda')
-    );
+        $jabatanName = data_get($user ?? null, 'jabatan.jabatan_name', session('jabatan_name', 'Perencana Ahli Muda'));
 
-    $initials = collect(explode(' ', $userName))
-        ->filter()
-        ->take(2)
-        ->map(fn ($word) => strtoupper(substr($word, 0, 1)))
-        ->implode('');
-@endphp
+        $initials = collect(explode(' ', $userName))
+            ->filter()
+            ->take(2)
+            ->map(fn($word) => strtoupper(substr($word, 0, 1)))
+            ->implode('');
+    @endphp
 
-<div class="app-shell">
+    <div class="app-shell">
 
-    @include('partials.sidebar', [
-        'activeMenu' => 'upload-rka',
-        'sidebarUserName' => $userName,
-        'sidebarUserRole' => $jabatanName,
-        'sidebarInitials' => $initials,
-    ])
+        @include('partials.sidebar', [
+            'activeMenu' => 'upload-rka',
+            'sidebarUserName' => $userName,
+            'sidebarUserRole' => $jabatanName,
+            'sidebarInitials' => $initials,
+        ])
 
-    <div class="app-main">
+        <div class="app-main">
 
-        <header class="dashboard-header">
+            <header class="dashboard-header">
 
-            <div class="header-left">
+                <div class="header-left">
 
-                <button
-                    type="button"
-                    class="sidebar-toggle"
-                    id="sidebarToggle"
-                    aria-label="Buka menu navigasi"
-                    aria-expanded="false"
-                >
-                    <i class="bi bi-list"></i>
-                </button>
+                    <button type="button" class="sidebar-toggle" id="sidebarToggle" aria-label="Buka menu navigasi"
+                        aria-expanded="false">
+                        <i class="bi bi-list"></i>
+                    </button>
 
-                <div class="header-copy">
-                    <div class="header-eyebrow">
-                        SISTEM INFORMASI PENELITIAN RKA-K/L
-                    </div>
+                    <div class="header-copy">
+                        <div class="header-eyebrow">
+                            SISTEM INFORMASI PENELITIAN RKA-K/L
+                        </div>
 
-                    <div class="header-title">
-                        Upload RKA
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="header-user">
-
-                <div class="header-user-text">
-                    Biro Perencanaan
-
-                    <strong>
-                        {{ $userName }}
-                    </strong>
-                </div>
-
-                <div class="header-avatar">
-                    {{ $initials ?: 'US' }}
-                </div>
-
-            </div>
-
-        </header>
-
-        <main class="page-container">
-
-            <section class="upload-card">
-
-                <div class="card-header">
-
-                    <div class="card-header-icon">
-                        <i class="bi bi-file-earmark-spreadsheet"></i>
-                    </div>
-
-                    <div>
-                        <h1 class="card-title">
-                            Upload Dokumen RKA
-                        </h1>
-
-                        <p class="card-description">
-                            Unggah dokumen RKA/Kertas Kerja Satker dalam format Excel.
-                        </p>
+                        <div class="header-title">
+                            Upload RKA
+                        </div>
                     </div>
 
                 </div>
 
-                <form
-                    id="uploadRkaForm"
-                    class="upload-form"
-                    action="#"
-                    method="POST"
-                    enctype="multipart/form-data"
-                    novalidate
-                >
-                    @csrf
+                <div class="header-user">
 
-                    <div
-                        class="upload-zone"
-                        id="rkaDropzone"
-                        tabindex="0"
-                        role="button"
-                    >
+                    <div class="header-user-text">
+                        Biro Perencanaan
 
-                        <input
-                            type="file"
-                            id="rkaFile"
-                            name="rka_file"
-                            class="file-input"
-                            accept=".xlsx,.xls"
-                        >
+                        <strong>
+                            {{ $userName }}
+                        </strong>
+                    </div>
+
+                    <div class="header-avatar">
+                        {{ $initials ?: 'US' }}
+                    </div>
+
+                </div>
+
+            </header>
+
+            <main class="page-container">
+
+                <section class="upload-card">
+
+                    <div class="card-header">
+
+                        <div class="card-header-icon">
+                            <i class="bi bi-file-earmark-excel-fill"></i>
+                        </div>
 
                         <div>
+                            <h1 class="card-title">
+                                Upload Dokumen RKA
+                            </h1>
 
-                            <div class="upload-icon">
-                                <i class="bi bi-file-earmark-spreadsheet"></i>
-                            </div>
-
-                            <h2 class="upload-title">
-                                Upload RKA / Kertas Kerja Satker
-                            </h2>
-
-                            <p class="upload-description">
-                                Seret dan lepaskan file di sini, atau
+                            <p class="card-description">
+                                Unggah dokumen RKA/Kertas Kerja Satker dalam format Excel (.xlsx atau .xls).
                             </p>
+                        </div>
 
-                            <button
-                                type="button"
-                                class="choose-file-button"
-                                id="chooseFileButton"
-                            >
-                                Pilih File
-                            </button>
+                    </div>
 
-                            <div
-                                class="selected-file"
-                                id="selectedFile"
-                            >
+                    <form id="uploadRkaForm" class="upload-form" action="{{ route('upload.rka.store') }}" method="POST"
+                        enctype="multipart/form-data" novalidate>
+                        @csrf
 
-                                <div class="selected-file-info">
+                        <div class="upload-zone" id="rkaDropzone" tabindex="0" role="button"
+                            aria-label="Pilih atau jatuhkan file Excel RKA">
 
+                            <input type="file" id="rkaFile" name="rka_file" class="file-input"
+                                accept=".xlsx,.xls" aria-describedby="fileNote fileError">
+
+                            <div>
+
+                                <div class="upload-icon">
                                     <i class="bi bi-file-earmark-excel-fill"></i>
+                                </div>
 
-                                    <div>
-                                        <div
-                                            class="selected-file-name"
-                                            id="selectedFileName"
-                                        ></div>
+                                <h2 class="upload-title">
+                                    Upload RKA / Kertas Kerja Satker
+                                </h2>
 
-                                        <div
-                                            class="selected-file-size"
-                                            id="selectedFileSize"
-                                        ></div>
+                                <p class="upload-description">
+                                    Seret dan lepaskan file di sini, atau
+                                </p>
+
+                                <button type="button" class="choose-file-button" id="chooseFileButton">
+                                    Pilih Excel
+                                </button>
+
+                                <div class="selected-file" id="selectedFile">
+
+                                    <div class="selected-file-info">
+
+                                        <i class="bi bi-file-earmark-excel-fill"></i>
+
+                                        <div>
+                                            <div class="selected-file-name" id="selectedFileName"></div>
+
+                                            <div class="selected-file-size" id="selectedFileSize"></div>
+                                        </div>
+
                                     </div>
+
+                                    <button type="button" class="remove-file-button" id="removeFileButton"
+                                        aria-label="Hapus file">
+                                        <i class="bi bi-x-lg"></i>
+                                    </button>
 
                                 </div>
 
-                                <button
-                                    type="button"
-                                    class="remove-file-button"
-                                    id="removeFileButton"
-                                    aria-label="Hapus file"
-                                >
-                                    <i class="bi bi-x-lg"></i>
-                                </button>
-
                             </div>
 
                         </div>
 
-                    </div>
+                        <p class="file-note" id="fileNote">
+                            File yang dapat diunggah hanya berformat Excel (.xlsx atau .xls).
+                        </p>
 
-                    <p class="file-note">
-                        File hanya dapat menggunakan format Excel
-                        (.xlsx atau .xls).
-                    </p>
+                        <div class="error-message" id="fileError">
+                            File harus berformat Excel (.xlsx atau .xls).
+                        </div>
 
-                    <div
-                        class="error-message"
-                        id="fileError"
-                    >
-                        File harus menggunakan format Excel (.xlsx atau .xls).
-                    </div>
+                        <div class="form-divider"></div>
 
-                    <div class="form-divider"></div>
+                        <div class="form-grid">
 
-                    <div class="form-grid">
+                            <div class="form-group full-width">
 
-                        <div class="form-group full-width">
+                                <label for="rkaName" class="form-label">
+                                    Nama File RKA
+                                    <span class="required">*</span>
+                                </label>
 
-                            <label
-                                for="rkaName"
-                                class="form-label"
-                            >
+                                <input type="text" id="rkaName" name="rka_name" class="form-control"
+                                    placeholder="Masukkan nama file RKA" maxlength="150" autocomplete="off">
+
+                                <div class="error-message" id="rkaNameError">
+                                    Nama file RKA wajib diisi.
+                                </div>
+
+                            </div>
+
+                            <div class="form-group">
+                                <label for="eselon1" class="form-label">
+                                    Unit Eselon 1 <span class="required">*</span>
+                                </label>
+                                <select id="eselon1" name="kode_unit_eselon1" class="form-control">
+                                    <option value="">-- Pilih Unit Eselon 1 --</option>
+                                    @foreach ($unitEselon1 as $e1)
+                                        <option value="{{ $e1->kode_unit_eselon1 }}"
+                                            {{ old('kode_unit_eselon1') == $e1->kode_unit_eselon1 ? 'selected' : '' }}>
+                                            {{ $e1->kode_unit_eselon1 }} - {{ $e1->nama_unit_eselon1 }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <div class="error-message" id="eselon1Error">
+                                    Unit Eselon 1 wajib dipilih.
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="eselon2" class="form-label">
+                                    Unit Eselon 2 <span class="required">*</span>
+                                </label>
+                                <select id="eselon2" name="kode_unit_eselon2" class="form-control" disabled>
+                                    <option value="">-- Pilih Unit Eselon 1 Terlebih Dahulu --</option>
+                                </select>
+                                <div class="error-message" id="eselon2Error">
+                                    Unit Eselon 2 wajib dipilih.
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="satker" class="form-label">
+                                    Satker <span class="required">*</span>
+                                </label>
+                                <select id="satker" name="kode_satker" class="form-control" disabled>
+                                    <option value="">-- Pilih Unit Eselon 2 Terlebih Dahulu --</option>
+                                </select>
+                                <div class="error-message" id="satkerError">
+                                    Satker wajib dipilih.
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="status-list">
+
+                            <span class="status-chip" id="fileStatus">
+                                File RKA
+                            </span>
+
+                            <span class="status-chip" id="nameStatus">
                                 Nama File RKA
-                                <span class="required">*</span>
-                            </label>
+                            </span>
 
-                            <input
-                                type="text"
-                                id="rkaName"
-                                name="rka_name"
-                                class="form-control"
-                                placeholder="Masukkan nama file RKA"
-                                maxlength="150"
-                                autocomplete="off"
-                            >
-
-                            <div
-                                class="error-message"
-                                id="rkaNameError"
-                            >
-                                Nama file RKA wajib diisi.
-                            </div>
-
-                        </div>
-
-                        <div class="form-group">
-
-                            <label
-                                for="unitEselon1"
-                                class="form-label"
-                            >
+                            <span class="status-chip" id="eselon1Status">
                                 Unit Eselon 1
-                                <span class="required">*</span>
-                            </label>
+                            </span>
 
-                            <div class="select-wrapper">
-
-                                <select
-                                    id="unitEselon1"
-                                    name="unit_eselon_1"
-                                    class="form-control"
-                                >
-                                    <option value="">
-                                        -- Pilih Unit Eselon 1 --
-                                    </option>
-                                </select>
-
-                                <i class="bi bi-chevron-down"></i>
-
-                            </div>
-
-                        </div>
-
-                        <div class="form-group">
-
-                            <label
-                                for="kodeUnitEselon1"
-                                class="form-label"
-                            >
-                                Kode Unit Eselon 1
-                            </label>
-
-                            <input
-                                type="text"
-                                id="kodeUnitEselon1"
-                                class="form-control"
-                                placeholder="Otomatis terisi"
-                                readonly
-                            >
-
-                        </div>
-
-                        <div class="form-group">
-
-                            <label
-                                for="unitEselon2"
-                                class="form-label"
-                            >
+                            <span class="status-chip" id="eselon2Status">
                                 Unit Eselon 2
-                                <span class="required">*</span>
-                            </label>
+                            </span>
 
-                            <div class="select-wrapper">
-
-                                <select
-                                    id="unitEselon2"
-                                    name="unit_eselon_2"
-                                    class="form-control"
-                                    disabled
-                                >
-                                    <option value="">
-                                        -- Pilih Unit Eselon 2 --
-                                    </option>
-                                </select>
-
-                                <i class="bi bi-chevron-down"></i>
-
-                            </div>
-
-                        </div>
-
-                        <div class="form-group">
-
-                            <label
-                                for="kodeUnitEselon2"
-                                class="form-label"
-                            >
-                                Kode Unit Eselon 2
-                            </label>
-
-                            <input
-                                type="text"
-                                id="kodeUnitEselon2"
-                                class="form-control"
-                                placeholder="Otomatis terisi"
-                                readonly
-                            >
-
-                        </div>
-
-                        <div class="form-group">
-
-                            <label
-                                for="satuanKerja"
-                                class="form-label"
-                            >
+                            <span class="status-chip" id="satkerStatus">
                                 Satuan Kerja
-                                <span class="required">*</span>
-                            </label>
-
-                            <div class="select-wrapper">
-
-                                <select
-                                    id="satuanKerja"
-                                    name="satker"
-                                    class="form-control"
-                                    disabled
-                                >
-                                    <option value="">
-                                        -- Pilih Satuan Kerja --
-                                    </option>
-                                </select>
-
-                                <i class="bi bi-chevron-down"></i>
-
-                            </div>
+                            </span>
 
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-actions">
 
-                            <label
-                                for="kodeSatker"
-                                class="form-label"
-                            >
-                                Kode Satker
-                            </label>
-
-                            <input
-                                type="text"
-                                id="kodeSatker"
-                                class="form-control"
-                                placeholder="Otomatis terisi"
-                                readonly
-                            >
+                            <button type="submit" class="save-button" id="saveButton" disabled>
+                                <i class="bi bi-floppy"></i>
+                                Simpan Dokumen RKA
+                            </button>
 
                         </div>
 
-                    </div>
+                    </form>
 
-                    <div class="status-list">
+                </section>
 
-                        <span class="status-chip" id="fileStatus">
-                            File RKA
-                        </span>
+            </main>
 
-                        <span class="status-chip" id="nameStatus">
-                            Nama File RKA
-                        </span>
+            <footer class="footer">
 
-                        <span class="status-chip" id="eselon1Status">
-                            Unit Eselon 1
-                        </span>
+                <div class="footer-container">
 
-                        <span class="status-chip" id="eselon2Status">
-                            Unit Eselon 2
-                        </span>
+                    <div class="footer-brand">
 
-                        <span class="status-chip" id="satkerStatus">
-                            Satuan Kerja
-                        </span>
+                        <strong>
+                            Kementerian Perdagangan Republik Indonesia
+                        </strong>
+
+                        © 2026 Biro Perencanaan. Seluruh Hak Cipta Dilindungi.
 
                     </div>
-
-                    <div class="form-actions">
-
-                        <button
-                            type="submit"
-                            class="save-button"
-                            id="saveButton"
-                            disabled
-                        >
-                            <i class="bi bi-floppy"></i>
-                            Simpan Dokumen RKA
-                        </button>
-
-                    </div>
-
-                </form>
-
-            </section>
-
-        </main>
-
-        <footer class="footer">
-
-            <div class="footer-container">
-
-                <div class="footer-brand">
-
-                    <strong>
-                        Kementerian Perdagangan Republik Indonesia
-                    </strong>
-
-                    © 2026 Biro Perencanaan. Seluruh Hak Cipta Dilindungi.
 
                 </div>
 
-            </div>
+            </footer>
 
-        </footer>
+        </div>
 
     </div>
 
-</div>
+    <div class="toast-message" id="successToast">
 
-<div class="toast-message" id="successToast">
+        <i class="bi bi-check-circle-fill"></i>
 
-    <i class="bi bi-check-circle-fill"></i>
+        <div>
+            <strong>Dokumen RKA berhasil disimpan.</strong><br>
+            Penyimpanan masih berupa simulasi frontend.
+        </div>
 
-    <div>
-        <strong>Dokumen RKA berhasil disimpan.</strong><br>
-        Penyimpanan masih berupa simulasi frontend.
     </div>
 
-</div>
+    <button type="button" class="help-button">
+        ?
+    </button>
 
-<button type="button" class="help-button">
-    ?
-</button>
+    <script>
+        // ==========================================
+        // 1. INISIALISASI DATA & ELEMEN DOM
+        // ==========================================
 
-<script>
-    const unitData = [
-        {
-            id: "setjen",
-            name: "Sekretariat Jenderal",
-            code: "090.01",
-            children: [
-                {
-                    id: "biro-perencanaan",
-                    name: "Biro Perencanaan",
-                    code: "090.01.01",
-                    satkers: [
-                        {
-                            id: "satker-biro-perencanaan",
-                            name: "Biro Perencanaan",
-                            code: "635912"
-                        }
-                    ]
-                },
-                {
-                    id: "biro-keuangan",
-                    name: "Biro Keuangan",
-                    code: "090.01.02",
-                    satkers: [
-                        {
-                            id: "satker-biro-keuangan",
-                            name: "Biro Keuangan",
-                            code: "635913"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            id: "ditjen-pdn",
-            name: "Direktorat Jenderal Perdagangan Dalam Negeri",
-            code: "090.02",
-            children: [
-                {
-                    id: "setditjen-pdn",
-                    name: "Sekretariat Ditjen PDN",
-                    code: "090.02.01",
-                    satkers: [
-                        {
-                            id: "satker-ditjen-pdn",
-                            name: "Direktorat Jenderal Perdagangan Dalam Negeri",
-                            code: "635920"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            id: "ditjen-pen",
-            name: "Direktorat Jenderal Pengembangan Ekspor Nasional",
-            code: "090.03",
-            children: [
-                {
-                    id: "setditjen-pen",
-                    name: "Sekretariat Ditjen PEN",
-                    code: "090.03.01",
-                    satkers: [
-                        {
-                            id: "satker-ditjen-pen",
-                            name: "Direktorat Jenderal Pengembangan Ekspor Nasional",
-                            code: "635930"
-                        }
-                    ]
-                }
-            ]
-        }
-    ];
+        // Konversi data PHP dari Controller ke JSON
+        const allEselon2 = @json($unitEselon2);
+        const allSatker = @json($satker);
 
-    const form = document.getElementById("uploadRkaForm");
-    const fileInput = document.getElementById("rkaFile");
-    const dropzone = document.getElementById("rkaDropzone");
-    const chooseFileButton = document.getElementById("chooseFileButton");
-    const removeFileButton = document.getElementById("removeFileButton");
-    const selectedFile = document.getElementById("selectedFile");
-    const selectedFileName = document.getElementById("selectedFileName");
-    const selectedFileSize = document.getElementById("selectedFileSize");
-    const fileError = document.getElementById("fileError");
+        const form = document.getElementById("uploadRkaForm");
+        const fileInput = document.getElementById("rkaFile");
+        const dropzone = document.getElementById("rkaDropzone");
+        const chooseFileButton = document.getElementById("chooseFileButton");
+        const removeFileButton = document.getElementById("removeFileButton");
+        const selectedFile = document.getElementById("selectedFile");
+        const selectedFileName = document.getElementById("selectedFileName");
+        const selectedFileSize = document.getElementById("selectedFileSize");
+        const fileError = document.getElementById("fileError");
 
-    const rkaName = document.getElementById("rkaName");
-    const unitEselon1 = document.getElementById("unitEselon1");
-    const unitEselon2 = document.getElementById("unitEselon2");
-    const satuanKerja = document.getElementById("satuanKerja");
+        const rkaName = document.getElementById("rkaName");
+        const saveButton = document.getElementById("saveButton");
 
-    const kodeUnitEselon1 =
-        document.getElementById("kodeUnitEselon1");
+        // Dropdown Elemen
+        const eselon1Select = document.getElementById("eselon1");
+        const eselon2Select = document.getElementById("eselon2");
+        const satkerSelect = document.getElementById("satker");
 
-    const kodeUnitEselon2 =
-        document.getElementById("kodeUnitEselon2");
+        let selectedRkaFile = null;
 
-    const kodeSatker =
-        document.getElementById("kodeSatker");
+        // ==========================================
+        // 2. LOGIKA CASCADING DROPDOWN (DATABASE)
+        // ==========================================
 
-    const saveButton =
-        document.getElementById("saveButton");
+        eselon1Select.addEventListener("change", function() {
+            const selectedEselon1 = this.value;
 
-    let selectedRkaFile = null;
+            // Reset Dropdown Eselon 2 & Satker
+            eselon2Select.innerHTML = '<option value="">-- Pilih Unit Eselon 2 --</option>';
+            satkerSelect.innerHTML = '<option value="">-- Pilih Unit Eselon 2 Terlebih Dahulu --</option>';
+            satkerSelect.disabled = true;
 
-    function renderOptions(select, placeholder, items) {
-        select.innerHTML = `
-            <option value="">${placeholder}</option>
-        `;
-
-        items.forEach(item => {
-            const option = document.createElement("option");
-
-            option.value = item.id;
-            option.textContent = item.name;
-            option.dataset.code = item.code;
-
-            select.appendChild(option);
+            if (selectedEselon1) {
+                const filteredEselon2 = allEselon2.filter(e2 => e2.kode_unit_eselon1 === selectedEselon1);
+                filteredEselon2.forEach(e2 => {
+                    const option = document.createElement("option");
+                    option.value = e2.kode_unit_eselon2;
+                    option.textContent = `${e2.kode_unit_eselon2} - ${e2.nama_unit_eselon2}`;
+                    eselon2Select.appendChild(option);
+                });
+                eselon2Select.disabled = false;
+            } else {
+                eselon2Select.disabled = true;
+                eselon2Select.innerHTML = '<option value="">-- Pilih Unit Eselon 1 Terlebih Dahulu --</option>';
+            }
+            updateFormState();
         });
-    }
 
-    renderOptions(
-        unitEselon1,
-        "-- Pilih Unit Eselon 1 --",
-        unitData
-    );
+        eselon2Select.addEventListener("change", function() {
+            const selectedEselon2 = this.value;
 
-    function isExcelFile(file) {
-        if (!file) {
-            return false;
+            // Reset Dropdown Satker
+            satkerSelect.innerHTML = '<option value="">-- Pilih Satker --</option>';
+
+            if (selectedEselon2) {
+                const filteredSatker = allSatker.filter(s => s.kode_unit_eselon2 === selectedEselon2);
+                filteredSatker.forEach(s => {
+                    const option = document.createElement("option");
+                    option.value = s.kode_satker;
+                    option.textContent = `${s.kode_satker} - ${s.nama_satker}`;
+                    satkerSelect.appendChild(option);
+                });
+                satkerSelect.disabled = false;
+            } else {
+                satkerSelect.disabled = true;
+                satkerSelect.innerHTML = '<option value="">-- Pilih Unit Eselon 2 Terlebih Dahulu --</option>';
+            }
+            updateFormState();
+        });
+
+        satkerSelect.addEventListener("change", function() {
+            updateFormState();
+        });
+
+
+        // ==========================================
+        // 3. LOGIKA FILE UPLOAD (KHUSUS EXCEL)
+        // ==========================================
+
+        function isExcelFile(file) {
+            if (!file) return false;
+            const name = file.name.toLowerCase();
+            return name.endsWith(".xlsx") || name.endsWith(".xls");
         }
 
-        const name = file.name.toLowerCase();
-
-        return (
-            name.endsWith(".xlsx") ||
-            name.endsWith(".xls")
-        );
-    }
-
-    function formatFileSize(bytes) {
-        if (bytes < 1024) {
-            return `${bytes} Bytes`;
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return `${bytes} Bytes`;
+            if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+            return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
         }
 
-        if (bytes < 1024 * 1024) {
-            return `${(bytes / 1024).toFixed(1)} KB`;
-        }
+        function assignFile(file) {
+            dropzone.classList.remove("has-error", "has-file");
+            fileError.classList.remove("show");
 
-        return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-    }
+            if (!isExcelFile(file)) {
+                selectedRkaFile = null;
+                fileInput.value = "";
+                selectedFile.classList.remove("show");
+                dropzone.classList.add("has-error");
+                fileError.classList.add("show");
+                fileError.textContent = "File harus berformat Excel (.xlsx atau .xls).";
+                updateFormState();
+                return;
+            }
 
-    function assignFile(file) {
-        dropzone.classList.remove("has-error", "has-file");
-        fileError.classList.remove("show");
+            selectedRkaFile = file;
+            try {
+                const transfer = new DataTransfer();
+                transfer.items.add(file);
+                fileInput.files = transfer.files;
+            } catch (error) {
+                console.warn(error);
+            }
 
-        if (!isExcelFile(file)) {
-            selectedRkaFile = null;
-            fileInput.value = "";
-            selectedFile.classList.remove("show");
-            dropzone.classList.add("has-error");
-            fileError.classList.add("show");
+            selectedFileName.textContent = file.name;
+            selectedFileSize.textContent = `${formatFileSize(file.size)} · Excel`;
+            selectedFile.classList.add("show");
+            dropzone.classList.add("has-file");
+
+            // Isi otomatis nama RKA dari nama file bila kolom masih kosong.
+            if (!rkaName.value.trim()) {
+                rkaName.value = file.name.replace(/\.(xlsx|xls)$/i, "");
+            }
 
             updateFormState();
-            return;
         }
 
-        selectedRkaFile = file;
-
-        try {
-            const transfer = new DataTransfer();
-            transfer.items.add(file);
-            fileInput.files = transfer.files;
-        } catch (error) {
-            console.warn(error);
+        function clearFile() {
+            selectedRkaFile = null;
+            fileInput.value = "";
+            selectedFileName.textContent = "";
+            selectedFileSize.textContent = "";
+            selectedFile.classList.remove("show");
+            dropzone.classList.remove("has-file", "has-error");
+            fileError.classList.remove("show");
+            updateFormState();
         }
 
-        selectedFileName.textContent = file.name;
-        selectedFileSize.textContent = formatFileSize(file.size);
+        chooseFileButton.addEventListener("click", event => {
+            event.stopPropagation();
+            fileInput.click();
+        });
 
-        selectedFile.classList.add("show");
-        dropzone.classList.add("has-file");
+        dropzone.addEventListener("click", event => {
+            if (event.target.closest("#removeFileButton") || event.target.closest("#chooseFileButton")) return;
+            fileInput.click();
+        });
 
-        updateFormState();
-    }
+        dropzone.addEventListener("keydown", event => {
+            if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                fileInput.click();
+            }
+        });
 
-    function clearFile() {
-        selectedRkaFile = null;
-        fileInput.value = "";
+        fileInput.addEventListener("change", () => {
+            assignFile(fileInput.files[0]);
+        });
 
-        selectedFileName.textContent = "";
-        selectedFileSize.textContent = "";
+        removeFileButton.addEventListener("click", event => {
+            event.stopPropagation();
+            clearFile();
+        });
 
-        selectedFile.classList.remove("show");
-        dropzone.classList.remove("has-file", "has-error");
-        fileError.classList.remove("show");
+        dropzone.addEventListener("dragover", event => {
+            event.preventDefault();
+            dropzone.classList.add("dragover");
+        });
 
-        updateFormState();
-    }
+        dropzone.addEventListener("dragleave", () => {
+            dropzone.classList.remove("dragover");
+        });
 
-    chooseFileButton.addEventListener("click", event => {
-        event.stopPropagation();
-        fileInput.click();
-    });
+        dropzone.addEventListener("drop", event => {
+            event.preventDefault();
+            dropzone.classList.remove("dragover");
 
-    dropzone.addEventListener("click", event => {
-        if (event.target.closest("#removeFileButton")) {
-            return;
+            if (event.dataTransfer.files.length !== 1) {
+                clearFile();
+                dropzone.classList.add("has-error");
+                fileError.textContent = "Unggah satu file Excel saja.";
+                fileError.classList.add("show");
+                return;
+            }
+
+            assignFile(event.dataTransfer.files[0]);
+        });
+
+
+        // ==========================================
+        // 4. VALIDASI & SUBMIT FORM
+        // ==========================================
+
+        function setStatus(id, complete) {
+            const el = document.getElementById(id);
+            if (el) el.classList.toggle("complete", complete);
         }
 
-        fileInput.click();
-    });
+        function setFieldValidation(field, errorId, valid, showErrors = false) {
+            field.classList.toggle("is-valid", valid);
+            field.classList.toggle("is-invalid", showErrors && !valid);
 
-    fileInput.addEventListener("change", () => {
-        assignFile(fileInput.files[0]);
-    });
-
-    removeFileButton.addEventListener("click", event => {
-        event.stopPropagation();
-        clearFile();
-    });
-
-    dropzone.addEventListener("dragover", event => {
-        event.preventDefault();
-        dropzone.classList.add("dragover");
-    });
-
-    dropzone.addEventListener("dragleave", () => {
-        dropzone.classList.remove("dragover");
-    });
-
-    dropzone.addEventListener("drop", event => {
-        event.preventDefault();
-        dropzone.classList.remove("dragover");
-
-        assignFile(event.dataTransfer.files[0]);
-    });
-
-    unitEselon1.addEventListener("change", () => {
-        const selectedUnit = unitData.find(
-            item => item.id === unitEselon1.value
-        );
-
-        kodeUnitEselon1.value =
-            selectedUnit?.code || "";
-
-        kodeUnitEselon2.value = "";
-        kodeSatker.value = "";
-
-        renderOptions(
-            unitEselon2,
-            "-- Pilih Unit Eselon 2 --",
-            selectedUnit?.children || []
-        );
-
-        unitEselon2.disabled = !selectedUnit;
-
-        renderOptions(
-            satuanKerja,
-            "-- Pilih Satuan Kerja --",
-            []
-        );
-
-        satuanKerja.disabled = true;
-
-        updateFormState();
-    });
-
-    unitEselon2.addEventListener("change", () => {
-        const selectedUnit1 = unitData.find(
-            item => item.id === unitEselon1.value
-        );
-
-        const selectedUnit2 = selectedUnit1?.children.find(
-            item => item.id === unitEselon2.value
-        );
-
-        kodeUnitEselon2.value =
-            selectedUnit2?.code || "";
-
-        kodeSatker.value = "";
-
-        renderOptions(
-            satuanKerja,
-            "-- Pilih Satuan Kerja --",
-            selectedUnit2?.satkers || []
-        );
-
-        satuanKerja.disabled = !selectedUnit2;
-
-        updateFormState();
-    });
-
-    satuanKerja.addEventListener("change", () => {
-        const selectedUnit1 = unitData.find(
-            item => item.id === unitEselon1.value
-        );
-
-        const selectedUnit2 = selectedUnit1?.children.find(
-            item => item.id === unitEselon2.value
-        );
-
-        const selectedSatker = selectedUnit2?.satkers.find(
-            item => item.id === satuanKerja.value
-        );
-
-        kodeSatker.value =
-            selectedSatker?.code || "";
-
-        updateFormState();
-    });
-
-    function setStatus(id, complete) {
-        document
-            .getElementById(id)
-            .classList.toggle("complete", complete);
-    }
-
-    function updateFormState(showErrors = false) {
-        const fileValid = selectedRkaFile !== null;
-        const nameValid = rkaName.value.trim() !== "";
-        const eselon1Valid = unitEselon1.value !== "";
-        const eselon2Valid = unitEselon2.value !== "";
-        const satkerValid = satuanKerja.value !== "";
-
-        rkaName.classList.toggle(
-            "is-valid",
-            nameValid
-        );
-
-        rkaName.classList.toggle(
-            "is-invalid",
-            showErrors && !nameValid
-        );
-
-        document
-            .getElementById("rkaNameError")
-            .classList.toggle(
-                "show",
-                showErrors && !nameValid
-            );
-
-        setStatus("fileStatus", fileValid);
-        setStatus("nameStatus", nameValid);
-        setStatus("eselon1Status", eselon1Valid);
-        setStatus("eselon2Status", eselon2Valid);
-        setStatus("satkerStatus", satkerValid);
-
-        const valid =
-            fileValid &&
-            nameValid &&
-            eselon1Valid &&
-            eselon2Valid &&
-            satkerValid;
-
-        saveButton.disabled = !valid;
-
-        return valid;
-    }
-
-    rkaName.addEventListener("input", () => {
-        updateFormState();
-    });
-
-    form.addEventListener("submit", event => {
-        event.preventDefault();
-
-        if (!updateFormState(true)) {
-            return;
+            const errorElement = document.getElementById(errorId);
+            if (errorElement) {
+                errorElement.classList.toggle("show", showErrors && !valid);
+            }
         }
 
-        saveButton.disabled = true;
+        function updateFormState(showErrors = false) {
+            const fileValid = selectedRkaFile !== null && isExcelFile(selectedRkaFile);
+            const nameValid = rkaName.value.trim() !== "";
+            const eselon1Valid = eselon1Select.value !== "";
+            const eselon2Valid = eselon2Select.value !== "";
+            const satkerValid = satkerSelect.value !== "";
 
-        saveButton.innerHTML = `
-            <i class="bi bi-arrow-repeat"></i>
-            Menyimpan...
-        `;
+            setFieldValidation(rkaName, "rkaNameError", nameValid, showErrors);
+            setFieldValidation(eselon1Select, "eselon1Error", eselon1Valid, showErrors);
+            setFieldValidation(eselon2Select, "eselon2Error", eselon2Valid, showErrors);
+            setFieldValidation(satkerSelect, "satkerError", satkerValid, showErrors);
 
-        setTimeout(() => {
-            saveButton.innerHTML = `
-                <i class="bi bi-check-circle-fill"></i>
-                Berhasil Disimpan
-            `;
+            if (showErrors && !fileValid) {
+                dropzone.classList.add("has-error");
+                fileError.textContent = "File Excel wajib dipilih.";
+                fileError.classList.add("show");
+            }
 
-            const toast =
-                document.getElementById("successToast");
+            setStatus("fileStatus", fileValid);
+            setStatus("nameStatus", nameValid);
+            setStatus("eselon1Status", eselon1Valid);
+            setStatus("eselon2Status", eselon2Valid);
+            setStatus("satkerStatus", satkerValid);
 
-            toast.classList.add("show");
+            const valid = fileValid && nameValid && eselon1Valid && eselon2Valid && satkerValid;
+            saveButton.disabled = !valid;
 
-            setTimeout(() => {
-                toast.classList.remove("show");
+            return valid;
+        }
 
-                saveButton.disabled = false;
+        rkaName.addEventListener("input", () => {
+            updateFormState();
+        });
 
-                saveButton.innerHTML = `
-                    <i class="bi bi-floppy"></i>
-                    Simpan Dokumen RKA
-                `;
-            }, 2300);
-        }, 800);
-    });
+        // Jalankan satu kali di awal untuk memastikan state tombol tersinkron
+        updateFormState();
 
-    updateFormState();
-</script>
+        form.addEventListener("submit", event => {
+            // Hapus preventDefault jika Anda ingin form langsung tersubmit ke Laravel Controller
+            // Jika Anda memakai ajax, biarkan preventDefault dan atur ajax-nya di bawah
+            if (!updateFormState(true)) {
+                event.preventDefault(); // Cegah submit jika belum valid
+                return;
+            }
+
+            saveButton.disabled = true;
+            saveButton.innerHTML = `<i class="bi bi-arrow-repeat"></i> Menyimpan...`;
+
+            // Proses submit akan diteruskan ke Laravel
+        });
+    </script>
 
 </body>
 
