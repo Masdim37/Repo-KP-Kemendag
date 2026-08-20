@@ -11,7 +11,6 @@ class RKAImport implements ToCollection
     protected $documentID;
     protected $dataOrganisasi;
 
-    // Menangkap ID Dokumen dan Data Dropdown UI dari Controller
     public function __construct($documentID, $dataOrganisasi)
     {
         $this->documentID = $documentID;
@@ -38,88 +37,158 @@ class RKAImport implements ToCollection
         $idCounter = $lastRecord ? (int) substr($lastRecord->rkaID, 3) : 0;
 
         foreach ($rows as $index => $row) {
-            // Lewati baris yang sepenuhnya kosong (biasanya ada di awal/akhir file SAKTI)
-            if (!isset($row[0]) && !isset($row[3]) && !isset($row[4])) continue;
+            
+            // 1. CEK BARIS KOSONG (REVISI: Pengecekan Aman)
+            // Memastikan baris dilewati HANYA JIKA kolom A sampai L benar-benar kosong semua
+            $isEmpty = true;
+            for ($i = 0; $i <= 11; $i++) {
+                if (isset($row[$i]) && trim($row[$i]) !== '') {
+                    $isEmpty = false;
+                    break;
+                }
+            }
+            if ($isEmpty) continue;
 
-            // Mapping Index Kolom Excel SAKTI
-            $colKode   = trim($row[0] ?? ''); // Kolom A: Kode Hierarki
-            $colUraian = trim($row[3] ?? ''); // Kolom D: Uraian Utama
-            $colDetail = trim($row[4] ?? ''); // Kolom E: Uraian Rincian Belanja
-            $colVolume = trim($row[6] ?? ''); // Kolom G: Volume (Contoh: 10.0 OP)
-            $colHarga  = trim($row[7] ?? ''); // Kolom H: Harga Satuan
-            $colBiaya  = trim($row[9] ?? ''); // Kolom J: Jumlah Biaya
-            $colSDCP   = trim($row[11] ?? ''); // Kolom L: Sumber Dana (Contoh: RM, PNP)
+            // 2. MAPPING INDEX KOLOM EXCEL SAKTI
+            $colKode = trim($row[0] ?? ''); // Kolom A: Kode Hierarki
+            
+            // Mengambil Header Uraian (Bisa di Kolom D atau bergeser ke Kolom E)
+            $namaHeader = trim($row[3] ?? '');
+            if (empty($namaHeader) || $namaHeader === '-') {
+                $namaHeader = trim($row[4] ?? '');
+            }
 
-            // 1. Deteksi PROGRAM (Contoh Kode: 090.09.EF)
+            // REVISI: Sapu teks rincian belanja dari Kolom D (3), E (4), dan F (5)
+            $teksUraian = '';
+            foreach ([3, 4, 5] as $idx) {
+                $val = trim($row[$idx] ?? '');
+                if (!empty($val) && $val !== '-') {
+                    $teksUraian .= $val . ' ';
+                }
+            }
+            // Bersihkan tanda strip (-) atau panah (>) di awal teks
+            $teksUraian = trim(preg_replace('/^[\-\>]+/', '', trim($teksUraian)));
+
+            $colVolume = trim((string) ($row[6] ?? '')); // Kolom G: Volume
+            $colHarga  = $row[7] ?? '';                          // Kolom H: Harga Satuan
+
+            // Jumlah Biaya pada export SAKTI umumnya berada di kolom J,
+            // tetapi pada beberapa blok dapat bergeser ke kolom K.
+            $jumlahJ = $this->parseNumber($row[9] ?? null);
+            $jumlahK = $this->parseNumber($row[10] ?? null);
+            $jumlahBiaya = $jumlahJ > 0 ? $jumlahJ : $jumlahK;
+
+            // Sumber dana umumnya di kolom L, tetapi pada beberapa baris akun
+            // dapat bergeser sampai kolom N. Cari di rentang L:N.
+            $colSDCP = '';
+            foreach ([11, 12, 13] as $sdIndex) {
+                $candidate = trim((string) ($row[$sdIndex] ?? ''));
+                if ($candidate !== '') {
+                    $colSDCP .= ' ' . $candidate;
+                }
+            }
+            $colSDCP = trim($colSDCP);
+
+            // ====================================================================
+            // DETEKSI HIERARKI (Dengan Rules Penyesuaian)
+            // ====================================================================
+
+            // Deteksi PROGRAM
             if (preg_match('/^[0-9]{3}\.[0-9]{2}\.([A-Z]{2})$/', $colKode, $match)) {
-                $state['program'] = ['kode' => $match[1], 'nama' => $this->cleanName($colUraian)];
+                $state['program'] = ['kode' => $match[1], 'nama' => $this->cleanName($namaHeader)];
                 $this->resetState($state, ['kegiatan', 'kro', 'ro', 'komponen', 'subkomponen', 'akun']);
                 continue;
             }
-            // 2. Deteksi KEGIATAN (Contoh Kode: 3734)
+            // Deteksi KEGIATAN
             elseif (preg_match('/^\d{4}$/', $colKode)) {
-                $state['kegiatan'] = ['kode' => $colKode, 'nama' => $this->cleanName($colUraian)];
+                $state['kegiatan'] = ['kode' => $colKode, 'nama' => $this->cleanName($namaHeader)];
                 $this->resetState($state, ['kro', 'ro', 'komponen', 'subkomponen', 'akun']);
                 continue;
             }
-            // 3. Deteksi KRO (Contoh Kode: 3734.CCH)
-            elseif (preg_match('/^\d{4}\.[A-Z]{3}$/', $colKode)) {
-                $state['kro']['kode']   = $colKode;
-                $state['kro']['nama']   = $this->cleanName($colUraian);
+            // Deteksi KRO -> (RULE 1: Simpan Hurufnya Saja misal "EBA")
+            elseif (preg_match('/^\d{4}\.([A-Z]{3})$/', $colKode, $match)) {
+                $state['kro']['kode']   = $match[1]; 
+                $state['kro']['nama']   = $this->cleanName($namaHeader);
                 $state['kro']['volume'] = $colVolume;
                 $this->resetState($state, ['ro', 'komponen', 'subkomponen', 'akun']);
                 continue;
             }
-            // 3b. Deteksi LOKASI KRO (Biasanya tidak ada kode, tapi Uraian diawali "Lokasi :")
-            elseif (strpos($colUraian, 'Lokasi :') === 0) {
-                $state['kro']['lokasi'] = trim(str_replace('Lokasi :', '', $colUraian));
+            // Deteksi LOKASI KRO
+            elseif (strpos($namaHeader, 'Lokasi :') === 0) {
+                $state['kro']['lokasi'] = trim(str_replace('Lokasi :', '', $namaHeader));
                 continue;
             }
-            // 4. Deteksi RO (Contoh Kode: 3734.CCH.021)
-            elseif (preg_match('/^\d{4}\.[A-Z]{3}\.(\d{3})$/', $colKode, $match)) {
-                $state['ro'] = ['kode' => $match[1], 'nama' => $this->cleanName($colUraian)];
+            // Deteksi RO -> (RULE 2: Simpan sebagai String murni 3 digit misal "021")
+            elseif (preg_match('/^\d{4}\.[A-Z]{3}\.(\d{1,3})$/', $colKode, $match)) {
+                $roCode = str_pad($match[1], 3, '0', STR_PAD_LEFT); 
+                $state['ro'] = ['kode' => $roCode, 'nama' => $this->cleanName($namaHeader)];
                 $this->resetState($state, ['komponen', 'subkomponen', 'akun']);
                 continue;
             }
-            // 5. Deteksi KOMPONEN (Contoh Kode: 051)
-            elseif (preg_match('/^\d{3}$/', $colKode)) {
-                $state['komponen'] = ['kode' => $colKode, 'nama' => $this->cleanName($colUraian)];
+            // Deteksi KOMPONEN -> (RULE 3: Simpan sebagai String murni 3 digit misal "051")
+            // Mengabaikan huruf di depannya jika ada (misal "U051" jadi "051")
+            elseif (preg_match('/^[a-zA-Z]?(\d{1,3})$/', $colKode, $match)) {
+                $kompCode = str_pad($match[1], 3, '0', STR_PAD_LEFT);
+                $state['komponen'] = ['kode' => $kompCode, 'nama' => $this->cleanName($namaHeader)];
                 $this->resetState($state, ['subkomponen', 'akun']);
                 continue;
             }
-            // 6. Deteksi SUB KOMPONEN (Contoh Kode: A)
-            elseif (preg_match('/^[A-Z]$/', $colKode)) {
-                $state['subkomponen'] = ['kode' => $colKode, 'nama' => $this->cleanName($colUraian)];
+            // Deteksi SUB KOMPONEN -> (RULE 4: Jadikan null jika "TANPA SUB KOMPONEN")
+            elseif (preg_match('/^[A-Z]$/i', $colKode)) {
+                $colKode = strtoupper($colKode);
+                $namaSub = $this->cleanName($namaHeader);
+                if (stripos($namaSub, 'TANPA SUB KOMPONEN') !== false) {
+                    $state['subkomponen'] = ['kode' => null, 'nama' => null];
+                } else {
+                    $state['subkomponen'] = ['kode' => $colKode, 'nama' => $namaSub];
+                }
                 $this->resetState($state, ['akun']);
                 continue;
             }
-            // 7. Deteksi AKUN (Contoh Kode: 522191)
+            // Deteksi AKUN -> (RULE 6: Ambil hanya Sumber Dana tertentu)
             elseif (preg_match('/^\d{6}$/', $colKode)) {
-                $state['akun'] = ['kode' => $colKode, 'nama' => $this->cleanName($colUraian), 'sdcp' => $colSDCP];
+                $sumberDana = null;
+                if (preg_match('/\b(RMP|PLN|PNP|BLU|HIBAH|PDN|SBSN|RM)\b/i', $colSDCP, $matchSD)) {
+                    $sumberDana = strtoupper($matchSD[1]);
+                }
+                $state['akun'] = ['kode' => $colKode, 'nama' => $this->cleanName($namaHeader), 'sdcp' => $sumberDana];
                 continue;
             }
 
             // ====================================================================
-            // 8. DETEKSI DETAIL BELANJA (Item Paling Bawah)
+            // DETEKSI DETAIL BELANJA (Item Terbawah)
             // ====================================================================
             
-            // Detail belanja biasanya kodenya kosong. Teksnya bisa ada di $colUraian atau $colDetail
-            $teksUraian = !empty($colDetail) ? $colDetail : $colUraian;
-            
-            // Bersihkan tanda strip "-" atau panah ">" di awal kalimat
-            $teksUraian = trim(preg_replace('/^[\-\>]+/', '', $teksUraian));
+            // Normalisasi angka agar aman bila cell terbaca sebagai numeric maupun string.
+            $hargaSatuan = $this->parseNumber($colHarga);
 
-            $hargaSatuan = is_numeric($colHarga) ? (float) $colHarga : 0;
-            $jumlahBiaya = is_numeric($colBiaya) ? (float) $colBiaya : 0;
-
-            /* * SYARAT BARIS DISIMPAN SEBAGAI DETAIL BELANJA:
+            /* SYARAT BARIS MASUK DETAIL BELANJA:
              * 1. Kolom Kode Kosong
-             * 2. Ada Teks Uraiannya
-             * 3. Jumlah Biayanya lebih dari 0
-             * 4. Memiliki Harga Satuan ATAU Memiliki Volume (Ini mencegah Header Grup/Sub-Total ikut masuk)
-             */
+             * 2. Ada Teks Uraiannya (yang sudah disapu dari Kolom D, E, F)
+             * 3. Jumlah Biaya > 0
+             * 4. Memiliki Harga Satuan ATAU Volume */
             if (empty($colKode) && !empty($teksUraian) && $jumlahBiaya > 0 && ($hargaSatuan > 0 || !empty($colVolume))) {
                 
+                // RULE 5: Memisah Angka Volume dan String Satuan (contoh: "16.0 OH")
+                $volVal = null;
+                $volSatuan = null;
+                
+                if (!empty($colVolume)) {
+                    // Cari pola angka yg dipisahkan spasi dengan huruf
+                    if (preg_match('/^([\d\.,]+)\s+(.+)$/', trim($colVolume), $vMatch)) {
+                        $volVal = str_replace(',', '', $vMatch[1]);
+                        $volSatuan = trim(preg_replace('/[\-\_]+$/', '', $vMatch[2])); // Bersihkan strip di akhir satuan jika ada
+                    } else {
+                        // Fallback jika diketik tanpa spasi (misal "16.0OH")
+                        $volVal = preg_replace('/[^\d\.,]/', '', $colVolume);
+                        $volSatuan = trim(preg_replace('/[\d\.,]/', '', $colVolume)); 
+                        $volSatuan = trim(preg_replace('/[\-\_]+$/', '', $volSatuan));
+                        
+                        if (empty($volVal)) $volVal = null;
+                        if (empty($volSatuan)) $volSatuan = null;
+                    }
+                }
+
                 $idCounter++;
                 $newId = 'rka' . str_pad($idCounter, 8, '0', STR_PAD_LEFT);
 
@@ -127,7 +196,6 @@ class RKAImport implements ToCollection
                     'rkaID'             => $newId,
                     'documentID'        => $this->documentID,
                     
-                    // Data Organisasi (Dari Dropdown UI + Hasil Query DB di Controller)
                     'kode_unit_eselon1' => $this->dataOrganisasi['kode_unit_eselon1'] ?? null,
                     'nama_unit_eselon1' => $this->dataOrganisasi['nama_unit_eselon1'] ?? null,
                     'kode_unit_eselon2' => $this->dataOrganisasi['kode_unit_eselon2'] ?? null,
@@ -135,7 +203,6 @@ class RKAImport implements ToCollection
                     'kode_satker'       => $this->dataOrganisasi['kode_satker'] ?? null,
                     'nama_satker'       => $this->dataOrganisasi['nama_satker'] ?? null,
                     
-                    // Hierarki Kinerja / Pekerjaan (Diambil dari Ingatan / State)
                     'kode_program'      => $state['program']['kode'],
                     'nama_program'      => $state['program']['nama'],
                     'kode_kegiatan'     => $state['kegiatan']['kode'],
@@ -149,18 +216,17 @@ class RKAImport implements ToCollection
                     'kode_komponen'     => $state['komponen']['kode'],
                     'nama_komponen'     => $state['komponen']['nama'],
                     
-                    // Hierarki Keuangan
                     'kode_subkomponen'  => $state['subkomponen']['kode'],
                     'nama_subkomponen'  => $state['subkomponen']['nama'],
                     'kode_akun'         => $state['akun']['kode'],
                     'nama_akun'         => $state['akun']['nama'],
                     
-                    // Detail Transaksional (Diambil dari baris ini)
                     'uraian_detail'     => $teksUraian,
-                    'volume_detail'     => $colVolume,
+                    'volume'            => $volVal,          // Disimpan sbg angka
+                    'satuan_volume'     => $volSatuan,       // Disimpan sbg huruf
                     'harga_satuan'      => $hargaSatuan,
                     'jumlah_biaya'      => $jumlahBiaya,
-                    'sumber_dana'       => $state['akun']['sdcp'], // Sumber dana nempel di baris Akun
+                    'sumber_dana'       => $state['akun']['sdcp'], 
                     
                     'created_at'        => now(),
                     'updated_at'        => now(),
@@ -179,18 +245,49 @@ class RKAImport implements ToCollection
     }
 
     /**
-     * Fungsi helper untuk membersihkan teks tambahan seperti "[Base Line]"
+     * Mengubah nilai Excel menjadi angka secara aman.
+     * Mendukung numeric native, format ribuan Indonesia (31.000.000),
+     * dan format ribuan internasional (31,000,000).
      */
+    private function parseNumber($value): float
+    {
+        if ($value === null || $value === '') {
+            return 0.0;
+        }
+
+        if (is_numeric($value)) {
+            return (float) $value;
+        }
+
+        $value = trim((string) $value);
+        $value = preg_replace('/[^0-9,\.\-]/', '', $value);
+
+        if ($value === '' || $value === '-') {
+            return 0.0;
+        }
+
+        // 31.000.000 atau 31.000.000,50
+        if (preg_match('/^-?\d{1,3}(?:\.\d{3})+(?:,\d+)?$/', $value)) {
+            $value = str_replace('.', '', $value);
+            $value = str_replace(',', '.', $value);
+        }
+        // 31,000,000 atau 31,000,000.50
+        elseif (preg_match('/^-?\d{1,3}(?:,\d{3})+(?:\.\d+)?$/', $value)) {
+            $value = str_replace(',', '', $value);
+        }
+        // Desimal dengan koma, misalnya 1,5
+        elseif (substr_count($value, ',') === 1 && substr_count($value, '.') === 0) {
+            $value = str_replace(',', '.', $value);
+        }
+
+        return is_numeric($value) ? (float) $value : 0.0;
+    }
+
     private function cleanName($name)
     {
-        // Menghapus tulisan [Base Line] atau kurung siku lainnya yang mengganggu
         return trim(preg_replace('/\[.*?\]/i', '', $name));
     }
 
-    /**
-     * Fungsi helper untuk mereset variabel state yang ada di bawahnya
-     * Contoh: Jika pindah Kegiatan, maka KRO dan RO lama harus dihapus
-     */
     private function resetState(&$state, $keys)
     {
         foreach ($keys as $key) {

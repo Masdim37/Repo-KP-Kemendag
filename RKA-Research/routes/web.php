@@ -97,11 +97,23 @@ Route::controller(rkaController::class)
         Route::post('/Store', 'storeRka')->name('upload.rka.store');
     });
 
+// Route::controller(torrabController::class)
+//     ->prefix('Upload-Dokumen/tor-rb')
+//     ->group(function () {
+//         Route::get('/', 'ShowUploadTorRab')->name('upload.torrab');
+//         Route::post('/Store', 'storeTOR')->name('upload.tor.store');
+//         Route::post('/Store', 'storeRAB')->name('upload.rab.store');
+//     });
+
 Route::controller(torrabController::class)
-    ->prefix('Upload-Dokumen/tor-rb')
+    ->prefix('Upload-Dokumen/TOR-RAB')
     ->group(function () {
-        Route::get('/', 'ShowUploadTorRab')->name('upload.torrab');
-        // Route::post('/Store', 'storeRka')->name('upload.rka.store');
+
+        Route::get('/', 'ShowUploadTorRab')
+            ->name('upload.torrab');
+ 
+        Route::post('/Store', 'storeTorRab')
+            ->name('upload.torrab.store');
     });
 
 Route::get('/satker', [MasterDataController::class, 'ShowSatker']);

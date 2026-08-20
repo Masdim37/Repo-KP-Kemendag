@@ -189,7 +189,7 @@
 
         .content-wrapper {
             width: 100%;
-            max-width: 930px;
+            max-width: 1080px;
             margin: 0 auto;
         }
 
@@ -320,28 +320,65 @@
         }
 
         .document-box {
-            padding: 14px;
+            padding: 16px;
             border: 1px solid #dce5ee;
-            border-radius: 11px;
-            background: #fbfcfe;
+            border-radius: 14px;
+            background: linear-gradient(180deg, #ffffff 0%, #f9fbfd 100%);
+            box-shadow: 0 6px 18px rgba(36, 67, 99, .045);
+            transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+        }
+
+        .document-box:hover {
+            border-color: #c7d9ea;
+            box-shadow: 0 10px 24px rgba(36, 67, 99, .07);
+            transform: translateY(-1px);
+        }
+
+        .document-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 11px;
         }
 
         .document-title {
-            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin: 0;
             color: #334e6d;
             font-size: 10px;
             font-weight: 800;
         }
 
+        .document-title i {
+            color: var(--primary);
+            font-size: 13px;
+        }
+
+        .format-badge {
+            flex-shrink: 0;
+            padding: 5px 8px;
+            border: 1px solid #d7e6f7;
+            border-radius: 999px;
+            color: #4775a8;
+            background: #f1f7ff;
+            font-size: 7px;
+            font-weight: 800;
+            letter-spacing: .2px;
+        }
+
         .upload-zone {
-            min-height: 170px;
+            min-height: 180px;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 18px;
             border: 1.5px dashed #b8c9dc;
-            border-radius: 9px;
-            background: #ffffff;
+            border-radius: 12px;
+            background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+            cursor: pointer;
             text-align: center;
             transition: .2s ease;
         }
@@ -397,14 +434,21 @@
         }
 
         .choose-button {
-            height: 31px;
-            padding: 0 15px;
+            height: 33px;
+            padding: 0 16px;
             border: 0;
-            border-radius: 7px;
+            border-radius: 8px;
             color: #ffffff;
-            background: var(--primary);
+            background: linear-gradient(135deg, var(--primary), #0b73d1);
+            box-shadow: 0 6px 14px rgba(7, 89, 183, .16);
             font-size: 8px;
-            font-weight: 700;
+            font-weight: 800;
+            transition: transform .18s ease, box-shadow .18s ease;
+        }
+
+        .choose-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 17px rgba(7, 89, 183, .21);
         }
 
         .file-format {
@@ -519,29 +563,69 @@
         ===================================================== */
 
         .reference-box {
-            overflow: hidden;
-            border: 1px solid #e0e7ee;
-            border-radius: 10px;
+            counter-reset: reference-step;
+            display: grid;
+            gap: 9px;
+            padding: 10px;
+            border: 1px solid #dbe6f0;
+            border-radius: 13px;
+            background: #f7fafd;
         }
 
         .reference-row {
+            counter-increment: reference-step;
             display: grid;
-            grid-template-columns: minmax(0, 1fr) 135px;
-            gap: 12px;
-            padding: 10px 12px;
-            border-bottom: 1px solid #edf1f5;
+            grid-template-columns: 31px minmax(0, 1fr) 150px;
+            align-items: end;
+            gap: 11px;
+            padding: 11px;
+            border: 1px solid #e4ebf2;
+            border-radius: 10px;
+            background: #ffffff;
+            transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
         }
 
-        .reference-row:last-child {
-            border-bottom: 0;
+        .reference-row:hover {
+            border-color: #cbdcec;
+            box-shadow: 0 5px 14px rgba(42, 74, 108, .045);
+        }
+
+        .reference-row::before {
+            content: counter(reference-step);
+            width: 27px;
+            height: 27px;
+            align-self: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #dce7f3;
+            border-radius: 8px;
+            color: #6e86a0;
+            background: #f3f7fb;
+            font-size: 8px;
+            font-weight: 900;
+            transition: .2s ease;
+        }
+
+        .reference-row.is-complete {
+            border-color: #cce8d8;
+            background: #fcfffd;
+        }
+
+        .reference-row.is-complete::before {
+            content: "✓";
+            border-color: #b9e3cb;
+            color: #ffffff;
+            background: var(--success);
         }
 
         .reference-field label {
             display: block;
-            margin-bottom: 5px;
-            color: #5a6d82;
-            font-size: 7px;
-            font-weight: 700;
+            margin-bottom: 6px;
+            color: #526a84;
+            font-size: 7.5px;
+            font-weight: 800;
+            letter-spacing: .3px;
             text-transform: uppercase;
         }
 
@@ -550,18 +634,59 @@
         }
 
         .select-wrapper select {
-            padding-right: 30px;
+            height: 42px;
+            padding: 0 42px 0 12px;
+            border-color: #cedbe8;
+            border-radius: 9px;
+            color: #284a6f;
+            background: linear-gradient(180deg, #ffffff, #fbfdff);
             appearance: none;
+            font-size: 8.5px;
+            font-weight: 650;
+        }
+
+        .select-wrapper select:hover:not(:disabled) {
+            border-color: #9fbddd;
+        }
+
+        .select-wrapper select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(7, 89, 183, .08);
+        }
+
+        .select-wrapper select:disabled {
+            color: #97a8b9;
+            border-color: #e0e7ee;
+            background: #f5f7f9;
+            cursor: not-allowed;
         }
 
         .select-wrapper i {
             position: absolute;
             top: 50%;
-            right: 11px;
+            right: 7px;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             transform: translateY(-50%);
-            color: #8b9aab;
-            font-size: 8px;
+            border-left: 1px solid #e3eaf1;
+            color: #67809b;
+            font-size: 9px;
             pointer-events: none;
+        }
+
+        .reference-row .reference-field:last-child .form-control {
+            height: 42px;
+            border: 1px solid #d7e4f1;
+            border-radius: 9px;
+            color: #165da5;
+            background: #f1f7fd;
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 8px;
+            font-weight: 800;
+            text-align: center;
         }
 
         /* =====================================================
@@ -706,6 +831,48 @@
 
         .toast.show {
             display: flex;
+            animation: toastIn .28s ease both;
+        }
+
+        .toast strong {
+            display: block;
+            margin-bottom: 2px;
+            font-size: 9px;
+        }
+
+        .toast i {
+            margin-top: 1px;
+            font-size: 16px;
+        }
+
+        .toast.toast-error {
+            border-color: #f0c2c8;
+            color: #a72d3a;
+            background: var(--danger-soft);
+        }
+
+        .toast.toast-error i {
+            color: var(--danger);
+        }
+
+        .year-reference-note {
+            margin-top: 5px;
+            color: var(--text-muted);
+            font-size: 7px;
+            line-height: 1.4;
+        }
+
+        .is-spinning {
+            animation: spin .85s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateY(-8px) translateX(10px); }
+            to { opacity: 1; transform: translateY(0) translateX(0); }
         }
 
         /* FOOTER */
@@ -770,7 +937,12 @@
             }
 
             .reference-row {
-                grid-template-columns: 1fr;
+                grid-template-columns: 31px minmax(0, 1fr);
+                align-items: center;
+            }
+
+            .reference-row .reference-field:last-child {
+                grid-column: 2;
             }
 
             .status-grid {
@@ -884,7 +1056,7 @@
                             Panduan Unggah Dokumen
                         </strong>
 
-                        Unggah file TOR/KAK dan RAB sesuai format yang ditentukan.
+                        Unggah <strong>minimal satu dokumen</strong>: TOR/KAK saja, RAB saja, atau keduanya.
                         Pastikan seluruh referensi anggaran telah terisi sebelum
                         menyimpan dokumen.
                     </div>
@@ -903,11 +1075,11 @@
 
                             <div>
                                 <h1 class="card-title">
-                                    Upload Dokumen TOR & RAB
+                                    Upload Dokumen TOR / RAB
                                 </h1>
 
                                 <p class="card-description">
-                                    Dokumen pendukung perencanaan dan penganggaran.
+                                    Pilih TOR/KAK, RAB, atau keduanya sesuai dokumen yang tersedia.
                                 </p>
                             </div>
 
@@ -915,7 +1087,7 @@
 
                         <div class="card-date">
                             <i class="bi bi-clock"></i>
-                            11 Agustus 2026
+                            {{ now()->translatedFormat('d F Y') }}
                         </div>
 
                     </div>
@@ -923,7 +1095,7 @@
                     <form
                         id="torRabForm"
                         class="main-form"
-                        action="#"
+                        action="{{ route('upload.torrab.store') }}"
                         method="POST"
                         enctype="multipart/form-data"
                         novalidate
@@ -945,8 +1117,12 @@
 
                             <div class="document-box">
 
-                                <div class="document-title">
-                                    Upload TOR / KAK
+                                <div class="document-title-row">
+                                    <div class="document-title">
+                                        <i class="bi bi-file-earmark-pdf"></i>
+                                        Upload TOR / KAK
+                                    </div>
+                                    <span class="format-badge">Opsional · PDF saja</span>
                                 </div>
 
                                 <div
@@ -957,7 +1133,9 @@
                                     <input
                                         type="file"
                                         id="torFile"
+                                        name="tor_file"
                                         class="file-input"
+                                        accept=".pdf,application/pdf"
                                     >
 
                                     <div>
@@ -983,7 +1161,7 @@
                                         </button>
 
                                         <div class="file-format">
-                                            PDF, DOCX, DOC
+                                            PDF saja
                                         </div>
 
                                         <div
@@ -1015,21 +1193,26 @@
                                 </div>
 
                                 <div class="file-error" id="torFileError">
-                                    Pilih file TOR/KAK terlebih dahulu.
+                                    TOR/KAK hanya dapat menggunakan file PDF.
                                 </div>
+                                @error('tor_file')
+                                    <div class="file-error show">{{ $message }}</div>
+                                @enderror
 
                                 <div class="form-group">
 
                                     <label class="form-label">
                                         Nama File TOR / KAK
-                                        <span class="required">*</span>
+                                        <span style="font-weight:600;text-transform:none;color:var(--text-muted);">(wajib jika TOR dipilih)</span>
                                     </label>
 
                                     <input
                                         type="text"
                                         id="torName"
+                                        name="tor_name"
                                         class="form-control"
-                                        placeholder="Masukkan nama file TOR/KAK..."
+                                        value="{{ old('tor_name') }}"
+                                        placeholder="Terisi otomatis saat file TOR/KAK dipilih..."
                                     >
 
                                 </div>
@@ -1040,8 +1223,12 @@
 
                             <div class="document-box">
 
-                                <div class="document-title">
-                                    Upload RAB
+                                <div class="document-title-row">
+                                    <div class="document-title">
+                                        <i class="bi bi-file-earmark-spreadsheet"></i>
+                                        Upload RAB
+                                    </div>
+                                    <span class="format-badge">Opsional · PDF / Excel</span>
                                 </div>
 
                                 <div
@@ -1052,7 +1239,9 @@
                                     <input
                                         type="file"
                                         id="rabFile"
+                                        name="rab_file"
                                         class="file-input"
+                                        accept=".pdf,.xlsx,.xls,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
                                     >
 
                                     <div>
@@ -1078,7 +1267,7 @@
                                         </button>
 
                                         <div class="file-format">
-                                            XLSX, XLS, PDF
+                                            PDF, XLSX, atau XLS
                                         </div>
 
                                         <div
@@ -1110,27 +1299,37 @@
                                 </div>
 
                                 <div class="file-error" id="rabFileError">
-                                    Pilih file RAB terlebih dahulu.
+                                    RAB hanya dapat menggunakan file PDF, XLSX, atau XLS.
                                 </div>
+                                @error('rab_file')
+                                    <div class="file-error show">{{ $message }}</div>
+                                @enderror
 
                                 <div class="form-group">
 
                                     <label class="form-label">
                                         Nama File RAB
-                                        <span class="required">*</span>
+                                        <span style="font-weight:600;text-transform:none;color:var(--text-muted);">(wajib jika RAB dipilih)</span>
                                     </label>
 
                                     <input
                                         type="text"
                                         id="rabName"
+                                        name="rab_name"
                                         class="form-control"
-                                        placeholder="Masukkan nama file RAB..."
+                                        value="{{ old('rab_name') }}"
+                                        placeholder="Terisi otomatis saat file RAB dipilih..."
                                     >
 
                                 </div>
 
                             </div>
 
+                        </div>
+
+                        <div style="margin-top:10px;padding:9px 11px;border:1px solid #dbe6f0;border-radius:9px;background:#f8fbfe;color:#6f8297;font-size:7.8px;line-height:1.5;">
+                            <i class="bi bi-info-circle" style="margin-right:5px;color:var(--primary);"></i>
+                            Minimal satu file harus dipilih. Anda dapat menyimpan <strong>TOR/KAK saja</strong>, <strong>RAB saja</strong>, atau <strong>TOR/KAK dan RAB sekaligus</strong>.
                         </div>
 
                         <div class="section-divider"></div>
@@ -1153,6 +1352,60 @@
 
                         <div class="reference-box">
 
+                            <!-- TAHUN ANGGARAN -->
+
+                            <div class="reference-row" data-reference="tahunAnggaran">
+
+                                <div class="reference-field">
+                                    <label>
+                                        Tahun Anggaran
+                                        <span style="font-weight:600;text-transform:none;color:var(--text-muted);">(wajib untuk RAB)</span>
+                                    </label>
+
+                                    <div class="select-wrapper">
+                                        <select
+                                            id="tahunAnggaran"
+                                            name="tahun_anggaran"
+                                            class="form-control"
+                                        >
+                                            <option value="">
+                                                -- Pilih Tahun Anggaran --
+                                            </option>
+
+                                            @foreach (($tahunAnggaran ?? []) as $tahun)
+                                                <option
+                                                    value="{{ $tahun }}"
+                                                    @selected((string) old('tahun_anggaran') === (string) $tahun)
+                                                >
+                                                    {{ $tahun }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+
+                                        <i class="bi bi-chevron-down"></i>
+                                    </div>
+
+                                    <div class="year-reference-note">
+                                        Tahun anggaran hanya diwajibkan apabila dokumen RAB diunggah.
+                                    </div>
+
+                                    @error('tahun_anggaran')
+                                        <div class="file-error show">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="reference-field">
+                                    <label>Status</label>
+                                    <input
+                                        id="statusTahunAnggaran"
+                                        class="form-control"
+                                        readonly
+                                        value="Opsional untuk TOR"
+                                    >
+                                </div>
+
+                            </div>
+
                             <!-- UNIT 1 -->
 
                             <div class="reference-row">
@@ -1164,6 +1417,7 @@
 
                                         <select
                                             id="unit1"
+                                            name="unit_eselon1_id"
                                             class="form-control"
                                         >
                                             <option value="">
@@ -1181,6 +1435,7 @@
 
                                     <input
                                         id="kodeUnit1"
+                                        name="kode_unit_eselon1"
                                         class="form-control"
                                         readonly
                                         placeholder="-"
@@ -1200,6 +1455,7 @@
 
                                         <select
                                             id="unit2"
+                                            name="unit_eselon2_id"
                                             class="form-control"
                                             disabled
                                         >
@@ -1218,6 +1474,7 @@
 
                                     <input
                                         id="kodeUnit2"
+                                        name="kode_unit_eselon2"
                                         class="form-control"
                                         readonly
                                         placeholder="-"
@@ -1237,6 +1494,7 @@
 
                                         <select
                                             id="satker"
+                                            name="satker_id"
                                             class="form-control"
                                             disabled
                                         >
@@ -1255,6 +1513,7 @@
 
                                     <input
                                         id="kodeSatker"
+                                        name="kode_satker"
                                         class="form-control"
                                         readonly
                                         placeholder="-"
@@ -1274,6 +1533,7 @@
 
                                         <select
                                             id="program"
+                                            name="program_id"
                                             class="form-control"
                                             disabled
                                         >
@@ -1292,6 +1552,7 @@
 
                                     <input
                                         id="kodeProgram"
+                                        name="kode_program"
                                         class="form-control"
                                         readonly
                                         placeholder="-"
@@ -1311,6 +1572,7 @@
 
                                         <select
                                             id="kegiatan"
+                                            name="kegiatan_id"
                                             class="form-control"
                                             disabled
                                         >
@@ -1329,6 +1591,7 @@
 
                                     <input
                                         id="kodeKegiatan"
+                                        name="kode_kegiatan"
                                         class="form-control"
                                         readonly
                                         placeholder="-"
@@ -1350,6 +1613,7 @@
 
                                         <select
                                             id="kro"
+                                            name="kro_id"
                                             class="form-control"
                                             disabled
                                         >
@@ -1368,6 +1632,7 @@
 
                                     <input
                                         id="kodeKro"
+                                        name="kode_kro"
                                         class="form-control"
                                         readonly
                                         placeholder="-"
@@ -1389,6 +1654,7 @@
 
                                         <select
                                             id="ro"
+                                            name="ro_id"
                                             class="form-control"
                                             disabled
                                         >
@@ -1407,6 +1673,7 @@
 
                                     <input
                                         id="kodeRo"
+                                        name="kode_ro"
                                         class="form-control"
                                         readonly
                                         placeholder="-"
@@ -1433,7 +1700,7 @@
                                 class="status-counter"
                                 id="statusCounter"
                             >
-                                0/11 terpenuhi
+                                0/7 referensi terpenuhi
                             </span>
 
                         </div>
@@ -1466,6 +1733,13 @@
                                     <i class="bi bi-check"></i>
                                 </span>
                                 Nama RAB
+                            </div>
+
+                            <div class="status-item" data-status="tahunAnggaran">
+                                <span class="status-dot">
+                                    <i class="bi bi-check"></i>
+                                </span>
+                                Tahun Anggaran (RAB)
                             </div>
 
                             <div class="status-item" data-status="unit1">
@@ -1539,8 +1813,7 @@
                                 class="action-message"
                                 id="actionMessage"
                             >
-                                Lengkapi 11 item yang belum terisi untuk
-                                mengaktifkan tombol simpan.
+                                Lengkapi referensi anggaran dan pilih minimal satu dokumen.
                             </div>
 
                             <button
@@ -1550,7 +1823,7 @@
                                 disabled
                             >
                                 <i class="bi bi-upload"></i>
-                                Simpan Dokumen TOR & RAB
+                                Simpan Dokumen
                             </button>
 
                         </div>
@@ -1585,166 +1858,68 @@
 
 </div>
 
-<div class="toast" id="successToast">
-
+@if (session('success'))
+<div class="toast show" id="successToast" role="status" aria-live="polite">
     <i class="bi bi-check-circle-fill"></i>
-
     <div>
-        <strong>Dokumen berhasil disimpan.</strong><br>
-        TOR/KAK dan RAB berhasil disimulasikan pada frontend.
+        <strong>Data Berhasil Disimpan</strong>
+        {{ session('success') }}
     </div>
-
 </div>
+@endif
+
+@if (session('error'))
+<div class="toast toast-error show" id="errorToast" role="alert" aria-live="assertive">
+    <i class="bi bi-exclamation-circle-fill"></i>
+    <div>
+        <strong>Dokumen Gagal Diproses</strong>
+        {{ session('error') }}
+    </div>
+</div>
+@endif
 
 <script>
     /*
     |--------------------------------------------------------------------------
-    | DATA DUMMY FRONTEND
+    | DATA REFERENSI DARI DATABASE
     |--------------------------------------------------------------------------
+    |
+    | Data dikirim oleh ShowUploadTorRab():
+    | unit_eselon_1 -> unit_eselon_2 -> satker -> satker_kegiatan
+    | -> program -> kegiatan -> KRO -> RO
+    |
+    | KRO difilter berdasarkan kode_kegiatan.
+    | RO difilter dengan composite parent: kode_kegiatan + kode_kro.
+    |
     */
 
-    const referenceData = [
-        {
-            id: "01",
-            code: "01",
-            name: "Sekretariat Jenderal",
-            unit2: [
-                {
-                    id: "01.01",
-                    code: "01.01",
-                    name: "Biro Perencanaan",
-                    satkers: [
-                        {
-                            id: "635912",
-                            code: "635912",
-                            name: "Sekretariat Jenderal Kementerian Perdagangan",
-                            programs: [
-                                {
-                                    id: "WA",
-                                    code: "WA",
-                                    name: "Program Dukungan Manajemen",
-                                    kegiatan: [
-                                        {
-                                            id: "5048",
-                                            code: "5048",
-                                            name: "Pengelolaan Perencanaan",
-                                            kro: [
-                                                {
-                                                    id: "EBA",
-                                                    code: "EBA",
-                                                    name: "Layanan Dukungan Manajemen Internal",
-                                                    ro: [
-                                                        {
-                                                            id: "EBA.994",
-                                                            code: "EBA.994",
-                                                            name: "Layanan Perkantoran"
-                                                        },
-                                                        {
-                                                            id: "EBA.962",
-                                                            code: "EBA.962",
-                                                            name: "Layanan Umum"
-                                                        }
-                                                    ]
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    id: "01.03",
-                    code: "01.03",
-                    name: "Biro Keuangan",
-                    satkers: [
-                        {
-                            id: "635912",
-                            code: "635912",
-                            name: "Sekretariat Jenderal Kementerian Perdagangan",
-                            programs: [
-                                {
-                                    id: "WA",
-                                    code: "WA",
-                                    name: "Program Dukungan Manajemen",
-                                    kegiatan: [
-                                        {
-                                            id: "5048",
-                                            code: "5048",
-                                            name: "Pengelolaan Keuangan",
-                                            kro: [
-                                                {
-                                                    id: "EBA",
-                                                    code: "EBA",
-                                                    name: "Layanan Dukungan Manajemen Internal",
-                                                    ro: [
-                                                        {
-                                                            id: "EBA.994",
-                                                            code: "EBA.994",
-                                                            name: "Layanan Perkantoran"
-                                                        }
-                                                    ]
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
-        },
+    const unitEselon1Data = @json($unitEselon1 ?? []);
+    const unitEselon2Data = @json($unitEselon2 ?? []);
+    const satkerData = @json($satker ?? []);
+    const programData = @json($program ?? []);
+    const kegiatanData = @json($kegiatan ?? []);
+    const satkerKegiatanData = @json($satkerKegiatan ?? []);
+    const kroData = @json($kro ?? []);
+    const roData = @json($ro ?? []);
 
-        {
-            id: "02",
-            code: "02",
-            name: "Direktorat Jenderal Perdagangan Dalam Negeri",
-            unit2: [
-                {
-                    id: "02.01",
-                    code: "02.01",
-                    name: "Sekretariat Ditjen Perdagangan Dalam Negeri",
-                    satkers: [
-                        {
-                            id: "635920",
-                            code: "635920",
-                            name: "Ditjen Perdagangan Dalam Negeri",
-                            programs: [
-                                {
-                                    id: "EE",
-                                    code: "EE",
-                                    name: "Program Perdagangan Dalam Negeri",
-                                    kegiatan: [
-                                        {
-                                            id: "3702",
-                                            code: "3702",
-                                            name: "Pengembangan Perdagangan Dalam Negeri",
-                                            kro: [
-                                                {
-                                                    id: "QDC",
-                                                    code: "QDC",
-                                                    name: "Fasilitasi dan Pembinaan Masyarakat",
-                                                    ro: [
-                                                        {
-                                                            id: "QDC.001",
-                                                            code: "QDC.001",
-                                                            name: "Pelaku Usaha yang Difasilitasi"
-                                                        }
-                                                    ]
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
-        }
-    ];
+    /*
+    |--------------------------------------------------------------------------
+    | OLD INPUT
+    |--------------------------------------------------------------------------
+    |
+    | Digunakan agar pilihan dropdown tetap kembali setelah validation error.
+    |
+    */
+
+    const oldReference = {
+        unit1: @json(old('kode_unit_eselon1')),
+        unit2: @json(old('kode_unit_eselon2')),
+        satker: @json(old('kode_satker')),
+        program: @json(old('kode_program')),
+        kegiatan: @json(old('kode_kegiatan')),
+        kro: @json(old('kode_kro')),
+        ro: @json(old('kode_ro')),
+    };
 
     /*
     |--------------------------------------------------------------------------
@@ -1758,6 +1933,9 @@
     const torName = document.getElementById("torName");
     const rabName = document.getElementById("rabName");
 
+    const tahunAnggaran = document.getElementById("tahunAnggaran");
+    const statusTahunAnggaran = document.getElementById("statusTahunAnggaran");
+
     const unit1 = document.getElementById("unit1");
     const unit2 = document.getElementById("unit2");
     const satker = document.getElementById("satker");
@@ -1766,270 +1944,464 @@
     const kro = document.getElementById("kro");
     const ro = document.getElementById("ro");
 
+    const kodeUnit1 = document.getElementById("kodeUnit1");
+    const kodeUnit2 = document.getElementById("kodeUnit2");
+    const kodeSatker = document.getElementById("kodeSatker");
+    const kodeProgram = document.getElementById("kodeProgram");
+    const kodeKegiatan = document.getElementById("kodeKegiatan");
+    const kodeKro = document.getElementById("kodeKro");
+    const kodeRo = document.getElementById("kodeRo");
+
     let torSelectedFile = null;
     let rabSelectedFile = null;
 
     /*
     |--------------------------------------------------------------------------
-    | OPTION HELPER
+    | DROPDOWN HELPER
     |--------------------------------------------------------------------------
     */
 
-    function renderOptions(
-        select,
-        placeholder,
-        data
-    ) {
-        select.innerHTML = `
-            <option value="">
-                ${placeholder}
-            </option>
-        `;
+    const asString = value => value === null || value === undefined
+        ? ""
+        : String(value).trim();
 
-        data.forEach(item => {
-            const option =
-                document.createElement("option");
+    function sameCode(left, right) {
+        return asString(left) === asString(right);
+    }
 
-            option.value = item.id;
-            option.textContent = item.name;
-            option.dataset.code = item.code;
+    function uniqueBy(data, key) {
+        const seen = new Set();
 
-            select.appendChild(option);
+        return data.filter(item => {
+            const value = asString(item?.[key]);
+
+            if (!value || seen.has(value)) {
+                return false;
+            }
+
+            seen.add(value);
+            return true;
         });
     }
 
-    renderOptions(
-        unit1,
-        "-- Pilih Unit Eselon 1 --",
-        referenceData
-    );
+    function renderOptions({
+        select,
+        data,
+        valueKey,
+        labelKey,
+        placeholder,
+        selectedValue = "",
+        emptyText = "-- Data tidak tersedia --"
+    }) {
+        select.innerHTML = "";
 
-    function findItem(data, id) {
-        return data?.find(item => item.id === id);
+        const optionPlaceholder = document.createElement("option");
+        optionPlaceholder.value = "";
+        optionPlaceholder.textContent = data.length ? placeholder : emptyText;
+        select.appendChild(optionPlaceholder);
+
+        data.forEach(item => {
+            const code = asString(item?.[valueKey]);
+            const name = asString(item?.[labelKey]);
+
+            if (!code) {
+                return;
+            }
+
+            const option = document.createElement("option");
+            option.value = code;
+            option.textContent = name ? `[${code}] ${name}` : `[${code}]`;
+            option.dataset.code = code;
+            option.dataset.name = name;
+
+            select.appendChild(option);
+        });
+
+        select.disabled = data.length === 0;
+
+        if (selectedValue && data.some(item => sameCode(item?.[valueKey], selectedValue))) {
+            select.value = asString(selectedValue);
+        } else {
+            select.value = "";
+        }
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | CASCADING DROPDOWN
-    |--------------------------------------------------------------------------
-    */
-
-    unit1.addEventListener("change", () => {
-        const data =
-            findItem(referenceData, unit1.value);
-
-        document.getElementById("kodeUnit1").value =
-            data?.code || "";
-
-        renderOptions(
-            unit2,
-            "-- Pilih Unit Eselon 2 --",
-            data?.unit2 || []
-        );
-
-        unit2.disabled = !data;
-
-        resetFrom("unit2");
-
-        updateStatus();
-    });
-
-    unit2.addEventListener("change", () => {
-        const parent =
-            findItem(referenceData, unit1.value);
-
-        const data =
-            findItem(parent?.unit2, unit2.value);
-
-        document.getElementById("kodeUnit2").value =
-            data?.code || "";
-
-        renderOptions(
-            satker,
-            "-- Pilih Satuan Kerja --",
-            data?.satkers || []
-        );
-
-        satker.disabled = !data;
-
-        resetFrom("satker");
-
-        updateStatus();
-    });
-
-    satker.addEventListener("change", () => {
-        const u1 =
-            findItem(referenceData, unit1.value);
-
-        const u2 =
-            findItem(u1?.unit2, unit2.value);
-
-        const data =
-            findItem(u2?.satkers, satker.value);
-
-        document.getElementById("kodeSatker").value =
-            data?.code || "";
-
-        renderOptions(
-            program,
-            "-- Pilih Program --",
-            data?.programs || []
-        );
-
-        program.disabled = !data;
-
-        resetFrom("program");
-
-        updateStatus();
-    });
-
-    program.addEventListener("change", () => {
-        const data = getSelectedProgram();
-
-        document.getElementById("kodeProgram").value =
-            data?.code || "";
-
-        renderOptions(
-            kegiatan,
-            "-- Pilih Kegiatan --",
-            data?.kegiatan || []
-        );
-
-        kegiatan.disabled = !data;
-
-        resetFrom("kegiatan");
-
-        updateStatus();
-    });
-
-    kegiatan.addEventListener("change", () => {
-        const parent = getSelectedProgram();
-
-        const data =
-            findItem(parent?.kegiatan, kegiatan.value);
-
-        document.getElementById("kodeKegiatan").value =
-            data?.code || "";
-
-        renderOptions(
-            kro,
-            "-- Pilih KRO --",
-            data?.kro || []
-        );
-
-        kro.disabled = !data;
-
-        resetFrom("kro");
-
-        updateStatus();
-    });
-
-    kro.addEventListener("change", () => {
-        const kegiatanData =
-            getSelectedKegiatan();
-
-        const data =
-            findItem(kegiatanData?.kro, kro.value);
-
-        document.getElementById("kodeKro").value =
-            data?.code || "";
-
-        renderOptions(
-            ro,
-            "-- Pilih RO --",
-            data?.ro || []
-        );
-
-        ro.disabled = !data;
-
-        resetFrom("ro");
-
-        updateStatus();
-    });
-
-    ro.addEventListener("change", () => {
-        const selected =
-            ro.options[ro.selectedIndex];
-
-        document.getElementById("kodeRo").value =
-            selected?.dataset.code || "";
-
-        updateStatus();
-    });
-
-    function getSelectedSatker() {
-        const u1 =
-            findItem(referenceData, unit1.value);
-
-        const u2 =
-            findItem(u1?.unit2, unit2.value);
-
-        return findItem(
-            u2?.satkers,
-            satker.value
-        );
+    function resetSelect(select, placeholder) {
+        select.innerHTML = `<option value="">${placeholder}</option>`;
+        select.disabled = true;
     }
 
-    function getSelectedProgram() {
-        const satkerData =
-            getSelectedSatker();
+    function clearCodesFrom(level) {
+        const codeMap = {
+            unit1: kodeUnit1,
+            unit2: kodeUnit2,
+            satker: kodeSatker,
+            program: kodeProgram,
+            kegiatan: kodeKegiatan,
+            kro: kodeKro,
+            ro: kodeRo,
+        };
 
-        return findItem(
-            satkerData?.programs,
-            program.value
-        );
-    }
-
-    function getSelectedKegiatan() {
-        const programData =
-            getSelectedProgram();
-
-        return findItem(
-            programData?.kegiatan,
-            kegiatan.value
-        );
-    }
-
-    function resetFrom(level) {
         const order = [
+            "unit1",
             "unit2",
             "satker",
             "program",
             "kegiatan",
             "kro",
-            "ro"
+            "ro",
         ];
 
         const index = order.indexOf(level);
 
-        order.slice(index + 1).forEach(id => {
-            const select =
-                document.getElementById(id);
-
-            select.innerHTML = `
-                <option value="">
-                    -- Pilih data sebelumnya terlebih dahulu --
-                </option>
-            `;
-
-            select.disabled = true;
-        });
-
-        const codeMap = {
-            unit2: "kodeUnit2",
-            satker: "kodeSatker",
-            program: "kodeProgram",
-            kegiatan: "kodeKegiatan",
-            kro: "kodeKro",
-            ro: "kodeRo"
-        };
-
-        order.slice(index + 1).forEach(id => {
-            document.getElementById(
-                codeMap[id]
-            ).value = "";
+        order.slice(index).forEach(key => {
+            if (codeMap[key]) {
+                codeMap[key].value = "";
+            }
         });
     }
+
+    function resetChildrenFrom(level) {
+        const hierarchy = {
+            unit1: [
+                [unit2, "-- Pilih Unit Eselon 1 terlebih dahulu --"],
+                [satker, "-- Pilih Unit Eselon 2 terlebih dahulu --"],
+                [program, "-- Pilih Satker terlebih dahulu --"],
+                [kegiatan, "-- Pilih Program terlebih dahulu --"],
+                [kro, "-- Pilih Kegiatan terlebih dahulu --"],
+                [ro, "-- Pilih KRO terlebih dahulu --"],
+            ],
+            unit2: [
+                [satker, "-- Pilih Unit Eselon 2 terlebih dahulu --"],
+                [program, "-- Pilih Satker terlebih dahulu --"],
+                [kegiatan, "-- Pilih Program terlebih dahulu --"],
+                [kro, "-- Pilih Kegiatan terlebih dahulu --"],
+                [ro, "-- Pilih KRO terlebih dahulu --"],
+            ],
+            satker: [
+                [program, "-- Pilih Satker terlebih dahulu --"],
+                [kegiatan, "-- Pilih Program terlebih dahulu --"],
+                [kro, "-- Pilih Kegiatan terlebih dahulu --"],
+                [ro, "-- Pilih KRO terlebih dahulu --"],
+            ],
+            program: [
+                [kegiatan, "-- Pilih Program terlebih dahulu --"],
+                [kro, "-- Pilih Kegiatan terlebih dahulu --"],
+                [ro, "-- Pilih KRO terlebih dahulu --"],
+            ],
+            kegiatan: [
+                [kro, "-- Pilih Kegiatan terlebih dahulu --"],
+                [ro, "-- Pilih KRO terlebih dahulu --"],
+            ],
+            kro: [
+                [ro, "-- Pilih KRO terlebih dahulu --"],
+            ],
+        };
+
+        (hierarchy[level] || []).forEach(([select, placeholder]) => {
+            resetSelect(select, placeholder);
+        });
+
+        const codeChildren = {
+            unit1: [kodeUnit2, kodeSatker, kodeProgram, kodeKegiatan, kodeKro, kodeRo],
+            unit2: [kodeSatker, kodeProgram, kodeKegiatan, kodeKro, kodeRo],
+            satker: [kodeProgram, kodeKegiatan, kodeKro, kodeRo],
+            program: [kodeKegiatan, kodeKro, kodeRo],
+            kegiatan: [kodeKro, kodeRo],
+            kro: [kodeRo],
+        };
+
+        (codeChildren[level] || []).forEach(input => {
+            input.value = "";
+        });
+    }
+
+    function getKegiatanCodesForSatker(kodeSatkerValue) {
+        return new Set(
+            satkerKegiatanData
+                .filter(item => sameCode(item.kode_satker, kodeSatkerValue))
+                .map(item => asString(item.kode_kegiatan))
+                .filter(Boolean)
+        );
+    }
+
+    function populateUnit2(selectedValue = "") {
+        const parentCode = asString(unit1.value);
+
+        if (!parentCode) {
+            resetSelect(unit2, "-- Pilih Unit Eselon 1 terlebih dahulu --");
+            return;
+        }
+
+        const filtered = unitEselon2Data.filter(
+            item => sameCode(item.kode_unit_eselon1, parentCode)
+        );
+
+        renderOptions({
+            select: unit2,
+            data: filtered,
+            valueKey: "kode_unit_eselon2",
+            labelKey: "nama_unit_eselon2",
+            placeholder: "-- Pilih Unit Eselon 2 --",
+            selectedValue,
+            emptyText: "-- Unit Eselon 2 tidak tersedia --"
+        });
+    }
+
+    function populateSatker(selectedValue = "") {
+        const parentCode = asString(unit2.value);
+
+        if (!parentCode) {
+            resetSelect(satker, "-- Pilih Unit Eselon 2 terlebih dahulu --");
+            return;
+        }
+
+        const filtered = satkerData.filter(
+            item => sameCode(item.kode_unit_eselon2, parentCode)
+        );
+
+        renderOptions({
+            select: satker,
+            data: uniqueBy(filtered, "kode_satker"),
+            valueKey: "kode_satker",
+            labelKey: "nama_satker",
+            placeholder: "-- Pilih Satuan Kerja --",
+            selectedValue,
+            emptyText: "-- Satuan Kerja tidak tersedia --"
+        });
+    }
+
+    function populateProgram(selectedValue = "") {
+        const selectedSatker = asString(satker.value);
+
+        if (!selectedSatker) {
+            resetSelect(program, "-- Pilih Satker terlebih dahulu --");
+            return;
+        }
+
+        const kodeKegiatanSatker = getKegiatanCodesForSatker(selectedSatker);
+
+        const kodeProgramSatker = new Set(
+            kegiatanData
+                .filter(item => kodeKegiatanSatker.has(asString(item.kode_kegiatan)))
+                .map(item => asString(item.kode_program))
+                .filter(Boolean)
+        );
+
+        const filtered = programData.filter(
+            item => kodeProgramSatker.has(asString(item.kode_program))
+        );
+
+        renderOptions({
+            select: program,
+            data: uniqueBy(filtered, "kode_program"),
+            valueKey: "kode_program",
+            labelKey: "nama_program",
+            placeholder: "-- Pilih Program --",
+            selectedValue,
+            emptyText: "-- Program untuk Satker ini tidak tersedia --"
+        });
+    }
+
+    function populateKegiatan(selectedValue = "") {
+        const selectedSatker = asString(satker.value);
+        const selectedProgram = asString(program.value);
+
+        if (!selectedSatker || !selectedProgram) {
+            resetSelect(kegiatan, "-- Pilih Program terlebih dahulu --");
+            return;
+        }
+
+        const kodeKegiatanSatker = getKegiatanCodesForSatker(selectedSatker);
+
+        const filtered = kegiatanData.filter(item =>
+            kodeKegiatanSatker.has(asString(item.kode_kegiatan)) &&
+            sameCode(item.kode_program, selectedProgram)
+        );
+
+        renderOptions({
+            select: kegiatan,
+            data: uniqueBy(filtered, "kode_kegiatan"),
+            valueKey: "kode_kegiatan",
+            labelKey: "nama_kegiatan",
+            placeholder: "-- Pilih Kegiatan --",
+            selectedValue,
+            emptyText: "-- Kegiatan tidak tersedia --"
+        });
+    }
+
+    function populateKro(selectedValue = "") {
+        const selectedKegiatan = asString(kegiatan.value);
+
+        if (!selectedKegiatan) {
+            resetSelect(kro, "-- Pilih Kegiatan terlebih dahulu --");
+            return;
+        }
+
+        const filtered = kroData.filter(
+            item => sameCode(item.kode_kegiatan, selectedKegiatan)
+        );
+
+        renderOptions({
+            select: kro,
+            data: filtered,
+            valueKey: "kode_kro",
+            labelKey: "nama_kro",
+            placeholder: "-- Pilih KRO --",
+            selectedValue,
+            emptyText: "-- KRO untuk Kegiatan ini tidak tersedia --"
+        });
+    }
+
+    function populateRo(selectedValue = "") {
+        const selectedKegiatan = asString(kegiatan.value);
+        const selectedKro = asString(kro.value);
+
+        if (!selectedKegiatan || !selectedKro) {
+            resetSelect(ro, "-- Pilih KRO terlebih dahulu --");
+            return;
+        }
+
+        const filtered = roData.filter(item =>
+            sameCode(item.kode_kegiatan, selectedKegiatan) &&
+            sameCode(item.kode_kro, selectedKro)
+        );
+
+        renderOptions({
+            select: ro,
+            data: filtered,
+            valueKey: "kode_ro",
+            labelKey: "nama_ro",
+            placeholder: "-- Pilih RO --",
+            selectedValue,
+            emptyText: "-- RO untuk KRO ini tidak tersedia --"
+        });
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | CASCADING DROPDOWN EVENT
+    |--------------------------------------------------------------------------
+    */
+
+    unit1.addEventListener("change", () => {
+        kodeUnit1.value = asString(unit1.value);
+        resetChildrenFrom("unit1");
+        populateUnit2();
+        updateStatus();
+    });
+
+    unit2.addEventListener("change", () => {
+        kodeUnit2.value = asString(unit2.value);
+        resetChildrenFrom("unit2");
+        populateSatker();
+        updateStatus();
+    });
+
+    satker.addEventListener("change", () => {
+        kodeSatker.value = asString(satker.value);
+        resetChildrenFrom("satker");
+        populateProgram();
+        updateStatus();
+    });
+
+    program.addEventListener("change", () => {
+        kodeProgram.value = asString(program.value);
+        resetChildrenFrom("program");
+        populateKegiatan();
+        updateStatus();
+    });
+
+    kegiatan.addEventListener("change", () => {
+        kodeKegiatan.value = asString(kegiatan.value);
+        resetChildrenFrom("kegiatan");
+        populateKro();
+        updateStatus();
+    });
+
+    kro.addEventListener("change", () => {
+        kodeKro.value = asString(kro.value);
+        resetChildrenFrom("kro");
+        populateRo();
+        updateStatus();
+    });
+
+    ro.addEventListener("change", () => {
+        kodeRo.value = asString(ro.value);
+        updateStatus();
+    });
+
+    tahunAnggaran.addEventListener("change", updateStatus);
+
+    /*
+    |--------------------------------------------------------------------------
+    | INITIALIZE DROPDOWN
+    |--------------------------------------------------------------------------
+    */
+
+    function initializeReferenceDropdowns() {
+        renderOptions({
+            select: unit1,
+            data: unitEselon1Data,
+            valueKey: "kode_unit_eselon1",
+            labelKey: "nama_unit_eselon1",
+            placeholder: "-- Pilih Unit Eselon 1 --",
+            selectedValue: oldReference.unit1,
+            emptyText: "-- Data Unit Eselon 1 tidak tersedia --"
+        });
+
+        kodeUnit1.value = asString(unit1.value);
+
+        if (!unit1.value) {
+            resetChildrenFrom("unit1");
+            return;
+        }
+
+        populateUnit2(oldReference.unit2);
+        kodeUnit2.value = asString(unit2.value);
+
+        if (!unit2.value) {
+            resetChildrenFrom("unit2");
+            return;
+        }
+
+        populateSatker(oldReference.satker);
+        kodeSatker.value = asString(satker.value);
+
+        if (!satker.value) {
+            resetChildrenFrom("satker");
+            return;
+        }
+
+        populateProgram(oldReference.program);
+        kodeProgram.value = asString(program.value);
+
+        if (!program.value) {
+            resetChildrenFrom("program");
+            return;
+        }
+
+        populateKegiatan(oldReference.kegiatan);
+        kodeKegiatan.value = asString(kegiatan.value);
+
+        if (!kegiatan.value) {
+            resetChildrenFrom("kegiatan");
+            return;
+        }
+
+        populateKro(oldReference.kro);
+        kodeKro.value = asString(kro.value);
+
+        if (!kro.value) {
+            resetChildrenFrom("kro");
+            return;
+        }
+
+        populateRo(oldReference.ro);
+        kodeRo.value = asString(ro.value);
+    }
+
+    initializeReferenceDropdowns();
 
     /*
     |--------------------------------------------------------------------------
@@ -2051,59 +2423,160 @@
             });
         });
 
+    const allowedFileTypes = {
+        tor: {
+            extensions: ["pdf"],
+            message: "TOR/KAK hanya dapat menggunakan file PDF."
+        },
+        rab: {
+            extensions: ["pdf", "xlsx", "xls"],
+            message: "RAB hanya dapat menggunakan file PDF, XLSX, atau XLS."
+        }
+    };
+
+    function getFileExtension(filename) {
+        return filename.includes(".")
+            ? filename.split(".").pop().toLowerCase()
+            : "";
+    }
+
+    function setFileError(type, message = "") {
+        const error = document.getElementById(`${type}FileError`);
+        const dropzone = document.getElementById(`${type}Dropzone`);
+
+        error.textContent = message;
+        error.classList.toggle("show", !!message);
+        dropzone.classList.toggle("has-error", !!message);
+    }
+
+    function clearSelectedFile(type) {
+        const input = type === "tor" ? torFile : rabFile;
+        const nameInput = type === "tor" ? torName : rabName;
+
+        input.value = "";
+        nameInput.value = "";
+        nameInput.required = false;
+
+        if (type === "tor") {
+            torSelectedFile = null;
+        } else {
+            rabSelectedFile = null;
+        }
+
+        document.getElementById(`${type}Selected`).classList.remove("show");
+        document.getElementById(`${type}Dropzone`).classList.remove("has-file");
+    }
+
     function handleFile(type, file) {
         if (!file) {
-            return;
+            return false;
         }
+
+        const extension = getFileExtension(file.name);
+        const config = allowedFileTypes[type];
+
+        if (!config.extensions.includes(extension)) {
+            clearSelectedFile(type);
+            setFileError(type, config.message);
+            updateStatus();
+            return false;
+        }
+
+        setFileError(type);
+
+        // Jika salah satu dokumen sudah valid, dokumen lainnya bersifat opsional.
+        const otherType = type === "tor" ? "rab" : "tor";
+        const otherFile = otherType === "tor" ? torSelectedFile : rabSelectedFile;
+        if (!otherFile) {
+            setFileError(otherType);
+        }
+
+        const selected = document.getElementById(`${type}Selected`);
+        const selectedName = document.getElementById(`${type}SelectedName`);
+        const dropzone = document.getElementById(`${type}Dropzone`);
+        const nameInput = type === "tor" ? torName : rabName;
 
         if (type === "tor") {
             torSelectedFile = file;
-
-            document
-                .getElementById("torSelected")
-                .classList.add("show");
-
-            document.getElementById(
-                "torSelectedName"
-            ).textContent = file.name;
-
-            document
-                .getElementById("torDropzone")
-                .classList.add("has-file");
+        } else {
+            rabSelectedFile = file;
         }
 
-        if (type === "rab") {
-            rabSelectedFile = file;
+        selected.classList.add("show");
+        selectedName.textContent = file.name;
+        dropzone.classList.add("has-file");
 
-            document
-                .getElementById("rabSelected")
-                .classList.add("show");
+        nameInput.required = true;
 
-            document.getElementById(
-                "rabSelectedName"
-            ).textContent = file.name;
-
-            document
-                .getElementById("rabDropzone")
-                .classList.add("has-file");
+        if (!nameInput.value.trim()) {
+            nameInput.value = file.name.replace(/\.[^/.]+$/, "");
         }
 
         updateStatus();
+        return true;
+    }
+
+    function assignDroppedFile(input, file) {
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        input.files = dataTransfer.files;
+    }
+
+    function setupDropzone(type, dropzone, input) {
+        ["dragenter", "dragover"].forEach(eventName => {
+            dropzone.addEventListener(eventName, event => {
+                event.preventDefault();
+                event.stopPropagation();
+                dropzone.classList.add("dragover");
+            });
+        });
+
+        ["dragleave", "drop"].forEach(eventName => {
+            dropzone.addEventListener(eventName, event => {
+                event.preventDefault();
+                event.stopPropagation();
+                dropzone.classList.remove("dragover");
+            });
+        });
+
+        dropzone.addEventListener("drop", event => {
+            const file = event.dataTransfer?.files?.[0];
+
+            if (!file) {
+                return;
+            }
+
+            assignDroppedFile(input, file);
+            handleFile(type, file);
+        });
+
+        dropzone.addEventListener("click", event => {
+            if (event.target.closest("button")) {
+                return;
+            }
+            input.click();
+        });
     }
 
     torFile.addEventListener("change", () => {
-        handleFile(
-            "tor",
-            torFile.files[0]
-        );
+        handleFile("tor", torFile.files[0]);
     });
 
     rabFile.addEventListener("change", () => {
-        handleFile(
-            "rab",
-            rabFile.files[0]
-        );
+        handleFile("rab", rabFile.files[0]);
     });
+
+    setupDropzone(
+        "tor",
+        document.getElementById("torDropzone"),
+        torFile
+    );
+
+    setupDropzone(
+        "rab",
+        document.getElementById("rabDropzone"),
+        rabFile
+    );
 
     document
         .querySelectorAll("[data-remove]")
@@ -2114,32 +2587,8 @@
                 const type =
                     button.dataset.remove;
 
-                if (type === "tor") {
-                    torSelectedFile = null;
-                    torFile.value = "";
-
-                    document
-                        .getElementById("torSelected")
-                        .classList.remove("show");
-
-                    document
-                        .getElementById("torDropzone")
-                        .classList.remove("has-file");
-                }
-
-                if (type === "rab") {
-                    rabSelectedFile = null;
-                    rabFile.value = "";
-
-                    document
-                        .getElementById("rabSelected")
-                        .classList.remove("show");
-
-                    document
-                        .getElementById("rabDropzone")
-                        .classList.remove("has-file");
-                }
-
+                clearSelectedFile(type);
+                setFileError(type);
                 updateStatus();
             });
         });
@@ -2150,11 +2599,7 @@
     |--------------------------------------------------------------------------
     */
 
-    const statusKeys = [
-        "torFile",
-        "torName",
-        "rabFile",
-        "rabName",
+    const referenceStatusKeys = [
         "unit1",
         "unit2",
         "satker",
@@ -2164,13 +2609,35 @@
         "ro"
     ];
 
-    function updateStatus() {
-        const values = {
-            torFile: !!torSelectedFile,
-            torName: !!torName.value.trim(),
-            rabFile: !!rabSelectedFile,
-            rabName: !!rabName.value.trim(),
+    const documentStatusKeys = [
+        "torFile",
+        "torName",
+        "rabFile",
+        "rabName"
+    ];
 
+    function getUploadMode() {
+        const hasTor = !!torSelectedFile;
+        const hasRab = !!rabSelectedFile;
+
+        if (hasTor && hasRab) return "both";
+        if (hasTor) return "tor";
+        if (hasRab) return "rab";
+        return "none";
+    }
+
+    function updateDocumentStatusVisual(key, complete, active) {
+        const element = document.querySelector(`[data-status="${key}"]`);
+        if (!element) return;
+
+        element.classList.toggle("complete", !!complete);
+        element.style.opacity = active ? "1" : ".42";
+    }
+
+    function updateStatus() {
+        const mode = getUploadMode();
+
+        const referenceValues = {
             unit1: !!unit1.value,
             unit2: !!unit2.value,
             satker: !!satker.value,
@@ -2180,63 +2647,162 @@
             ro: !!ro.value
         };
 
-        let completed = 0;
+        const documentValues = {
+            torFile: !!torSelectedFile,
+            torName: !!torSelectedFile && !!torName.value.trim(),
+            rabFile: !!rabSelectedFile,
+            rabName: !!rabSelectedFile && !!rabName.value.trim()
+        };
 
-        statusKeys.forEach(key => {
-            const element =
-                document.querySelector(
-                    `[data-status="${key}"]`
-                );
+        let referenceCompleted = 0;
 
-            element.classList.toggle(
-                "complete",
-                values[key]
-            );
+        referenceStatusKeys.forEach(key => {
+            const element = document.querySelector(`[data-status="${key}"]`);
+            const complete = referenceValues[key];
 
-            if (values[key]) {
-                completed++;
+            if (element) {
+                element.classList.toggle("complete", complete);
             }
+
+            if (complete) referenceCompleted++;
         });
 
-        const total = statusKeys.length;
+        const torActive = mode === "tor" || mode === "both";
+        const rabActive = mode === "rab" || mode === "both";
+        const tahunAnggaranComplete = !!tahunAnggaran.value;
 
-        const percent =
-            Math.round(
-                (completed / total) * 100
-            );
+        updateDocumentStatusVisual("torFile", documentValues.torFile, torActive);
+        updateDocumentStatusVisual("torName", documentValues.torName, torActive);
+        updateDocumentStatusVisual("rabFile", documentValues.rabFile, rabActive);
+        updateDocumentStatusVisual("rabName", documentValues.rabName, rabActive);
+        updateDocumentStatusVisual(
+            "tahunAnggaran",
+            tahunAnggaranComplete,
+            rabActive
+        );
 
-        document.getElementById(
-            "statusCounter"
-        ).textContent =
-            `${completed}/${total} terpenuhi`;
+        statusTahunAnggaran.value = rabActive
+            ? (tahunAnggaranComplete ? "Siap digunakan" : "Wajib untuk RAB")
+            : "Opsional untuk TOR";
 
-        document.getElementById(
-            "progressBar"
-        ).style.width =
-            `${percent}%`;
+        const requiredDocumentKeys = [];
+        if (torActive) requiredDocumentKeys.push("torFile", "torName");
+        if (rabActive) requiredDocumentKeys.push("rabFile", "rabName");
 
-        document.getElementById(
-            "progressText"
-        ).textContent =
-            `${percent}%`;
+        const documentCompleted = requiredDocumentKeys.filter(
+            key => documentValues[key]
+        ).length;
 
-        const remaining =
-            total - completed;
+        const tahunRequiredCount = rabActive ? 1 : 0;
+        const tahunCompletedCount = rabActive && tahunAnggaranComplete ? 1 : 0;
 
-        const saveButton =
-            document.getElementById(
-                "saveButton"
-            );
+        const totalRequired =
+            referenceStatusKeys.length
+            + requiredDocumentKeys.length
+            + tahunRequiredCount;
 
-        saveButton.disabled =
-            completed !== total;
+        const completed =
+            referenceCompleted
+            + documentCompleted
+            + tahunCompletedCount;
 
-        document.getElementById(
-            "actionMessage"
-        ).textContent =
-            remaining === 0
-                ? "Seluruh data telah lengkap. Dokumen siap disimpan."
-                : `Lengkapi ${remaining} item yang belum terisi untuk mengaktifkan tombol simpan.`;
+        const hasDocument = mode !== "none";
+        const allReferencesComplete =
+            referenceCompleted === referenceStatusKeys.length
+            && (!rabActive || tahunAnggaranComplete);
+
+        const selectedDocumentsComplete =
+            hasDocument
+            && documentCompleted === requiredDocumentKeys.length;
+
+        const formReady =
+            allReferencesComplete
+            && selectedDocumentsComplete;
+
+        const percent = totalRequired > 0
+            ? Math.round((completed / totalRequired) * 100)
+            : 0;
+
+        const modeLabel = mode === "both"
+            ? "TOR + RAB"
+            : mode === "tor"
+                ? "TOR"
+                : mode === "rab"
+                    ? "RAB"
+                    : "Belum ada dokumen";
+
+        document.getElementById("statusCounter").textContent =
+            `${completed}/${totalRequired} terpenuhi · ${modeLabel}`;
+
+        document.getElementById("progressBar").style.width = `${percent}%`;
+        document.getElementById("progressText").textContent = `${percent}%`;
+
+        document.querySelectorAll(".reference-row").forEach(row => {
+            const select = row.querySelector("select");
+            const isYearRow = row.dataset.reference === "tahunAnggaran";
+
+            if (isYearRow) {
+                row.classList.toggle(
+                    "is-complete",
+                    rabActive && !!select?.value
+                );
+                row.style.opacity = rabActive ? "1" : ".72";
+                return;
+            }
+
+            row.classList.toggle("is-complete", !!select?.value);
+            row.style.opacity = "1";
+        });
+
+        const saveButton = document.getElementById("saveButton");
+        const actionMessage = document.getElementById("actionMessage");
+
+        saveButton.disabled = !formReady;
+
+        if (mode === "tor") {
+            saveButton.innerHTML = `<i class="bi bi-upload"></i> Simpan Dokumen TOR/KAK`;
+        } else if (mode === "rab") {
+            saveButton.innerHTML = `<i class="bi bi-upload"></i> Simpan Dokumen RAB`;
+        } else if (mode === "both") {
+            saveButton.innerHTML = `<i class="bi bi-upload"></i> Simpan TOR/KAK & RAB`;
+        } else {
+            saveButton.innerHTML = `<i class="bi bi-upload"></i> Simpan Dokumen`;
+        }
+
+        if (!hasDocument) {
+            actionMessage.textContent =
+                "Pilih minimal satu dokumen: TOR/KAK atau RAB.";
+            return;
+        }
+
+        if (rabActive && !tahunAnggaranComplete) {
+            actionMessage.textContent =
+                "Pilih Tahun Anggaran untuk dokumen RAB.";
+            return;
+        }
+
+        if (referenceCompleted !== referenceStatusKeys.length) {
+            const remainingReferences =
+                referenceStatusKeys.length - referenceCompleted;
+
+            actionMessage.textContent =
+                `Lengkapi ${remainingReferences} referensi anggaran yang belum terisi.`;
+            return;
+        }
+
+        if (torActive && !torName.value.trim()) {
+            actionMessage.textContent = "Isi nama dokumen TOR/KAK yang dipilih.";
+            return;
+        }
+
+        if (rabActive && !rabName.value.trim()) {
+            actionMessage.textContent = "Isi nama dokumen RAB yang dipilih.";
+            return;
+        }
+
+        actionMessage.textContent = mode === "both"
+            ? "Referensi dan kedua dokumen telah lengkap. Siap disimpan."
+            : `Referensi dan dokumen ${modeLabel} telah lengkap. Siap disimpan.`;
     }
 
     torName.addEventListener(
@@ -2251,57 +2817,86 @@
 
     /*
     |--------------------------------------------------------------------------
-    | SUBMIT FRONTEND
+    | SUBMIT KE BACKEND
     |--------------------------------------------------------------------------
     */
 
     document
         .getElementById("torRabForm")
         .addEventListener("submit", event => {
-            event.preventDefault();
+            const saveButton = document.getElementById("saveButton");
+            const hasTor = torFile.files.length > 0;
+            const hasRab = rabFile.files.length > 0;
 
-            const saveButton =
-                document.getElementById(
-                    "saveButton"
-                );
+            // Minimal satu dokumen harus dipilih.
+            if (!hasTor && !hasRab) {
+                event.preventDefault();
+                setFileError("tor", "Pilih TOR/KAK atau RAB. Minimal satu dokumen wajib diunggah.");
+                setFileError("rab", "Pilih TOR/KAK atau RAB. Minimal satu dokumen wajib diunggah.");
+                updateStatus();
+                return;
+            }
+
+            // Validasi hanya file yang memang dipilih.
+            if (hasTor && !handleFile("tor", torFile.files[0])) {
+                event.preventDefault();
+                return;
+            }
+
+            if (hasRab && !handleFile("rab", rabFile.files[0])) {
+                event.preventDefault();
+                return;
+            }
+
+            if (hasTor && !torName.value.trim()) {
+                event.preventDefault();
+                torName.focus();
+                updateStatus();
+                return;
+            }
+
+            if (hasRab && !rabName.value.trim()) {
+                event.preventDefault();
+                rabName.focus();
+                updateStatus();
+                return;
+            }
+
+            if (hasRab && !tahunAnggaran.value) {
+                event.preventDefault();
+                tahunAnggaran.focus();
+                updateStatus();
+                return;
+            }
+
+            updateStatus();
 
             if (saveButton.disabled) {
+                event.preventDefault();
                 return;
             }
 
             saveButton.disabled = true;
-
             saveButton.innerHTML = `
-                <i class="bi bi-arrow-repeat"></i>
-                Menyimpan...
+                <i class="bi bi-arrow-repeat is-spinning"></i>
+                Memproses dokumen...
             `;
-
-            setTimeout(() => {
-                const toast =
-                    document.getElementById(
-                        "successToast"
-                    );
-
-                toast.classList.add("show");
-
-                saveButton.innerHTML = `
-                    <i class="bi bi-check-circle-fill"></i>
-                    Berhasil Disimpan
-                `;
-
-                setTimeout(() => {
-                    toast.classList.remove("show");
-
-                    saveButton.disabled = false;
-
-                    saveButton.innerHTML = `
-                        <i class="bi bi-upload"></i>
-                        Simpan Dokumen TOR & RAB
-                    `;
-                }, 2300);
-
-            }, 800);
         });
+
+    const successToast = document.getElementById("successToast");
+    const errorToast = document.getElementById("errorToast");
+
+    if (successToast) {
+        setTimeout(() => {
+            successToast.classList.remove("show");
+        }, 3200);
+    }
+
+    if (errorToast) {
+        setTimeout(() => {
+            errorToast.classList.remove("show");
+        }, 6500);
+    }
 
     updateStatus();
 </script>

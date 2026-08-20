@@ -50,7 +50,7 @@
                 [
                     'key' => 'upload-tor-rab',
                     'label' => 'Upload TOR & RAB',
-                    'url' => Route::has('upload.torrab') ? route('upload.torrab') : url('/upload/tor-rab'),
+                    'url' => Route::has('upload.torrab') ? route('upload.torrab') : url('Upload-Dokumen/TOR-RAB'),
                 ],
                 // [
                 //     'key' => 'upload-rab',
