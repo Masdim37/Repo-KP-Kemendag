@@ -2,380 +2,404 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\RenjaImport;
 use App\Imports\RkbmnImport;
 use App\Imports\SatkerImport;
+use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
+use Maatwebsite\Excel\Facades\Excel;
 
 class masterDataController extends Controller
 {
     public function ShowUploadMasterData()
     {
-        return view('menu.upload-dokumen.master-data');
+        $currentYear = (int) now()->format('Y');
+        $tahunAnggaran = range($currentYear + 5, $currentYear - 5);
+
+        return view(
+            'menu.upload-dokumen.master-data',
+            compact('tahunAnggaran')
+        );
     }
 
+    /**
+     * Upload Master Data:
+     * - RENJA  : XLSX/XLS, parser manual RenjaImport.
+     * - RKBMN  : XLSX/XLS, parser manual RkbmnImport (sheet Pengadaan & Pemeliharaan).
+     *
+     * Kedua file boleh diunggah bersamaan atau salah satu saja. Jika keduanya
+     * diunggah dalam satu request, proses menggunakan satu transaksi sehingga
+     * master data tidak tersimpan setengah-setengah ketika salah satu import gagal.
+     */
     public function storeMasterData(Request $request)
     {
-        // 1. Validasi Dasar (Nullable karena bisa pilih salah satu atau dua-duanya)
+        /*
+         * Jangan gunakan rule mimes:xlsx,xls untuk RENJA/RKBMN.
+         *
+         * Beberapa file XLSX hasil ekspor aplikasi lain dideteksi PHP Fileinfo
+         * sebagai application/zip karena format XLSX pada dasarnya adalah paket ZIP
+         * berisi file XML. Akibatnya file XLSX yang valid dapat ditolak oleh rule
+         * mimes Laravel.
+         *
+         * Di sini Laravel hanya memvalidasi bahwa input benar-benar file dan ukuran
+         * maksimalnya. Ekstensi yang diperbolehkan diperiksa secara manual setelah
+         * validasi dasar.
+         */
         $request->validate([
-            'renja_file' => 'nullable|file|max:51200', // Max 50MB
-            'renja_name' => 'nullable|string',
-            'rkbmn_file' => 'nullable|file|max:51200', // Max 50MB
-            'rkbmn_name' => 'nullable|string',
+            'renja_file' => 'nullable|file|max:51200',
+            'renja_name' => $request->hasFile('renja_file')
+                ? 'required|string|max:255'
+                : 'nullable|string|max:255',
+            'renja_tahun_anggaran' => $request->hasFile('renja_file')
+                ? 'required|integer|min:2000|max:2100'
+                : 'nullable|integer|min:2000|max:2100',
+
+            'rkbmn_file' => 'nullable|file|max:51200',
+            'rkbmn_name' => $request->hasFile('rkbmn_file')
+                ? 'required|string|max:255'
+                : 'nullable|string|max:255',
+            'rkbmn_tahun_anggaran' => $request->hasFile('rkbmn_file')
+                ? 'required|integer|min:2000|max:2100'
+                : 'nullable|integer|min:2000|max:2100',
         ]);
 
-        // Pastikan minimal ada 1 file yang diupload
         if (!$request->hasFile('renja_file') && !$request->hasFile('rkbmn_file')) {
-            return redirect()->back()->with('error', 'Silakan pilih setidaknya satu file untuk diunggah (Renja atau RKBMN).');
+            throw ValidationException::withMessages([
+                'master_data' => 'Minimal salah satu file RENJA atau RKBMN wajib diunggah.',
+            ]);
         }
 
-        // 2. Validasi Ekstensi Manual & Ketersediaan Nama Dokumen
-        $allowedExtensions = ['xlsx', 'xls', 'csv'];
-
+        /*
+         * Validasi ekstensi dilakukan manual.
+         *
+         * RENJA  : XLSX, XLS, CSV.
+         * RKBMN  : XLSX, XLS saja karena RKBMN membutuhkan dua worksheet
+         *          (Pengadaan dan Pemeliharaan), sehingga CSV tidak sesuai struktur.
+         *
+         * Validitas isi workbook tetap diverifikasi oleh PhpSpreadsheet ketika
+         * Excel::import() dijalankan. Jadi file yang sekadar diganti ekstensinya
+         * tetapi bukan spreadsheet yang dapat dibaca tetap akan gagal saat parsing
+         * dan transaksi akan di-rollback.
+         */
         if ($request->hasFile('renja_file')) {
-            $extRenja = strtolower($request->file('renja_file')->getClientOriginalExtension());
-            if (!in_array($extRenja, $allowedExtensions)) {
-                return redirect()->back()->withErrors(['renja_file' => 'The RENJA file field must be a file of type: xlsx, xls, csv.'])->withInput();
-            }
-            if (!$request->filled('renja_name')) {
-                return redirect()->back()->withErrors(['renja_name' => 'The RENJA name field is required when file is uploaded.'])->withInput();
-            }
+            $this->validateManualExtension(
+                $request->file('renja_file'),
+                ['xlsx', 'xls', 'csv'],
+                'renja_file',
+                'RENJA'
+            );
         }
 
         if ($request->hasFile('rkbmn_file')) {
-            $extRkbmn = strtolower($request->file('rkbmn_file')->getClientOriginalExtension());
-            if (!in_array($extRkbmn, $allowedExtensions)) {
-                return redirect()->back()->withErrors(['rkbmn_file' => 'The RKBMN file field must be a file of type: xlsx, xls, csv.'])->withInput();
-            }
-            if (!$request->filled('rkbmn_name')) {
-                return redirect()->back()->withErrors(['rkbmn_name' => 'The RKBMN name field is required when file is uploaded.'])->withInput();
-            }
+            $this->validateManualExtension(
+                $request->file('rkbmn_file'),
+                ['xlsx', 'xls'],
+                'rkbmn_file',
+                'RKBMN'
+            );
         }
 
-        $uploadedPaths = []; // Menyimpan path untuk rollback jika terjadi error
-        $messages = [];      // Menyimpan pesan sukses
+        $uploadedPaths = [];
+        $messages = [];
 
-        // 3. Mulai Transaksi Database
         DB::beginTransaction();
+
         try {
-            // A. Proses Renja jika ada
             if ($request->hasFile('renja_file')) {
-                $renjaPath = $this->processRenja($request->file('renja_file'), $request->input('renja_name'));
+                $renjaPath = $this->processRenja(
+                    $request->file('renja_file'),
+                    (string) $request->input('renja_name'),
+                    (int) $request->input('renja_tahun_anggaran')
+                );
+
                 $uploadedPaths[] = $renjaPath;
-                $messages[] = 'File Renja berhasil diunggah.';
+                $messages[] = 'Master data RENJA berhasil diproses dan disimpan.';
             }
 
-            // B. Proses RKBMN jika ada
             if ($request->hasFile('rkbmn_file')) {
-                $rkbmnPath = $this->processRkbmn($request->file('rkbmn_file'), $request->input('rkbmn_name'));
+                $rkbmnPath = $this->processRkbmn(
+                    $request->file('rkbmn_file'),
+                    (string) $request->input('rkbmn_name'),
+                    (int) $request->input('rkbmn_tahun_anggaran')
+                );
+
                 $uploadedPaths[] = $rkbmnPath;
-                $messages[] = 'File RKBMN berhasil diunggah.';
+                $messages[] = 'Master data RKBMN berhasil diproses dan disimpan.';
             }
 
-            // Commit dan kembalikan pesan sukses
             DB::commit();
-            return redirect()->back()->with('success', implode(' ', $messages));
-        } catch (\Exception $e) {
+
+            $message = implode(' ', $messages);
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'title' => 'Master Data Berhasil Diproses',
+                    'message' => $message,
+                ]);
+            }
+
+            return redirect()
+                ->back()
+                ->with('success', $message);
+        } catch (\Throwable $e) {
             DB::rollBack();
 
-            // Hapus file yang terlanjur terupload jika ada error di database/excel
             foreach ($uploadedPaths as $path) {
-                if (Storage::disk('public')->exists($path)) {
+                if ($path && Storage::disk('public')->exists($path)) {
                     Storage::disk('public')->delete($path);
                 }
             }
 
-            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            Log::error('GAGAL PROSES MASTER DATA', [
+                'message' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            $message = 'Master data gagal diproses: ' . $e->getMessage();
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'title' => 'Master Data Gagal Diproses',
+                    'message' => $message,
+                ], 500);
+            }
+
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', $message);
         }
     }
 
-    // ========================================================================
-    // PRIVATE HELPER FUNCTIONS
-    // ========================================================================
+    /**
+     * Validasi ekstensi berdasarkan nama file asli.
+     *
+     * Sengaja tidak menggunakan rule Laravel mimes:* karena XLSX tertentu dapat
+     * dideteksi sebagai application/zip oleh PHP Fileinfo walaupun workbook valid.
+     */
+    private function validateManualExtension(
+        UploadedFile $file,
+        array $allowedExtensions,
+        string $field,
+        string $label
+    ): void {
+        $extension = strtolower((string) $file->getClientOriginalExtension());
 
-    private function processRenja($file, $documentName)
-    {
-        $nextDocId = $this->generateNextDocumentId();
-
-        // Sanitasi nama file (sesuai kode Anda)
-        $cleanFileName = preg_replace('/[^A-Za-z0-9\-\_\.]/', '_', $file->getClientOriginalName());
-        $fileName = time() . '_' . $cleanFileName;
-        $filePath = $file->storeAs('uploads/renja', $fileName, 'public');
-
-        DB::table('file_master')->insert([
-            'documentID'    => $nextDocId,
-            'document_name' => $documentName,
-            'document_type' => 'RENJA',
-            'document_size' => $file->getSize(),
-            'file_path'     => $filePath,
-            'uploaded_by'   => session('user_id') ?? 'user_dummy',
-            'created_at'    => now(),
-            'updated_at'    => now(),
-        ]);
-
-        // Menggunakan $file langsung (sesuai kode Anda)
-        Excel::import(new RenjaImport($nextDocId), $file);
-
-        return $filePath;
+        if ($extension === '' || !in_array($extension, $allowedExtensions, true)) {
+            throw ValidationException::withMessages([
+                $field => sprintf(
+                    'File %s harus berformat: %s.',
+                    $label,
+                    strtoupper(implode(', ', $allowedExtensions))
+                ),
+            ]);
+        }
     }
 
-    private function processRkbmn($file, $documentName)
-    {
-        $nextDocId = $this->generateNextDocumentId();
+    private function processRenja(
+        UploadedFile $file,
+        string $documentName,
+        int $tahunAnggaran
+    ): string {
+        $filePath = null;
 
-        // Sanitasi nama file (sesuai kode Anda)
-        $cleanFileName = preg_replace('/[^A-Za-z0-9\-\_\.]/', '_', $file->getClientOriginalName());
-        $fileName = time() . '_' . $cleanFileName;
-        $filePath = $file->storeAs('uploads/rkbmn', $fileName, 'public');
+        try {
+            $nextDocId = $this->generateNextDocumentId();
 
-        DB::table('file_master')->insert([
-            'documentID'    => $nextDocId,
-            'document_name' => $documentName,
-            'document_type' => 'RKBMN',
-            'document_size' => $file->getSize(),
-            'file_path'     => $filePath,
-            'uploaded_by'   => session('user_id') ?? 'user_dummy',
-            'created_at'    => now(),
-            'updated_at'    => now(),
-        ]);
+            $cleanFileName = preg_replace(
+                '/[^A-Za-z0-9\-_\.]/',
+                '_',
+                $file->getClientOriginalName()
+            );
 
-        // Menggunakan $file langsung (sesuai kode Anda)
-        Excel::import(new RkbmnImport($nextDocId), $file);
+            $fileName = Str::uuid() . '_RENJA_' . $cleanFileName;
+            $filePath = $file->storeAs('uploads/renja', $fileName, 'public');
 
-        return $filePath;
+            if (!$filePath) {
+                throw new \RuntimeException('File RENJA gagal disimpan ke storage.');
+            }
+
+            DB::table('file_master')->insert([
+                'documentID' => $nextDocId,
+                'document_name' => $documentName,
+                'document_type' => 'RENJA',
+                'document_size' => $file->getSize(),
+                'file_path' => $filePath,
+                'uploaded_by' => session('user_id') ?? 'user_dummy',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            Excel::import(
+                new RenjaImport($nextDocId, $tahunAnggaran),
+                $file
+            );
+
+            return $filePath;
+        } catch (\Throwable $e) {
+            if ($filePath && Storage::disk('public')->exists($filePath)) {
+                Storage::disk('public')->delete($filePath);
+            }
+
+            throw $e;
+        }
     }
 
-    private function generateNextDocumentId()
+    private function processRkbmn(
+        UploadedFile $file,
+        string $documentName,
+        int $tahunAnggaran
+    ): string {
+        $filePath = null;
+
+        try {
+            $nextDocId = $this->generateNextDocumentId();
+
+            $cleanFileName = preg_replace(
+                '/[^A-Za-z0-9\-_\.]/',
+                '_',
+                $file->getClientOriginalName()
+            );
+
+            $fileName = Str::uuid() . '_RKBMN_' . $cleanFileName;
+            $filePath = $file->storeAs('uploads/rkbmn', $fileName, 'public');
+
+            if (!$filePath) {
+                throw new \RuntimeException('File RKBMN gagal disimpan ke storage.');
+            }
+
+            DB::table('file_master')->insert([
+                'documentID' => $nextDocId,
+                'document_name' => $documentName,
+                'document_type' => 'RKBMN',
+                'document_size' => $file->getSize(),
+                'file_path' => $filePath,
+                'uploaded_by' => session('user_id') ?? 'user_dummy',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            Excel::import(
+                new RkbmnImport($nextDocId, $tahunAnggaran),
+                $file
+            );
+
+            return $filePath;
+        } catch (\Throwable $e) {
+            if ($filePath && Storage::disk('public')->exists($filePath)) {
+                Storage::disk('public')->delete($filePath);
+            }
+
+            throw $e;
+        }
+    }
+
+    private function generateNextDocumentId(): string
     {
-        // Fitur keamanan lockForUpdate (sesuai kode Anda)
-        $lastDoc = DB::table('file_master')->lockForUpdate()->orderBy('documentID', 'desc')->first();
+        $lastDoc = DB::table('file_master')
+            ->lockForUpdate()
+            ->orderBy('documentID', 'desc')
+            ->first();
 
         if (!$lastDoc) {
             return 'doc00001';
         }
 
-        $lastNumber = (int) substr($lastDoc->documentID, 3);
-        return 'doc' . str_pad($lastNumber + 1, 5, '0', STR_PAD_LEFT);
+        $lastNumber = (int) substr((string) $lastDoc->documentID, 3);
+
+        if ($lastNumber >= 99999) {
+            throw new \RuntimeException('Kapasitas documentID sudah mencapai batas maksimum doc99999.');
+        }
+
+        return 'doc' . str_pad((string) ($lastNumber + 1), 5, '0', STR_PAD_LEFT);
     }
 
-    public function ShowSatker(){
+    // ========================================================================
+    // FITUR MASTER SATKER - DIPERTAHANKAN
+    // ========================================================================
+
+    public function ShowSatker()
+    {
         return view('menu.satker');
     }
 
     public function importDataSatker(Request $request)
     {
-        // Validasi 'required' sudah memastikan file pasti ada
         $request->validate([
-            'file_satker' => 'required|mimes:xlsx,xls,csv|max:51200' // Tambahkan max size biar aman (misal 50MB)
+            'file_satker' => 'required|mimes:xlsx,xls,csv|max:51200',
         ]);
 
-        $allowedExtensions = ['xlsx', 'xls', 'csv'];
+        $uploadedPaths = [];
+        $messages = [];
 
-        $extSatker = strtolower($request->file('file_satker')->getClientOriginalExtension());
-        if (!in_array($extSatker, $allowedExtensions)) {
-            return redirect()->back()
-                ->withErrors(['file_satker' => 'The SATKER file field must be a file of type: xlsx, xls, csv.'])
-                ->withInput();
-        }
-        
-        $uploadedPaths = []; // Menyimpan path untuk rollback jika terjadi error
-        $messages = [];      // Menyimpan pesan sukses
-        
         DB::beginTransaction();
+
         try {
-            // Langsung proses karena file pasti ada (berkat validasi 'required' di atas)
             $satkerPath = $this->processSatker($request->file('file_satker'));
             $uploadedPaths[] = $satkerPath;
             $messages[] = 'File Master Satker berhasil diimpor dan disimpan ke database.';
-            
-            DB::commit();
-            return redirect()->back()->with('success', implode(' ', $messages));
 
-        } catch (\Exception $e) {
+            DB::commit();
+
+            return redirect()->back()->with('success', implode(' ', $messages));
+        } catch (\Throwable $e) {
             DB::rollBack();
 
-            // Hapus file yang terlanjur terupload
             foreach ($uploadedPaths as $path) {
                 if (Storage::disk('public')->exists($path)) {
                     Storage::disk('public')->delete($path);
                 }
             }
 
-            // TAMPILKAN ERROR MENTAH KE LAYAR (DEBUGGING)
-            dd([
-                'Pesan_Error' => $e->getMessage(),
-                'Baris_Error' => $e->getLine(),
-                'File_Error'  => $e->getFile()
+            Log::error('GAGAL IMPORT MASTER SATKER', [
+                'message' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
             ]);
 
-            // return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'Master Satker gagal diproses: ' . $e->getMessage());
         }
     }
 
-    private function processSatker($file)
+    private function processSatker(UploadedFile $file): string
     {
-        // HAPUS generateNextDocumentId() jika tidak dimasukkan ke tabel file_master
-        
-        // Sanitasi nama file
-        $cleanFileName = preg_replace('/[^A-Za-z0-9\-\_\.]/', '_', $file->getClientOriginalName());
-        $fileName = time() . '_SATKER_' . $cleanFileName;
-        $filePath = $file->storeAs('uploads/satker', $fileName, 'public');
+        $filePath = null;
 
-        // Import Excel (Tidak perlu mengirim $nextDocId karena di SatkerImport.php constructornya punya default = null)
-        Excel::import(new SatkerImport(), $file);
+        try {
+            $cleanFileName = preg_replace(
+                '/[^A-Za-z0-9\-_\.]/',
+                '_',
+                $file->getClientOriginalName()
+            );
 
-        return $filePath;
+            $fileName = Str::uuid() . '_SATKER_' . $cleanFileName;
+            $filePath = $file->storeAs('uploads/satker', $fileName, 'public');
+
+            if (!$filePath) {
+                throw new \RuntimeException('File Master Satker gagal disimpan ke storage.');
+            }
+
+            Excel::import(new SatkerImport(), $file);
+
+            return $filePath;
+        } catch (\Throwable $e) {
+            if ($filePath && Storage::disk('public')->exists($filePath)) {
+                Storage::disk('public')->delete($filePath);
+            }
+
+            throw $e;
+        }
     }
-
-
-    // public function storeRenja(Request $request)
-    // {
-    //     // 1. Validasi file dan nama dokumen
-    //     $request->validate([
-    //         'renja_file' => 'required|file|max:51200', // Max 50MB
-    //         'renja_name' => 'required|string',
-    //     ]);
-
-    //     $file = $request->file('renja_file');
-    //     $renja_name = $request->input('renja_name');
-
-    //     // 2. Validasi Ekstensi Manual
-    //     // Mengambil ekstensi file asli dari user dan mencocokkannya
-    //     $allowedExtensions = ['xlsx', 'xls', 'csv'];
-    //     $extension = strtolower($file->getClientOriginalExtension());
-
-    //     if (!in_array($extension, $allowedExtensions)) {
-    //         return redirect()->back()
-    //             ->withErrors(['renja_file' => 'The RENJA file field must be a file of type: xlsx, xls, csv.'])
-    //             ->withInput();
-    //     }
-
-    //     DB::beginTransaction();
-    //     try {
-    //         // 2. Generate documentID dengan Lock untuk mencegah Race Condition
-    //         // lockForUpdate() memastikan proses upload bersamaan akan antre
-    //         $lastDoc = DB::table('file_master')->lockForUpdate()->orderBy('documentID', 'desc')->first();
-
-    //         if (!$lastDoc) {
-    //             $nextDocId = 'doc00001';
-    //         } else {
-    //             $lastNumber = (int) substr($lastDoc->documentID, 3);
-    //             $nextDocId = 'doc' . str_pad($lastNumber + 1, 5, '0', STR_PAD_LEFT);
-    //         }
-
-    //         // 3. Sanitasi nama file dan Simpan ke server
-    //         // Menghapus karakter aneh dari nama file asli
-    //         $cleanFileName = preg_replace('/[^A-Za-z0-9\-\_\.]/', '_', $file->getClientOriginalName());
-    //         $fileName = time() . '_' . $cleanFileName;
-    //         $filePath = $file->storeAs('uploads/renja', $fileName, 'public');
-
-    //         // 4. A. Simpan ke tabel file_master
-    //         DB::table('file_master')->insert([
-    //             'documentID'    => $nextDocId,
-    //             'document_name' => $renja_name,
-    //             'document_type' => 'RENJA',
-    //             'document_size' => $file->getSize(),
-    //             'file_path'     => $filePath,
-    //             'uploaded_by'   => session('user_id') ?? 'user_dummy',
-    //             'created_at'    => now(),
-    //             'updated_at'    => now(),
-    //         ]);
-
-    //         // 4. B. Proses baca Excel langsung dari object $file bawaan Request
-    //         // Ini jauh lebih aman daripada mengandalkan public_path / symlink
-    //         Excel::import(new RenjaImport($nextDocId), $file);
-
-    //         DB::commit();
-    //         return redirect()->back()->with('success', 'File Renja berhasil diunggah dan disimpan!');
-    //     } catch (\Exception $e) {
-    //         DB::rollBack();
-
-    //         // Hapus file yang terlanjur terupload jika ada error di database/excel
-    //         if (isset($filePath) && Storage::disk('public')->exists($filePath)) {
-    //             Storage::disk('public')->delete($filePath);
-    //         }
-
-    //         return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
-    //     }
-    // }
-
-    // public function storeRkbmn(Request $request)
-    // {
-    //     $request->validate([
-    //         'rkbmn_file' => 'required|max:51200', // Max 50MB
-    //         'rkbmn_name' => 'required|string',
-    //     ]);
-
-    //     $file = $request->file('rkbmn_file');
-    //     $rkbmn_name = $request->input('rkbmn_name');
-
-    //     // 2. Validasi Ekstensi Manual
-    //     // Mengambil ekstensi file asli dari user dan mencocokkannya
-    //     $allowedExtensions = ['xlsx', 'xls', 'csv'];
-    //     $extension = strtolower($file->getClientOriginalExtension());
-
-    //     if (!in_array($extension, $allowedExtensions)) {
-    //         return redirect()->back()
-    //             ->withErrors(['rkbmn_file' => 'The RKBMN file field must be a file of type: xlsx, xls, csv.'])
-    //             ->withInput();
-    //     }
-
-    //     DB::beginTransaction();
-    //     try {
-    //         // 2. Generate documentID dengan Lock untuk mencegah Race Condition
-    //         // lockForUpdate() memastikan proses upload bersamaan akan antre
-    //         $lastDoc = DB::table('file_master')->lockForUpdate()->orderBy('documentID', 'desc')->first();
-
-    //         if (!$lastDoc) {
-    //             $nextDocId = 'doc00001';
-    //         } else {
-    //             $lastNumber = (int) substr($lastDoc->documentID, 3);
-    //             $nextDocId = 'doc' . str_pad($lastNumber + 1, 5, '0', STR_PAD_LEFT);
-    //         }
-
-    //         // 3. Sanitasi nama file dan Simpan ke server
-    //         // Menghapus karakter aneh dari nama file asli
-    //         $cleanFileName = preg_replace('/[^A-Za-z0-9\-\_\.]/', '_', $file->getClientOriginalName());
-    //         $fileName = time() . '_' . $cleanFileName;
-    //         $filePath = $file->storeAs('uploads/rkbmn', $fileName, 'public');
-
-    //          // 4. A. Simpan ke tabel file_master
-    //         DB::table('file_master')->insert([
-    //             'documentID'    => $nextDocId,
-    //             'document_name' => $rkbmn_name,
-    //             'document_type' => 'RKBMN',
-    //             'document_size' => $file->getSize(),
-    //             'file_path'     => $filePath,
-    //             'uploaded_by'   => session('user_id') ?? 'user_dummy',
-    //             'created_at'    => now(),
-    //             'updated_at'    => now(),
-    //         ]);
-
-    //         // 4. B. Proses baca Excel langsung dari object $file bawaan Request
-    //         // Ini jauh lebih aman daripada mengandalkan public_path / symlink
-    //         Excel::import(new RkbmnImport($nextDocId), $file);
-
-    //         DB::commit();
-    //         return redirect()->back()->with('success', 'File RKBMN berhasil diunggah dan disimpan!');
-    //     } catch (\Exception $e) {
-    //         DB::rollBack();
-
-    //         // Hapus file yang terlanjur terupload jika ada error di database/excel
-    //         if (isset($filePath) && Storage::disk('public')->exists($filePath)) {
-    //             Storage::disk('public')->delete($filePath);
-    //         }
-
-    //         return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
-    //     }
-    //     // catch (\Exception $e) {
-    //     //     DB::rollBack();
-    //     //     if (\Illuminate\Support\Facades\Storage::disk('public')->exists($filePath)) {
-    //     //         \Illuminate\Support\Facades\Storage::disk('public')->delete($filePath);
-    //     //     }
-    //     //     return redirect()->back()->with('error', 'Gagal: ' . $e->getMessage());
-    //     // }
-    // }
 }

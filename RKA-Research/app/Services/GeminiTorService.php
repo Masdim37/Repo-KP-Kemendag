@@ -172,7 +172,7 @@ PROMPT;
                 default => 'Gagal menghubungi Gemini (HTTP ' . $status . '): ' . $response->reason(),
             };
 
-            throw new \RuntimeException($message);
+            throw new \RuntimeException($message, $status);
         }
 
         $result = $response->json();
@@ -454,11 +454,16 @@ PROMPT;
                         'message' => $e->getMessage(),
                     ]);
 
+                    $status = str_contains(strtolower($e->getMessage()), 'timed out')
+                        || str_contains(strtolower($e->getMessage()), 'curl error 28')
+                        ? 504
+                        : 503;
+
                     throw new \RuntimeException(
-                        'Tidak dapat terhubung ke Gemini setelah '
-                        . $maxAttempts
-                        . ' percobaan.',
-                        0,
+                        $status === 504
+                            ? 'Waktu pemrosesan Gemini habis. Silakan coba kembali.'
+                            : 'Tidak dapat terhubung ke layanan Gemini. Silakan coba kembali.',
+                        $status,
                         $e
                     );
                 }
@@ -511,7 +516,8 @@ PROMPT;
         }
 
         throw new \RuntimeException(
-            'Gemini gagal memberikan respons.'
+            'Gemini gagal memberikan respons.',
+            503
         );
     }
 

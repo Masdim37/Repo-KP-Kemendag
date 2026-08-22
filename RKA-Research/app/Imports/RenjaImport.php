@@ -6,34 +6,45 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Illuminate\Support\Str;
 
 class RenjaImport implements ToCollection, WithHeadingRow
 {
-    protected $documentID;
+    protected string $documentID;
+    protected int $tahunAnggaran;
 
-    // Menangkap DocumentID dari Controller
-    public function __construct($documentID)
+    public function __construct(string $documentID, int $tahunAnggaran)
     {
         $this->documentID = $documentID;
+        $this->tahunAnggaran = $tahunAnggaran;
     }
 
     public function collection(Collection $rows)
     {
         $dataToInsert = [];
 
-        $counter = 1;
+        // Karena import dijalankan di dalam transaction controller, lock ini
+        // menjaga generator renjaID aman jika ada upload bersamaan.
+        $lastRenjaId = DB::table('renja')
+            ->lockForUpdate()
+            ->orderByDesc('renjaID')
+            ->value('renjaID');
 
-        foreach ($rows as $index => $row) {
-            // Lewati baris jika data kementerian_nama atau program kosong (mencegah baris kosong di Excel terinput)
-            if (!isset($row['program'])) continue;
+        $counter = $lastRenjaId
+            ? (int) substr((string) $lastRenjaId, 5)
+            : 0;
 
-            // 1. Eksekusi Pemisahan String (Kode dan Uraian)
-            // Hierarki Organisasi
+        foreach ($rows as $row) {
+            // Baris master RENJA dianggap valid jika field Program terisi.
+            // Ini mencegah baris kosong/artefak di bagian bawah Excel ikut masuk.
+            if (trim((string) ($row['program'] ?? '')) === '') {
+                continue;
+            }
+
+            // Hierarki organisasi
             $unitEselon1 = $this->splitKodeUraian($row['unit_eselon1'] ?? '');
             $unitEselon2 = $this->splitKodeUraian($row['unit_eselon2'] ?? '');
-            
-            // Hierarki Pekerjaan
+
+            // Hierarki pekerjaan
             $program = $this->splitKodeUraian($row['program'] ?? '');
             $koordinatorProgram = $this->splitKodeUraian($row['koordinator_program'] ?? '');
             $kegiatan = $this->splitKodeUraian($row['kegiatan'] ?? '');
@@ -59,22 +70,21 @@ class RenjaImport implements ToCollection, WithHeadingRow
             $propinsi = $this->splitKodeUraian($row['propinsi'] ?? '');
             $kabupaten = $this->splitKodeUraian($row['kabupaten'] ?? '');
 
-            // 2. Generate renjaID berurutan (Contoh: rwrnj0000001, rwrnj0000002, dst)
-            $renjaID = 'rwrnj' . str_pad($counter, 7, '0', STR_PAD_LEFT);
-            $counter++; // Tambah 1 untuk baris berikutnya
+            $counter++;
+            $renjaID = 'rwrnj' . str_pad((string) $counter, 7, '0', STR_PAD_LEFT);
 
-            // 3. Mapping data untuk di-insert
             $dataToInsert[] = [
                 'renjaID' => $renjaID,
                 'documentID' => $this->documentID,
+                'tahun_anggaran' => $this->tahunAnggaran,
                 'kementerian_nama' => $row['kementerian_nama'] ?? null,
-                
+
                 // Organisasi
                 'kode_unit_eselon1' => $unitEselon1['kode'],
                 'unit_eselon1' => $unitEselon1['uraian'],
                 'kode_unit_eselon2' => $unitEselon2['kode'],
                 'unit_eselon2' => $unitEselon2['uraian'],
-                
+
                 // Pekerjaan
                 'kode_program' => $program['kode'],
                 'program' => $program['uraian'],
@@ -91,7 +101,7 @@ class RenjaImport implements ToCollection, WithHeadingRow
                 'kode_komponen' => $komponen['kode'],
                 'komponen' => $komponen['uraian'],
 
-                // Kategori & Fungsi
+                // Kategori & fungsi
                 'fungsi' => $row['fungsi'] ?? null,
                 'subfungsi' => $row['subfungsi'] ?? null,
                 'prioritas_check' => $row['prioritas_check'] ?? null,
@@ -100,7 +110,7 @@ class RenjaImport implements ToCollection, WithHeadingRow
                 'nawacita' => $row['nawacita'] ?? null,
                 'mp' => $row['mp'] ?? null,
 
-                // Split Kategori
+                // Tematik / Prioritas Nasional
                 'kode_tematiks' => $tematiks['kode'],
                 'tematiks' => $tematiks['uraian'],
                 'kode_pn' => $pn['kode'],
@@ -112,7 +122,7 @@ class RenjaImport implements ToCollection, WithHeadingRow
                 'kode_pro_pn' => $proPn['kode'],
                 'pro_pn' => $proPn['uraian'],
 
-                // Split Sasaran
+                // Sasaran
                 'kode_sasaran_strategis' => $sasaranStrategis['kode'],
                 'sasaran_strategis' => $sasaranStrategis['uraian'],
                 'kode_sasaran_program' => $sasaranProgram['kode'],
@@ -120,7 +130,7 @@ class RenjaImport implements ToCollection, WithHeadingRow
                 'kode_sasaran_kegiatan' => $sasaranKegiatan['kode'],
                 'sasaran_kegiatan' => $sasaranKegiatan['uraian'],
 
-                // Split Lokasi & Geografis (Pulau tidak di-split berdasarkan struktur tabel Anda)
+                // Lokasi & geografis
                 'kode_lokasi_ro' => $lokasiRo['kode'],
                 'lokasi_ro' => $lokasiRo['uraian'],
                 'pulau' => $row['pulau'] ?? null,
@@ -129,69 +139,80 @@ class RenjaImport implements ToCollection, WithHeadingRow
                 'kode_kabupaten' => $kabupaten['kode'],
                 'kabupaten' => $kabupaten['uraian'],
 
-                // Target (Numerik & Desimal)
+                // Target
                 'satuan' => $row['satuan'] ?? null,
-                'target_0' => is_numeric($row['target_0'] ?? null) ? $row['target_0'] : 0,
-                'target_1' => is_numeric($row['target_1'] ?? null) ? $row['target_1'] : 0,
-                'target_2' => is_numeric($row['target_2'] ?? null) ? $row['target_2'] : 0,
-                'target_3' => is_numeric($row['target_3'] ?? null) ? $row['target_3'] : 0,
+                'target_0' => $this->numericOrZero($row['target_0'] ?? null),
+                'target_1' => $this->numericOrZero($row['target_1'] ?? null),
+                'target_2' => $this->numericOrZero($row['target_2'] ?? null),
+                'target_3' => $this->numericOrZero($row['target_3'] ?? null),
                 'satuan_target' => $row['satuan_target'] ?? null,
-                
-                // Komponen Atribut
+
+                // Atribut komponen
                 'satuan_komponen' => $row['satuan_komponen'] ?? null,
                 'kewenangan' => $row['kewenangan'] ?? null,
                 'type_komponen' => $row['type_komponen'] ?? null,
                 'jenis_komponen' => $row['jenis_komponen'] ?? null,
                 'sumber_dana' => $row['sumber_dana'] ?? null,
-                
-                // Target Komponen
-                'target_komponen_0' => is_numeric($row['target_komponen_0'] ?? null) ? $row['target_komponen_0'] : 0,
-                'target_komponen_1' => is_numeric($row['target_komponen_1'] ?? null) ? $row['target_komponen_1'] : 0,
-                'target_komponen_2' => is_numeric($row['target_komponen_2'] ?? null) ? $row['target_komponen_2'] : 0,
-                'target_komponen_3' => is_numeric($row['target_komponen_3'] ?? null) ? $row['target_komponen_3'] : 0,
 
-                // Alokasi Anggaran (Penting untuk default 0)
-                'alokasi_komponen_0' => is_numeric($row['alokasi_komponen_0'] ?? null) ? $row['alokasi_komponen_0'] : 0,
-                'alokasi_komponen_1' => is_numeric($row['alokasi_komponen_1'] ?? null) ? $row['alokasi_komponen_1'] : 0,
-                'alokasi_komponen_2' => is_numeric($row['alokasi_komponen_2'] ?? null) ? $row['alokasi_komponen_2'] : 0,
-                'alokasi_komponen_3' => is_numeric($row['alokasi_komponen_3'] ?? null) ? $row['alokasi_komponen_3'] : 0,
+                // Target komponen
+                'target_komponen_0' => $this->numericOrZero($row['target_komponen_0'] ?? null),
+                'target_komponen_1' => $this->numericOrZero($row['target_komponen_1'] ?? null),
+                'target_komponen_2' => $this->numericOrZero($row['target_komponen_2'] ?? null),
+                'target_komponen_3' => $this->numericOrZero($row['target_komponen_3'] ?? null),
 
-                // Atribut Tambahan
+                // Alokasi anggaran
+                'alokasi_komponen_0' => $this->numericOrZero($row['alokasi_komponen_0'] ?? null),
+                'alokasi_komponen_1' => $this->numericOrZero($row['alokasi_komponen_1'] ?? null),
+                'alokasi_komponen_2' => $this->numericOrZero($row['alokasi_komponen_2'] ?? null),
+                'alokasi_komponen_3' => $this->numericOrZero($row['alokasi_komponen_3'] ?? null),
+
+                // Atribut tambahan
                 'dijumlahkan' => $row['dijumlahkan'] ?? null,
                 'multiyears' => $row['multiyears'] ?? null,
                 'jns_suboutput' => $row['jns_suboutput'] ?? null,
                 'rab' => $row['rab'] ?? null,
                 'tor' => $row['tor'] ?? null,
                 'tag_ro' => $row['tag_ro'] ?? null,
-                
+
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
         }
 
-        // Insert ke database secara batch (massal) per 500 baris
-        $chunks = array_chunk($dataToInsert, 500);
-        foreach ($chunks as $chunk) {
+        if (empty($dataToInsert)) {
+            throw new \RuntimeException(
+                'Data RENJA gagal diekstrak. Pastikan file menggunakan format laporan RENJA yang sesuai.'
+            );
+        }
+
+        foreach (array_chunk($dataToInsert, 500) as $chunk) {
             DB::table('renja')->insert($chunk);
         }
     }
 
     /**
-     * Fungsi Helper untuk memisahkan Format "KODE - URAIAN" (atau "KODE-URAIAN")
+     * Memisahkan format "KODE - URAIAN" / "KODE-URAIAN" pada tanda '-' pertama.
      */
-    private function splitKodeUraian($string)
+    private function splitKodeUraian($value): array
     {
-        if (empty(trim($string))) {
+        $string = trim((string) $value);
+
+        if ($string === '') {
             return ['kode' => null, 'uraian' => null];
         }
 
-        // Pisahkan string pada tanda '-' PERTAMA saja
-        // Jika teks berisi "000 - Bukan Tematik", trim() akan membuang spasi berlebih
         $parts = explode('-', $string, 2);
-        
+
         return [
-            'kode' => trim($parts[0]),
-            'uraian' => isset($parts[1]) ? trim($parts[1]) : null,
+            'kode' => trim($parts[0]) !== '' ? trim($parts[0]) : null,
+            'uraian' => isset($parts[1]) && trim($parts[1]) !== ''
+                ? trim($parts[1])
+                : null,
         ];
+    }
+
+    private function numericOrZero($value)
+    {
+        return is_numeric($value) ? $value : 0;
     }
 }

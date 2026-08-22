@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -91,27 +93,53 @@ class RABService
             . rawurlencode($this->model)
             . ':generateContent';
 
-        $response = Http::withHeaders([
-            'x-goog-api-key' => $this->apiKey,
-            'Accept' => 'application/json',
-        ])
-            ->asJson()
-            ->timeout(240)
-            ->connectTimeout(30)
-            ->retry(3, 1500)
-            ->post($url, $payload);
+        try {
+            $response = Http::withHeaders([
+                'x-goog-api-key' => $this->apiKey,
+                'Accept' => 'application/json',
+            ])
+                ->asJson()
+                ->timeout(240)
+                ->connectTimeout(30)
+                ->retry(3, 1500)
+                ->post($url, $payload);
+        } catch (RequestException $e) {
+            $status = $e->response?->status() ?? 502;
+            $apiMessage = $e->response
+                ? data_get($e->response->json(), 'error.message')
+                : null;
+
+            throw new \RuntimeException(
+                $this->geminiHttpMessage($status, $apiMessage, 'RAB'),
+                $status,
+                $e
+            );
+        } catch (ConnectionException $e) {
+            $status = $this->connectionExceptionStatus($e);
+
+            throw new \RuntimeException(
+                $status === 504
+                    ? 'Waktu pemrosesan Gemini untuk RAB habis. Silakan coba kembali.'
+                    : 'Tidak dapat terhubung ke layanan Gemini saat memproses RAB. Silakan coba kembali.',
+                $status,
+                $e
+            );
+        }
 
         if (!$response->successful()) {
+            $status = $response->status();
+            $apiMessage = data_get($response->json(), 'error.message');
+
             Log::error('Gemini RAB API gagal', [
-                'status' => $response->status(),
+                'status' => $status,
                 'body' => $response->body(),
                 'model' => $this->model,
             ]);
 
-            $message = data_get($response->json(), 'error.message')
-                ?: 'Gemini gagal memproses PDF RAB.';
-
-            throw new \RuntimeException($message);
+            throw new \RuntimeException(
+                $this->geminiHttpMessage($status, $apiMessage, 'RAB'),
+                $status
+            );
         }
 
         $text = $this->extractResponseText($response->json());
@@ -582,4 +610,33 @@ PROMPT;
 
         return is_numeric($string) ? (float) $string : null;
     }
+
+    private function geminiHttpMessage(int $status, ?string $apiMessage, string $documentType): string
+    {
+        return match ($status) {
+            400 => 'Permintaan ke Gemini tidak valid saat memproses ' . $documentType
+                . ($apiMessage ? ': ' . $apiMessage : '.'),
+            401 => 'API key Gemini tidak valid atau tidak terautentikasi.',
+            403 => 'Akses ke layanan Gemini ditolak untuk API key/project ini.',
+            413 => 'Dokumen terlalu besar untuk diproses Gemini.',
+            429 => 'Layanan Gemini sedang menerima terlalu banyak permintaan (429 Too Many Requests). Silakan tunggu beberapa saat lalu coba kembali.',
+            500, 502, 503 => 'Layanan Gemini sedang tidak tersedia atau mengalami gangguan (HTTP ' . $status . '). Silakan coba kembali beberapa saat lagi.',
+            504 => 'Layanan Gemini tidak merespons dalam batas waktu (504 Gateway Timeout). Silakan coba kembali.',
+            default => $apiMessage
+                ? 'Gemini gagal memproses ' . $documentType . ' (HTTP ' . $status . '): ' . $apiMessage
+                : 'Gemini gagal memproses ' . $documentType . ' (HTTP ' . $status . ').',
+        };
+    }
+
+    private function connectionExceptionStatus(ConnectionException $e): int
+    {
+        $message = strtolower($e->getMessage());
+
+        return str_contains($message, 'timed out')
+            || str_contains($message, 'curl error 28')
+            ? 504
+            : 503;
+    }
+
+
 }

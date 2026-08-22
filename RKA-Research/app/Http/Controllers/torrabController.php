@@ -117,87 +117,56 @@ class torrabController extends Controller
             'kode_kegiatan'     => 'required|string|max:50',
             'kode_kro'          => 'required|string|max:50',
             'kode_ro'           => 'required|string|max:50',
-
-            // Hanya wajib bila RAB diunggah. TOR-only tidak terpengaruh.
             'tahun_anggaran' => $request->hasFile('rab_file')
                 ? 'required|integer|min:2000|max:2100'
                 : 'nullable|integer|min:2000|max:2100',
-
             'tor_file' => 'nullable|file|mimes:pdf|max:20480',
             'rab_file' => 'nullable|file|mimes:pdf,xlsx,xls|max:51200',
-
             'tor_name' => $request->hasFile('tor_file')
                 ? 'required|string|max:255'
                 : 'nullable|string|max:255',
-
             'rab_name' => $request->hasFile('rab_file')
                 ? 'required|string|max:255'
                 : 'nullable|string|max:255',
         ]);
 
-        /*
-    |--------------------------------------------------------------------------
-    | MINIMAL SATU FILE
-    |--------------------------------------------------------------------------
-    */
+        if (!$request->hasFile('tor_file') && !$request->hasFile('rab_file')) {
+            $message = 'Minimal salah satu file TOR atau RAB wajib diunggah.';
 
-        if (
-            !$request->hasFile('tor_file')
-            &&
-            !$request->hasFile('rab_file')
-        ) {
-            return redirect()
-                ->back()
-                ->withInput()
-                ->with(
-                    'error',
-                    'Minimal salah satu file TOR atau RAB wajib diunggah.'
-                );
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'title' => 'Dokumen Belum Dipilih',
+                    'message' => $message,
+                ], 422);
+            }
+
+            return redirect()->back()->withInput()->with('error', $message);
         }
-
-        /*
-    |--------------------------------------------------------------------------
-    | VALIDASI REFERENSI
-    |--------------------------------------------------------------------------
-    */
 
         try {
-
-            $dataOrganisasi =
-                $this->resolveReferenceData($request);
+            $dataOrganisasi = $this->resolveReferenceData($request);
         } catch (\Throwable $e) {
+            Log::warning('Referensi TOR/RAB tidak valid', [
+                'message' => $e->getMessage(),
+            ]);
 
-            Log::warning(
-                'Referensi TOR/RAB tidak valid',
-                [
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'title' => 'Referensi Tidak Valid',
                     'message' => $e->getMessage(),
-                ]
-            );
+                ], 422);
+            }
 
-            return redirect()
-                ->back()
-                ->withInput()
-                ->with(
-                    'error',
-                    $e->getMessage()
-                );
+            return redirect()->back()->withInput()->with('error', $e->getMessage());
         }
 
-
         $successMessages = [];
-        $errorMessages = [];
-
-
-        /*
-    |--------------------------------------------------------------------------
-    | TOR
-    |--------------------------------------------------------------------------
-    */
+        $errorItems = [];
 
         if ($request->hasFile('tor_file')) {
-
             try {
-
                 $this->processTOR(
                     $request->file('tor_file'),
                     $dataOrganisasi,
@@ -205,37 +174,22 @@ class torrabController extends Controller
                     $request->tor_name
                 );
 
-                $successMessages[] =
-                    'Dokumen TOR berhasil diproses AI dan disimpan.';
+                $successMessages[] = 'Dokumen TOR berhasil diproses AI dan disimpan.';
             } catch (\Throwable $e) {
+                Log::error('GAGAL PROSES TOR', [
+                    'message' => $e->getMessage(),
+                    'code'    => $e->getCode(),
+                    'line'    => $e->getLine(),
+                    'file'    => $e->getFile(),
+                    'trace'   => $e->getTraceAsString(),
+                ]);
 
-                Log::error(
-                    'GAGAL PROSES TOR',
-                    [
-                        'message' => $e->getMessage(),
-                        'line'    => $e->getLine(),
-                        'file'    => $e->getFile(),
-                        'trace'   => $e->getTraceAsString(),
-                    ]
-                );
-
-                $errorMessages[] =
-                    'TOR gagal diproses: '
-                    . $e->getMessage();
+                $errorItems[] = $this->buildDocumentError('TOR', $e);
             }
         }
 
-
-        /*
-    |--------------------------------------------------------------------------
-    | RAB
-    |--------------------------------------------------------------------------
-    */
-
         if ($request->hasFile('rab_file')) {
-
             try {
-
                 $this->processRAB(
                     $request->file('rab_file'),
                     $dataOrganisasi,
@@ -244,93 +198,130 @@ class torrabController extends Controller
                     $request->rab_name
                 );
 
-                $successMessages[] =
-                    'Dokumen RAB berhasil diekstrak dan disimpan.';
+                $successMessages[] = 'Dokumen RAB berhasil diekstrak dan disimpan.';
             } catch (\Throwable $e) {
+                Log::error('GAGAL PROSES RAB', [
+                    'message' => $e->getMessage(),
+                    'code'    => $e->getCode(),
+                    'line'    => $e->getLine(),
+                    'file'    => $e->getFile(),
+                    'trace'   => $e->getTraceAsString(),
+                ]);
 
-                Log::error(
-                    'GAGAL PROSES RAB',
-                    [
-                        'message' => $e->getMessage(),
-                        'line'    => $e->getLine(),
-                        'file'    => $e->getFile(),
-                        'trace'   => $e->getTraceAsString(),
-                    ]
-                );
-
-                $errorMessages[] =
-                    'RAB gagal diproses: '
-                    . $e->getMessage();
+                $errorItems[] = $this->buildDocumentError('RAB', $e);
             }
         }
 
+        if (!empty($successMessages) && empty($errorItems)) {
+            $message = implode(' ', $successMessages);
 
-        /*
-    |--------------------------------------------------------------------------
-    | RESPONSE
-    |--------------------------------------------------------------------------
-    */
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'title' => 'Dokumen Berhasil Diproses',
+                    'message' => $message,
+                    'processed' => $successMessages,
+                ]);
+            }
 
-        if (
-            !empty($successMessages)
-            &&
-            empty($errorMessages)
-        ) {
-
-            /*
-         * Semuanya berhasil.
-         * Tidak pakai withInput() supaya form kembali bersih.
-         */
-
-            return redirect()
-                ->back()
-                ->with(
-                    'success',
-                    implode(
-                        ' ',
-                        $successMessages
-                    )
-                );
+            return redirect()->back()->with('success', $message);
         }
 
+        $errorMessages = array_column($errorItems, 'message');
+        $isPartial = !empty($successMessages) && !empty($errorItems);
 
-        /*
-     * Ada kegagalan sebagian / seluruhnya.
-     * Pertahankan dropdown yang sudah dipilih.
-     */
+        $messageParts = [];
+        if ($isPartial) {
+            $messageParts[] = 'Sebagian dokumen berhasil diproses.';
+            $messageParts[] = implode(' ', $successMessages);
+        }
+        if (!empty($errorMessages)) {
+            $messageParts[] = implode(' ', $errorMessages);
+        }
 
-        $redirect =
-            redirect()
-            ->back()
-            ->withInput();
+        $message = trim(implode(' ', $messageParts));
+        $status = $this->resolveAjaxStatus($errorItems);
 
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => false,
+                'partial_success' => $isPartial,
+                'title' => $isPartial
+                    ? 'Sebagian Dokumen Gagal Diproses'
+                    : 'Dokumen Gagal Diproses',
+                'message' => $message,
+                'processed' => $successMessages,
+                'errors' => $errorItems,
+            ], $status);
+        }
+
+        $redirect = redirect()->back()->withInput();
 
         if (!empty($successMessages)) {
-
-            $redirect->with(
-                'success',
-                implode(
-                    ' ',
-                    $successMessages
-                )
-            );
+            $redirect->with('success', implode(' ', $successMessages));
         }
-
-
         if (!empty($errorMessages)) {
-
-            $redirect->with(
-                'error',
-                implode(
-                    ' ',
-                    $errorMessages
-                )
-            );
+            $redirect->with('error', implode(' ', $errorMessages));
         }
-
 
         return $redirect;
     }
+
+    private function buildDocumentError(string $documentType, \Throwable $e): array
+    {
+        $status = $this->exceptionHttpStatus($e);
+        $message = trim((string) $e->getMessage());
+
+        if ($status === 500 && !$this->hasHttpExceptionCode($e) && !config('app.debug')) {
+            $message = 'Terjadi kesalahan internal server saat memproses dokumen.';
+        }
+
+        if ($message === '') {
+            $message = 'Dokumen gagal diproses.';
+        }
+
+        return [
+            'document' => $documentType,
+            'status' => $status,
+            'message' => $documentType . ' gagal diproses: ' . $message,
+        ];
+    }
+
+    private function resolveAjaxStatus(array $errorItems): int
+    {
+        if (empty($errorItems)) {
+            return 500;
+        }
+
+        $statuses = array_map(
+            fn ($item) => (int) ($item['status'] ?? 500),
+            $errorItems
+        );
+
+        if (in_array(500, $statuses, true)) {
+            return 500;
+        }
+
+        foreach ($statuses as $status) {
+            if ($status >= 400 && $status <= 599) {
+                return $status;
+            }
+        }
+
+        return 500;
+    }
+
+    private function exceptionHttpStatus(\Throwable $e): int
+    {
+        return $this->hasHttpExceptionCode($e) ? (int) $e->getCode() : 500;
+    }
+
+    private function hasHttpExceptionCode(\Throwable $e): bool
+    {
+        $code = (int) $e->getCode();
+        return $code >= 400 && $code <= 599;
+    }
+
     // public function storeTorRab(
     //     Request $request,
     //     GeminiTorService $geminiService

@@ -8,165 +8,195 @@ use Maatwebsite\Excel\Concerns\ToCollection;
 
 class PengadaanSheetImport implements ToCollection
 {
-    protected $documentID;
+    protected string $documentID;
+    protected int $tahunAnggaran;
 
-    public function __construct($documentID)
+    public function __construct(string $documentID, int $tahunAnggaran)
     {
         $this->documentID = $documentID;
+        $this->tahunAnggaran = $tahunAnggaran;
     }
-
-    // public function collection(Collection $rows)
-    // {
-    //     // 1. Ambil Baris 1 & 2 sebagai Header (Kategori dan Metode)
-    //     $headerKategori = $rows[0]; 
-    //     $headerMetode = $rows[1];
-
-    //     // Rangkai header kategori yang ada kolom 'merge'-nya di excel (kosong di array php)
-    //     $categories = [];
-    //     $currentCat = '';
-    //     for ($c = 2; $c < count($headerKategori); $c++) {
-    //         if (!empty($headerKategori[$c])) {
-    //             $currentCat = trim($headerKategori[$c]);
-    //         }
-    //         $categories[$c] = $currentCat;
-    //     }
-
-    //     // 2. Setup Pembuat ID pgd00001
-    //     $lastRecord = DB::table('rkbmn_pengadaan')->orderBy('rkbmn_pengadaanID', 'desc')->first();
-    //     $idCounter = $lastRecord ? (int) substr($lastRecord->rkbmn_pengadaanID, 3) : 0;
-
-    //     $dataToInsert = [];
-
-    //     // 3. Looping Data
-    //     foreach ($rows as $index => $row) {
-    //         if ($index < 2) continue; // Lewati 2 baris header awal
-    //         if (empty($row[0])) continue; // Lewati baris kosong
-
-    //         // Pisahkan Unit dan Satker
-    //         $unit = $this->splitUnit($row[0]);
-    //         $satker = $this->splitSatker($row[1]);
-
-    //         // 4. Looping Kesamping (Unpivoting)
-    //         for ($c = 2; $c < count($headerMetode); $c++) {
-    //             $metode = trim($headerMetode[$c] ?? '');
-    //             $kategori = $categories[$c] ?? '';
-
-    //             // Lewati kolom Jumlah (karena database otomatis bisa sum nanti)
-    //             if (empty($metode) || $kategori == 'Jumlah' || empty($kategori)) continue;
-
-    //             $idCounter++;
-    //             $newId = 'pgd' . str_pad($idCounter, 5, '0', STR_PAD_LEFT);
-
-    //             $dataToInsert[] = [
-    //                 'rkbmn_pengadaanID' => $newId,
-    //                 'documentID'        => $this->documentID,
-    //                 'kode_unit'         => $unit['kode'],
-    //                 'nama_unit'         => $unit['nama'],
-    //                 'kode_satker'       => $satker['kode'],
-    //                 'nama_satker'       => $satker['nama'],
-    //                 'kategori_barang'   => $kategori,
-    //                 'metode_pengadaan'  => $metode,
-    //                 'jumlah'            => is_numeric($row[$c]) ? $row[$c] : 0, // 0 Tetap Masuk
-    //                 'created_at'        => now(),
-    //                 'updated_at'        => now(),
-    //             ];
-    //         }
-    //     }
-
-    //     // Insert massal per 500 baris agar tidak berat
-    //     foreach (array_chunk($dataToInsert, 500) as $chunk) {
-    //         DB::table('rkbmn_pengadaan')->insert($chunk);
-    //     }
-    // }
 
     public function collection(Collection $rows)
     {
-        // 1. Ambil Baris 1 & 2 sebagai Header (Kategori dan Metode)
-        $headerKategori = $rows[0];
-        $headerMetode = $rows[1];
-
-        // FIX BUG 1: Gunakan kolom terpanjang antara header baris 1 dan baris 2
-        // Mencegah kolom terujung (seperti Gedung Kantor) terpotong jika array baris 2 lebih pendek
-        $maxColumns = max(count($headerKategori), count($headerMetode));
-
-        // Rangkai header kategori yang ada kolom 'merge'-nya di excel (kosong di array php)
-        $categories = [];
-        $currentCat = '';
-        for ($c = 2; $c < $maxColumns; $c++) {
-            $catVal = $headerKategori[$c] ?? '';
-            if (!empty(trim($catVal))) {
-                $currentCat = trim($catVal);
-            }
-            $categories[$c] = $currentCat;
+        if ($rows->count() < 3) {
+            throw new \RuntimeException(
+                'Sheet Pengadaan RKBMN tidak mempunyai struktur data yang dapat diproses.'
+            );
         }
 
-        // 2. Setup Pembuat ID pgd00001
-        $lastRecord = DB::table('rkbmn_pengadaan')->orderBy('rkbmn_pengadaanID', 'desc')->first();
-        $idCounter = $lastRecord ? (int) substr($lastRecord->rkbmn_pengadaanID, 3) : 0;
+        $headerKategori = $rows[0];
+        $headerMetode = $rows[1];
+        $maxColumns = max(count($headerKategori), count($headerMetode));
 
-        $dataToInsert = [];
+        // Forward-fill kategori untuk mengatasi merged cell pada baris header.
+        $categories = [];
+        $currentCategory = '';
 
-        // 3. Looping Data
-        foreach ($rows as $index => $row) {
-            if ($index < 2) continue; // Lewati 2 baris header awal
-            if (empty($row[0])) continue; // Lewati baris kosong
+        for ($c = 2; $c < $maxColumns; $c++) {
+            $rawCategory = trim((string) ($headerKategori[$c] ?? ''));
 
-            // Pisahkan Unit dan Satker
-            $unit = $this->splitUnit($row[0]);
-            $satker = $this->splitSatker($row[1]);
+            if ($rawCategory !== '') {
+                $currentCategory = $rawCategory;
+            }
 
-            // 4. Looping Kesamping (Unpivoting)
-            for ($c = 2; $c < $maxColumns; $c++) {
-                $metode = trim($headerMetode[$c] ?? '');
-                $kategori = $categories[$c] ?? '';
+            $categories[$c] = $currentCategory;
+        }
 
-                // Lewati kolom Jumlah atau jika kategori kosong
-                if (strtolower($kategori) === 'jumlah' || empty($kategori)) continue;
+        // Tentukan kolom yang benar-benar aktif. Ini penting karena file sumber
+        // memiliki kolom trailing kosong setelah Gedung Kantor; tanpa filter,
+        // forward-fill kategori dapat menghasilkan baris duplikat palsu.
+        $activeColumns = [];
 
-                // FIX BUG 2: Jika metode kosong (misal Gedung Kantor yg di-merge baris 1 & 2),
-                // Jangan di-skip, tapi berikan nilai default agar tetap masuk database.
-                if (empty($metode)) {
-                    $metode = '-'; // Tanda strip untuk barang yang tidak memiliki sub-header Sewa/Beli
+        for ($c = 2; $c < $maxColumns; $c++) {
+            $category = trim((string) ($categories[$c] ?? ''));
+            $method = trim((string) ($headerMetode[$c] ?? ''));
+            $rawCategory = trim((string) ($headerKategori[$c] ?? ''));
+
+            if ($category === '' || strtolower($category) === 'jumlah') {
+                continue;
+            }
+
+            $hasRealData = false;
+
+            foreach ($rows as $rowIndex => $row) {
+                if ($rowIndex < 2) {
+                    continue;
                 }
 
-                $idCounter++;
-                $newId = 'pgd' . str_pad($idCounter, 5, '0', STR_PAD_LEFT);
+                $rawUnit = trim((string) ($row[0] ?? ''));
 
-                // Keamanan tambahan: Pastikan index array row ada (mencegah error offset excel)
+                if (strcasecmp($rawUnit, 'Jumlah') === 0) {
+                    continue;
+                }
+
+                $value = $row[$c] ?? null;
+
+                if ($value !== null && trim((string) $value) !== '') {
+                    $hasRealData = true;
+                    break;
+                }
+            }
+
+            if ($rawCategory === '' && $method === '' && !$hasRealData) {
+                continue;
+            }
+
+            $activeColumns[] = $c;
+        }
+
+        if (empty($activeColumns)) {
+            throw new \RuntimeException(
+                'Sheet Pengadaan RKBMN tidak mempunyai kolom kategori pengadaan yang valid.'
+            );
+        }
+
+        $lastRecordId = DB::table('rkbmn_pengadaan')
+            ->lockForUpdate()
+            ->orderByDesc('rkbmn_pengadaanID')
+            ->value('rkbmn_pengadaanID');
+
+        $idCounter = $lastRecordId
+            ? (int) substr((string) $lastRecordId, 3)
+            : 0;
+
+        $dataToInsert = [];
+        $currentUnit = null;
+
+        foreach ($rows as $index => $row) {
+            if ($index < 2) {
+                continue;
+            }
+
+            $rawUnit = trim((string) ($row[0] ?? ''));
+            $rawSatker = trim((string) ($row[1] ?? ''));
+
+            // Baris total akhir tidak boleh dianggap sebagai unit/satker.
+            if (strcasecmp($rawUnit, 'Jumlah') === 0) {
+                continue;
+            }
+
+            // Unit pada sumber dapat di-merge vertikal. Ketika cell unit kosong
+            // tetapi satker terisi, gunakan unit terakhir yang terbaca.
+            if ($rawUnit !== '') {
+                $currentUnit = $this->splitUnit($rawUnit);
+            }
+
+            if ($rawSatker === '') {
+                continue;
+            }
+
+            if ($currentUnit === null || empty($currentUnit['kode'])) {
+                throw new \RuntimeException(
+                    'Sheet Pengadaan RKBMN memiliki Satker tanpa konteks Unit pada baris ' . ($index + 1) . '.'
+                );
+            }
+
+            $satker = $this->splitSatker($rawSatker);
+
+            if (empty($satker['kode'])) {
+                continue;
+            }
+
+            foreach ($activeColumns as $c) {
+                $category = trim((string) ($categories[$c] ?? ''));
+                $method = trim((string) ($headerMetode[$c] ?? ''));
+
+                if ($method === '') {
+                    $method = '-';
+                }
+
                 $jumlahVal = $row[$c] ?? 0;
+
+                $idCounter++;
+                $newId = 'pgd' . str_pad((string) $idCounter, 5, '0', STR_PAD_LEFT);
 
                 $dataToInsert[] = [
                     'rkbmn_pengadaanID' => $newId,
-                    'documentID'        => $this->documentID,
-                    'kode_unit'         => $unit['kode'],
-                    'nama_unit'         => $unit['nama'],
-                    'kode_satker'       => $satker['kode'],
-                    'nama_satker'       => $satker['nama'],
-                    'kategori_barang'   => $kategori,
-                    'metode_pengadaan'  => $metode,
-                    'jumlah'            => is_numeric($jumlahVal) ? $jumlahVal : 0, // 0 Tetap Masuk
-                    'created_at'        => now(),
-                    'updated_at'        => now(),
+                    'documentID' => $this->documentID,
+                    'tahun_anggaran' => $this->tahunAnggaran,
+                    'kode_unit' => $currentUnit['kode'],
+                    'nama_unit' => $currentUnit['nama'],
+                    'kode_satker' => $satker['kode'],
+                    'nama_satker' => $satker['nama'],
+                    'kategori_barang' => $category,
+                    'metode_pengadaan' => $method,
+                    'jumlah' => is_numeric($jumlahVal) ? $jumlahVal : 0,
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ];
             }
         }
 
-        // Insert massal per 500 baris agar tidak berat
+        if (empty($dataToInsert)) {
+            throw new \RuntimeException(
+                'Data Pengadaan RKBMN gagal diekstrak dari file Excel.'
+            );
+        }
+
         foreach (array_chunk($dataToInsert, 500) as $chunk) {
             DB::table('rkbmn_pengadaan')->insert($chunk);
         }
     }
 
-    private function splitUnit($string)
+    private function splitUnit($value): array
     {
-        $clean = trim(str_replace('[-]', '', $string)); // Hilangkan [-]
-        $parts = explode(' ', $clean, 2);
-        return ['kode' => trim($parts[0] ?? ''), 'nama' => trim($parts[1] ?? '')];
+        $clean = trim(str_replace('[-]', '', (string) $value));
+        $parts = preg_split('/\s+/', $clean, 2);
+
+        return [
+            'kode' => trim((string) ($parts[0] ?? '')),
+            'nama' => trim((string) ($parts[1] ?? '')),
+        ];
     }
 
-    private function splitSatker($string)
+    private function splitSatker($value): array
     {
-        $parts = explode(' ', $string, 2);
-        return ['kode' => trim($parts[0] ?? ''), 'nama' => trim($parts[1] ?? '')];
+        $parts = preg_split('/\s+/', trim((string) $value), 2);
+
+        return [
+            'kode' => trim((string) ($parts[0] ?? '')),
+            'nama' => trim((string) ($parts[1] ?? '')),
+        ];
     }
 }

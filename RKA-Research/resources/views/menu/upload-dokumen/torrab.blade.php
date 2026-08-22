@@ -1878,6 +1878,9 @@
 </div>
 @endif
 
+@include('partials.document-processing-modal')
+<script src="{{ asset('js/document-processing-modal.js') }}"></script>
+
 <script>
     /*
     |--------------------------------------------------------------------------
@@ -2821,49 +2824,126 @@
     |--------------------------------------------------------------------------
     */
 
+    function ajaxHttpMessage(status) {
+        const messages = {
+            400: "Permintaan tidak dapat diproses karena data request tidak valid.",
+            401: "Sesi atau autentikasi tidak valid.",
+            403: "Anda tidak memiliki izin untuk menjalankan proses ini.",
+            413: "Ukuran dokumen terlalu besar untuk diproses.",
+            419: "Sesi halaman telah berakhir. Silakan muat ulang halaman lalu coba kembali.",
+            422: "Data yang dikirim belum lengkap atau tidak valid.",
+            429: "Layanan Gemini sedang menerima terlalu banyak permintaan. Silakan tunggu beberapa saat lalu coba kembali.",
+            500: "Terjadi kesalahan internal pada server saat memproses dokumen.",
+            502: "Terjadi gangguan saat server menghubungi layanan eksternal.",
+            503: "Layanan Gemini atau server sedang tidak tersedia. Silakan coba kembali beberapa saat lagi.",
+            504: "Proses layanan eksternal melebihi batas waktu. Silakan coba kembali."
+        };
+
+        return messages[status] || `Proses gagal dengan HTTP ${status}.`;
+    }
+
+    function validationDetails(payload) {
+        if (!payload?.errors || Array.isArray(payload.errors)) {
+            return [];
+        }
+
+        return Object.values(payload.errors)
+            .flatMap(messages => Array.isArray(messages) ? messages : [messages])
+            .filter(Boolean);
+    }
+
+    async function readAjaxPayload(response) {
+        const raw = await response.text();
+
+        if (!raw) {
+            return {};
+        }
+
+        try {
+            return JSON.parse(raw);
+        } catch (error) {
+            return {
+                success: response.ok,
+                message: response.ok ? "" : ajaxHttpMessage(response.status)
+            };
+        }
+    }
+
+    async function submitTorRabWithAjax(form) {
+        const response = await fetch(form.action, {
+            method: "POST",
+            body: new FormData(form),
+            credentials: "same-origin",
+            headers: {
+                "Accept": "application/json",
+                "X-Requested-With": "XMLHttpRequest"
+            }
+        });
+
+        const payload = await readAjaxPayload(response);
+
+        if (!response.ok || payload.success === false) {
+            const error = new Error(
+                payload.message
+                || ajaxHttpMessage(response.status)
+            );
+
+            error.title = payload.title || "Dokumen Gagal Diproses";
+            error.status = response.status;
+            error.details = validationDetails(payload);
+
+            if (Array.isArray(payload.errors)) {
+                error.details.push(
+                    ...payload.errors
+                        .map(item => item?.message)
+                        .filter(Boolean)
+                );
+            }
+
+            throw error;
+        }
+
+        return payload;
+    }
+
     document
         .getElementById("torRabForm")
-        .addEventListener("submit", event => {
+        .addEventListener("submit", async event => {
+            event.preventDefault();
+
+            const form = event.currentTarget;
             const saveButton = document.getElementById("saveButton");
             const hasTor = torFile.files.length > 0;
             const hasRab = rabFile.files.length > 0;
 
-            // Minimal satu dokumen harus dipilih.
             if (!hasTor && !hasRab) {
-                event.preventDefault();
                 setFileError("tor", "Pilih TOR/KAK atau RAB. Minimal satu dokumen wajib diunggah.");
                 setFileError("rab", "Pilih TOR/KAK atau RAB. Minimal satu dokumen wajib diunggah.");
                 updateStatus();
                 return;
             }
 
-            // Validasi hanya file yang memang dipilih.
             if (hasTor && !handleFile("tor", torFile.files[0])) {
-                event.preventDefault();
                 return;
             }
 
             if (hasRab && !handleFile("rab", rabFile.files[0])) {
-                event.preventDefault();
                 return;
             }
 
             if (hasTor && !torName.value.trim()) {
-                event.preventDefault();
                 torName.focus();
                 updateStatus();
                 return;
             }
 
             if (hasRab && !rabName.value.trim()) {
-                event.preventDefault();
                 rabName.focus();
                 updateStatus();
                 return;
             }
 
             if (hasRab && !tahunAnggaran.value) {
-                event.preventDefault();
                 tahunAnggaran.focus();
                 updateStatus();
                 return;
@@ -2872,15 +2952,59 @@
             updateStatus();
 
             if (saveButton.disabled) {
-                event.preventDefault();
                 return;
             }
+
+            const mode = getUploadMode();
+            const loadingTitle = mode === "both"
+                ? "Memproses TOR/KAK dan RAB"
+                : mode === "tor"
+                    ? "Memproses Dokumen TOR/KAK"
+                    : "Memproses Dokumen RAB";
+
+            const loadingMessage = mode === "both"
+                ? "Dokumen sedang diunggah dan diproses. TOR/KAK akan dianalisis dengan Gemini AI, sedangkan RAB diproses sesuai format file. Mohon tunggu hingga seluruh proses selesai."
+                : mode === "tor"
+                    ? "Dokumen TOR/KAK sedang diunggah dan dianalisis dengan Gemini AI. Mohon tunggu hingga proses selesai."
+                    : "Dokumen RAB sedang diunggah dan diproses. PDF akan dianalisis dengan Gemini AI, sedangkan Excel diproses oleh parser aplikasi. Mohon tunggu hingga proses selesai.";
 
             saveButton.disabled = true;
             saveButton.innerHTML = `
                 <i class="bi bi-arrow-repeat is-spinning"></i>
                 Memproses dokumen...
             `;
+
+            DocumentProcessingModal.showLoading({
+                title: loadingTitle,
+                message: loadingMessage
+            });
+
+            try {
+                const payload = await submitTorRabWithAjax(form);
+
+                DocumentProcessingModal.showSuccess({
+                    title: payload.title || "Dokumen Berhasil Diproses",
+                    message: payload.message || "Dokumen berhasil diproses dan disimpan.",
+                    buttonText: "OKE",
+                    onClose: () => {
+                        clearSelectedFile("tor");
+                        clearSelectedFile("rab");
+                        torName.value = "";
+                        rabName.value = "";
+                        updateStatus();
+                    }
+                });
+            } catch (error) {
+                DocumentProcessingModal.showError({
+                    title: error.title || "Dokumen Gagal Diproses",
+                    message: error.message || "Terjadi kesalahan saat memproses dokumen.",
+                    details: error.details || [],
+                    buttonText: "TUTUP",
+                    onClose: () => {
+                        updateStatus();
+                    }
+                });
+            }
         });
 
     const successToast = document.getElementById("successToast");

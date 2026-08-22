@@ -97,14 +97,6 @@ Route::controller(rkaController::class)
         Route::post('/Store', 'storeRka')->name('upload.rka.store');
     });
 
-// Route::controller(torrabController::class)
-//     ->prefix('Upload-Dokumen/tor-rb')
-//     ->group(function () {
-//         Route::get('/', 'ShowUploadTorRab')->name('upload.torrab');
-//         Route::post('/Store', 'storeTOR')->name('upload.tor.store');
-//         Route::post('/Store', 'storeRAB')->name('upload.rab.store');
-//     });
-
 Route::controller(torrabController::class)
     ->prefix('Upload-Dokumen/TOR-RAB')
     ->group(function () {

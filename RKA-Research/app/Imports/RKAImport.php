@@ -5,265 +5,469 @@ namespace App\Imports;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\ToCollection;
+use Maatwebsite\Excel\Concerns\WithCalculatedFormulas;
 
-class RKAImport implements ToCollection
+class RKAImport implements ToCollection, WithCalculatedFormulas
 {
-    protected $documentID;
-    protected $dataOrganisasi;
+    protected string $documentID;
+    protected array $dataOrganisasi;
+    protected int $tahunAnggaran;
 
-    public function __construct($documentID, $dataOrganisasi)
-    {
+    public function __construct(
+        string $documentID,
+        array $dataOrganisasi,
+        int $tahunAnggaran
+    ) {
         $this->documentID = $documentID;
         $this->dataOrganisasi = $dataOrganisasi;
+        $this->tahunAnggaran = $tahunAnggaran;
     }
 
     public function collection(Collection $rows)
     {
-        // State (Ingatan) untuk menyimpan hierarki data dari atas ke bawah
+        // State hierarchy aktif. State ini dipertahankan sampai kode yang lebih
+        // tinggi berubah, sama seperti struktur RKK SAKTI.
         $state = [
-            'program'      => ['kode' => null, 'nama' => null],
-            'kegiatan'     => ['kode' => null, 'nama' => null],
-            'kro'          => ['kode' => null, 'nama' => null, 'volume' => null, 'lokasi' => null],
-            'ro'           => ['kode' => null, 'nama' => null],
-            'komponen'     => ['kode' => null, 'nama' => null],
-            'subkomponen'  => ['kode' => null, 'nama' => null],
-            'akun'         => ['kode' => null, 'nama' => null, 'sdcp' => null],
+            'program' => ['kode' => null, 'nama' => null],
+            'kegiatan' => ['kode' => null, 'nama' => null],
+            'kro' => ['kode' => null, 'nama' => null, 'volume' => null, 'lokasi' => null],
+            'ro' => ['kode' => null, 'nama' => null, 'volume' => null],
+            'komponen' => ['kode' => null, 'nama' => null, 'jenis' => null],
+            'subkomponen' => ['kode' => null, 'nama' => null],
+            'akun' => ['kode' => null, 'nama' => null, 'sumber_dana' => null],
+            'kelompok' => ['level1' => null, 'level2' => null],
         ];
 
         $dataToInsert = [];
 
-        // Ambil ID terakhir untuk generator RKA ID
-        $lastRecord = DB::table('rka')->orderBy('rkaID', 'desc')->first();
-        $idCounter = $lastRecord ? (int) substr($lastRecord->rkaID, 3) : 0;
+        // Controller memanggil import di dalam transaction, sehingga lock ini
+        // mencegah benturan rkaID ketika ada upload bersamaan.
+        $lastRkaId = DB::table('rka')
+            ->lockForUpdate()
+            ->orderByDesc('rkaID')
+            ->value('rkaID');
 
-        foreach ($rows as $index => $row) {
-            
-            // 1. CEK BARIS KOSONG (REVISI: Pengecekan Aman)
-            // Memastikan baris dilewati HANYA JIKA kolom A sampai L benar-benar kosong semua
-            $isEmpty = true;
-            for ($i = 0; $i <= 11; $i++) {
-                if (isset($row[$i]) && trim($row[$i]) !== '') {
-                    $isEmpty = false;
-                    break;
+        $idCounter = $lastRkaId
+            ? (int) substr((string) $lastRkaId, 3)
+            : 0;
+
+        foreach ($rows as $row) {
+            if ($this->isEmptyRow($row)) {
+                continue;
+            }
+
+            $colKode = trim((string) ($row[0] ?? ''));
+            $namaHeader = $this->extractHeaderName($row);
+            $teksUraian = $this->extractDescription($row);
+
+            $colVolume = trim((string) ($row[6] ?? ''));
+            $hargaSatuan = $this->parseNullableNumber($row[7] ?? null);
+
+            // Jumlah biaya pada RKK SAKTI umumnya di J, namun pada beberapa
+            // blok bergeser ke K.
+            $jumlahBiaya = $this->firstNumber([
+                $row[9] ?? null,
+                $row[10] ?? null,
+            ]);
+
+            // SD/CP dapat bergeser antara K s.d. O pada export SAKTI.
+            $sdcpText = $this->collectSdCpText($row);
+
+            // ================================================================
+            // HIERARKI
+            // ================================================================
+
+            // PROGRAM: 090.09.EF -> EF
+            if (preg_match('/^[0-9]{3}\.[0-9]{2}\.([A-Z]{2})$/i', $colKode, $match)) {
+                $state['program'] = [
+                    'kode' => strtoupper($match[1]),
+                    'nama' => $this->cleanName($namaHeader),
+                ];
+                $this->resetState($state, [
+                    'kegiatan', 'kro', 'ro', 'komponen', 'subkomponen', 'akun', 'kelompok'
+                ]);
+                continue;
+            }
+
+            // KEGIATAN: 3734
+            if (preg_match('/^\d{4}$/', $colKode)) {
+                $state['kegiatan'] = [
+                    'kode' => $colKode,
+                    'nama' => $this->cleanName($namaHeader),
+                ];
+                $this->resetState($state, [
+                    'kro', 'ro', 'komponen', 'subkomponen', 'akun', 'kelompok'
+                ]);
+                continue;
+            }
+
+            // KRO: 3734.CCH -> CCH
+            if (preg_match('/^\d{4}\.([A-Z]{3})$/i', $colKode, $match)) {
+                $state['kro'] = [
+                    'kode' => strtoupper($match[1]),
+                    'nama' => $this->cleanName($namaHeader),
+                    'volume' => $this->nullableString($colVolume),
+                    'lokasi' => null,
+                ];
+                $this->resetState($state, [
+                    'ro', 'komponen', 'subkomponen', 'akun', 'kelompok'
+                ]);
+                continue;
+            }
+
+            // LOKASI KRO
+            if (stripos($namaHeader, 'Lokasi :') === 0) {
+                $state['kro']['lokasi'] = trim(
+                    preg_replace('/^Lokasi\s*:\s*/i', '', $namaHeader) ?? $namaHeader
+                );
+                continue;
+            }
+
+            // RO: 3734.CCH.021 -> 021
+            if (preg_match('/^\d{4}\.[A-Z]{3}\.([A-Z0-9]{1,4})$/i', $colKode, $match)) {
+                $roCode = strtoupper($match[1]);
+                if (preg_match('/^\d{1,3}$/', $roCode)) {
+                    $roCode = str_pad($roCode, 3, '0', STR_PAD_LEFT);
                 }
-            }
-            if ($isEmpty) continue;
 
-            // 2. MAPPING INDEX KOLOM EXCEL SAKTI
-            $colKode = trim($row[0] ?? ''); // Kolom A: Kode Hierarki
-            
-            // Mengambil Header Uraian (Bisa di Kolom D atau bergeser ke Kolom E)
-            $namaHeader = trim($row[3] ?? '');
-            if (empty($namaHeader) || $namaHeader === '-') {
-                $namaHeader = trim($row[4] ?? '');
-            }
-
-            // REVISI: Sapu teks rincian belanja dari Kolom D (3), E (4), dan F (5)
-            $teksUraian = '';
-            foreach ([3, 4, 5] as $idx) {
-                $val = trim($row[$idx] ?? '');
-                if (!empty($val) && $val !== '-') {
-                    $teksUraian .= $val . ' ';
-                }
-            }
-            // Bersihkan tanda strip (-) atau panah (>) di awal teks
-            $teksUraian = trim(preg_replace('/^[\-\>]+/', '', trim($teksUraian)));
-
-            $colVolume = trim((string) ($row[6] ?? '')); // Kolom G: Volume
-            $colHarga  = $row[7] ?? '';                          // Kolom H: Harga Satuan
-
-            // Jumlah Biaya pada export SAKTI umumnya berada di kolom J,
-            // tetapi pada beberapa blok dapat bergeser ke kolom K.
-            $jumlahJ = $this->parseNumber($row[9] ?? null);
-            $jumlahK = $this->parseNumber($row[10] ?? null);
-            $jumlahBiaya = $jumlahJ > 0 ? $jumlahJ : $jumlahK;
-
-            // Sumber dana umumnya di kolom L, tetapi pada beberapa baris akun
-            // dapat bergeser sampai kolom N. Cari di rentang L:N.
-            $colSDCP = '';
-            foreach ([11, 12, 13] as $sdIndex) {
-                $candidate = trim((string) ($row[$sdIndex] ?? ''));
-                if ($candidate !== '') {
-                    $colSDCP .= ' ' . $candidate;
-                }
-            }
-            $colSDCP = trim($colSDCP);
-
-            // ====================================================================
-            // DETEKSI HIERARKI (Dengan Rules Penyesuaian)
-            // ====================================================================
-
-            // Deteksi PROGRAM
-            if (preg_match('/^[0-9]{3}\.[0-9]{2}\.([A-Z]{2})$/', $colKode, $match)) {
-                $state['program'] = ['kode' => $match[1], 'nama' => $this->cleanName($namaHeader)];
-                $this->resetState($state, ['kegiatan', 'kro', 'ro', 'komponen', 'subkomponen', 'akun']);
+                $state['ro'] = [
+                    'kode' => $roCode,
+                    'nama' => $this->cleanName($namaHeader),
+                    'volume' => $this->nullableString($colVolume),
+                ];
+                $this->resetState($state, [
+                    'komponen', 'subkomponen', 'akun', 'kelompok'
+                ]);
                 continue;
             }
-            // Deteksi KEGIATAN
-            elseif (preg_match('/^\d{4}$/', $colKode)) {
-                $state['kegiatan'] = ['kode' => $colKode, 'nama' => $this->cleanName($namaHeader)];
-                $this->resetState($state, ['kro', 'ro', 'komponen', 'subkomponen', 'akun']);
+
+            // KOMPONEN: 051 / U051 -> 051
+            if (preg_match('/^[a-zA-Z]?(\d{1,3})$/', $colKode, $match)) {
+                $state['komponen'] = [
+                    'kode' => str_pad($match[1], 3, '0', STR_PAD_LEFT),
+                    'nama' => $this->cleanName($namaHeader),
+                    'jenis' => $this->extractJenisKomponen($row),
+                ];
+                $this->resetState($state, ['subkomponen', 'akun', 'kelompok']);
                 continue;
             }
-            // Deteksi KRO -> (RULE 1: Simpan Hurufnya Saja misal "EBA")
-            elseif (preg_match('/^\d{4}\.([A-Z]{3})$/', $colKode, $match)) {
-                $state['kro']['kode']   = $match[1]; 
-                $state['kro']['nama']   = $this->cleanName($namaHeader);
-                $state['kro']['volume'] = $colVolume;
-                $this->resetState($state, ['ro', 'komponen', 'subkomponen', 'akun']);
+
+            // SUBKOMPONEN: A, B, C, dst. "TANPA SUB KOMPONEN" tetap disimpan.
+            if (preg_match('/^[A-Z]$/i', $colKode)) {
+                $state['subkomponen'] = [
+                    'kode' => strtoupper($colKode),
+                    'nama' => $this->cleanName($namaHeader),
+                ];
+                $this->resetState($state, ['akun', 'kelompok']);
                 continue;
             }
-            // Deteksi LOKASI KRO
-            elseif (strpos($namaHeader, 'Lokasi :') === 0) {
-                $state['kro']['lokasi'] = trim(str_replace('Lokasi :', '', $namaHeader));
+
+            // AKUN: 6 digit. Sumber dana diambil dari konteks SD/CP baris akun.
+            if (preg_match('/^\d{6}$/', $colKode)) {
+                $state['akun'] = [
+                    'kode' => $colKode,
+                    'nama' => $this->cleanName($namaHeader),
+                    'sumber_dana' => $this->extractSumberDana($sdcpText),
+                ];
+                $this->resetState($state, ['kelompok']);
                 continue;
             }
-            // Deteksi RO -> (RULE 2: Simpan sebagai String murni 3 digit misal "021")
-            elseif (preg_match('/^\d{4}\.[A-Z]{3}\.(\d{1,3})$/', $colKode, $match)) {
-                $roCode = str_pad($match[1], 3, '0', STR_PAD_LEFT); 
-                $state['ro'] = ['kode' => $roCode, 'nama' => $this->cleanName($namaHeader)];
-                $this->resetState($state, ['komponen', 'subkomponen', 'akun']);
-                continue;
-            }
-            // Deteksi KOMPONEN -> (RULE 3: Simpan sebagai String murni 3 digit misal "051")
-            // Mengabaikan huruf di depannya jika ada (misal "U051" jadi "051")
-            elseif (preg_match('/^[a-zA-Z]?(\d{1,3})$/', $colKode, $match)) {
-                $kompCode = str_pad($match[1], 3, '0', STR_PAD_LEFT);
-                $state['komponen'] = ['kode' => $kompCode, 'nama' => $this->cleanName($namaHeader)];
-                $this->resetState($state, ['subkomponen', 'akun']);
-                continue;
-            }
-            // Deteksi SUB KOMPONEN -> (RULE 4: Jadikan null jika "TANPA SUB KOMPONEN")
-            elseif (preg_match('/^[A-Z]$/i', $colKode)) {
-                $colKode = strtoupper($colKode);
-                $namaSub = $this->cleanName($namaHeader);
-                if (stripos($namaSub, 'TANPA SUB KOMPONEN') !== false) {
-                    $state['subkomponen'] = ['kode' => null, 'nama' => null];
+
+            // ================================================================
+            // KELOMPOK DETAIL (> / >>)
+            // ================================================================
+            $groupLevel = $this->extractGroupLevel($row);
+
+            if ($groupLevel !== null && $teksUraian !== '') {
+                if ($groupLevel === 1) {
+                    $state['kelompok']['level1'] = $teksUraian;
+                    $state['kelompok']['level2'] = null;
                 } else {
-                    $state['subkomponen'] = ['kode' => $colKode, 'nama' => $namaSub];
-                }
-                $this->resetState($state, ['akun']);
-                continue;
-            }
-            // Deteksi AKUN -> (RULE 6: Ambil hanya Sumber Dana tertentu)
-            elseif (preg_match('/^\d{6}$/', $colKode)) {
-                $sumberDana = null;
-                if (preg_match('/\b(RMP|PLN|PNP|BLU|HIBAH|PDN|SBSN|RM)\b/i', $colSDCP, $matchSD)) {
-                    $sumberDana = strtoupper($matchSD[1]);
-                }
-                $state['akun'] = ['kode' => $colKode, 'nama' => $this->cleanName($namaHeader), 'sdcp' => $sumberDana];
-                continue;
-            }
-
-            // ====================================================================
-            // DETEKSI DETAIL BELANJA (Item Terbawah)
-            // ====================================================================
-            
-            // Normalisasi angka agar aman bila cell terbaca sebagai numeric maupun string.
-            $hargaSatuan = $this->parseNumber($colHarga);
-
-            /* SYARAT BARIS MASUK DETAIL BELANJA:
-             * 1. Kolom Kode Kosong
-             * 2. Ada Teks Uraiannya (yang sudah disapu dari Kolom D, E, F)
-             * 3. Jumlah Biaya > 0
-             * 4. Memiliki Harga Satuan ATAU Volume */
-            if (empty($colKode) && !empty($teksUraian) && $jumlahBiaya > 0 && ($hargaSatuan > 0 || !empty($colVolume))) {
-                
-                // RULE 5: Memisah Angka Volume dan String Satuan (contoh: "16.0 OH")
-                $volVal = null;
-                $volSatuan = null;
-                
-                if (!empty($colVolume)) {
-                    // Cari pola angka yg dipisahkan spasi dengan huruf
-                    if (preg_match('/^([\d\.,]+)\s+(.+)$/', trim($colVolume), $vMatch)) {
-                        $volVal = str_replace(',', '', $vMatch[1]);
-                        $volSatuan = trim(preg_replace('/[\-\_]+$/', '', $vMatch[2])); // Bersihkan strip di akhir satuan jika ada
+                    // Jika template langsung memakai >> tanpa parent >,
+                    // simpan sebagai group level utama agar konteks tidak hilang.
+                    if (empty($state['kelompok']['level1'])) {
+                        $state['kelompok']['level1'] = $teksUraian;
+                        $state['kelompok']['level2'] = null;
                     } else {
-                        // Fallback jika diketik tanpa spasi (misal "16.0OH")
-                        $volVal = preg_replace('/[^\d\.,]/', '', $colVolume);
-                        $volSatuan = trim(preg_replace('/[\d\.,]/', '', $colVolume)); 
-                        $volSatuan = trim(preg_replace('/[\-\_]+$/', '', $volSatuan));
-                        
-                        if (empty($volVal)) $volVal = null;
-                        if (empty($volSatuan)) $volSatuan = null;
+                        $state['kelompok']['level2'] = $teksUraian;
                     }
                 }
-
-                $idCounter++;
-                $newId = 'rka' . str_pad($idCounter, 8, '0', STR_PAD_LEFT);
-
-                $dataToInsert[] = [
-                    'rkaID'             => $newId,
-                    'documentID'        => $this->documentID,
-                    
-                    'kode_unit_eselon1' => $this->dataOrganisasi['kode_unit_eselon1'] ?? null,
-                    'nama_unit_eselon1' => $this->dataOrganisasi['nama_unit_eselon1'] ?? null,
-                    'kode_unit_eselon2' => $this->dataOrganisasi['kode_unit_eselon2'] ?? null,
-                    'nama_unit_eselon2' => $this->dataOrganisasi['nama_unit_eselon2'] ?? null,
-                    'kode_satker'       => $this->dataOrganisasi['kode_satker'] ?? null,
-                    'nama_satker'       => $this->dataOrganisasi['nama_satker'] ?? null,
-                    
-                    'kode_program'      => $state['program']['kode'],
-                    'nama_program'      => $state['program']['nama'],
-                    'kode_kegiatan'     => $state['kegiatan']['kode'],
-                    'nama_kegiatan'     => $state['kegiatan']['nama'],
-                    'kode_kro'          => $state['kro']['kode'],
-                    'nama_kro'          => $state['kro']['nama'],
-                    'volume_kro'        => $state['kro']['volume'],
-                    'lokasi_kro'        => $state['kro']['lokasi'],
-                    'kode_ro'           => $state['ro']['kode'],
-                    'nama_ro'           => $state['ro']['nama'],
-                    'kode_komponen'     => $state['komponen']['kode'],
-                    'nama_komponen'     => $state['komponen']['nama'],
-                    
-                    'kode_subkomponen'  => $state['subkomponen']['kode'],
-                    'nama_subkomponen'  => $state['subkomponen']['nama'],
-                    'kode_akun'         => $state['akun']['kode'],
-                    'nama_akun'         => $state['akun']['nama'],
-                    
-                    'uraian_detail'     => $teksUraian,
-                    'volume'            => $volVal,          // Disimpan sbg angka
-                    'satuan_volume'     => $volSatuan,       // Disimpan sbg huruf
-                    'harga_satuan'      => $hargaSatuan,
-                    'jumlah_biaya'      => $jumlahBiaya,
-                    'sumber_dana'       => $state['akun']['sdcp'], 
-                    
-                    'created_at'        => now(),
-                    'updated_at'        => now(),
-                ];
+                continue;
             }
+
+            // KPPN, judul/catatan, subtotal non-leaf dan baris kosong tidak masuk DB.
+            if ($colKode !== '' || $teksUraian === '') {
+                continue;
+            }
+
+            $hasVolume = $colVolume !== '' && trim($colVolume) !== '-';
+
+            // Detail leaf harus mempunyai jumlah biaya dan minimal mempunyai
+            // volume atau harga satuan.
+            if ($jumlahBiaya === null || (!$hasVolume && $hargaSatuan === null)) {
+                continue;
+            }
+
+            [$volume, $satuanVolume] = $this->parseVolume($colVolume);
+
+            $idCounter++;
+            $newId = 'rka' . str_pad((string) $idCounter, 8, '0', STR_PAD_LEFT);
+
+            $dataToInsert[] = [
+                'rkaID' => $newId,
+                'documentID' => $this->documentID,
+                'tahun_anggaran' => $this->tahunAnggaran,
+
+                'kode_unit_eselon1' => $this->dataOrganisasi['kode_unit_eselon1'] ?? null,
+                'nama_unit_eselon1' => $this->dataOrganisasi['nama_unit_eselon1'] ?? null,
+                'kode_unit_eselon2' => $this->dataOrganisasi['kode_unit_eselon2'] ?? null,
+                'nama_unit_eselon2' => $this->dataOrganisasi['nama_unit_eselon2'] ?? null,
+                'kode_satker' => $this->dataOrganisasi['kode_satker'] ?? null,
+                'nama_satker' => $this->dataOrganisasi['nama_satker'] ?? null,
+
+                'kode_program' => $state['program']['kode'],
+                'nama_program' => $state['program']['nama'],
+                'kode_kegiatan' => $state['kegiatan']['kode'],
+                'nama_kegiatan' => $state['kegiatan']['nama'],
+                'kode_kro' => $state['kro']['kode'],
+                'nama_kro' => $state['kro']['nama'],
+                'volume_kro' => $state['kro']['volume'],
+                'lokasi_kro' => $state['kro']['lokasi'],
+                'kode_ro' => $state['ro']['kode'],
+                'nama_ro' => $state['ro']['nama'],
+                'volume_ro' => $state['ro']['volume'],
+
+                'kode_komponen' => $state['komponen']['kode'],
+                'nama_komponen' => $state['komponen']['nama'],
+                'jenis_komponen' => $state['komponen']['jenis'],
+                'kode_subkomponen' => $state['subkomponen']['kode'],
+                'nama_subkomponen' => $state['subkomponen']['nama'],
+                'kode_akun' => $state['akun']['kode'],
+                'nama_akun' => $state['akun']['nama'],
+
+                'kelompok_detail' => $this->currentGroup($state['kelompok']),
+                'uraian_detail' => $teksUraian,
+                'volume' => $volume,
+                'satuan_volume' => $satuanVolume,
+                'harga_satuan' => $hargaSatuan,
+                'jumlah_biaya' => $jumlahBiaya,
+                'sumber_dana' => $state['akun']['sumber_dana'],
+                'standar_biaya' => $this->extractStandarBiaya($sdcpText),
+
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
         }
 
-        // Insert massal per 500 baris agar ringan ke Database
-        if (!empty($dataToInsert)) {
-            foreach (array_chunk($dataToInsert, 500) as $chunk) {
-                DB::table('rka')->insert($chunk);
-            }
-        } else {
-            throw new \Exception("Data gagal diekstrak. Pastikan file Excel yang diunggah adalah format murni Rincian Kertas Kerja SAKTI.");
+        if (empty($dataToInsert)) {
+            throw new \RuntimeException(
+                'Data RKA gagal diekstrak. Pastikan file Excel merupakan Rincian Kertas Kerja Satker SAKTI.'
+            );
+        }
+
+        foreach (array_chunk($dataToInsert, 500) as $chunk) {
+            DB::table('rka')->insert($chunk);
         }
     }
 
-    /**
-     * Mengubah nilai Excel menjadi angka secara aman.
-     * Mendukung numeric native, format ribuan Indonesia (31.000.000),
-     * dan format ribuan internasional (31,000,000).
-     */
-    private function parseNumber($value): float
+    private function isEmptyRow(Collection|array $row): bool
     {
-        if ($value === null || $value === '') {
-            return 0.0;
+        for ($i = 0; $i <= 14; $i++) {
+            $value = $row[$i] ?? null;
+            if ($value !== null && trim((string) $value) !== '') {
+                return false;
+            }
         }
 
-        if (is_numeric($value)) {
+        return true;
+    }
+
+    private function extractHeaderName(Collection|array $row): string
+    {
+        foreach ([3, 4, 5] as $index) {
+            $value = trim((string) ($row[$index] ?? ''));
+            if ($value !== '' && !in_array($value, ['-', '>', '>>'], true)) {
+                return $value;
+            }
+        }
+
+        return '';
+    }
+
+    private function extractDescription(Collection|array $row): string
+    {
+        $parts = [];
+
+        foreach ([3, 4, 5] as $index) {
+            $value = trim((string) ($row[$index] ?? ''));
+
+            if ($value === '' || in_array($value, ['-', '>', '>>'], true)) {
+                continue;
+            }
+
+            $parts[] = $value;
+        }
+
+        $text = trim(implode(' ', $parts));
+        $text = preg_replace('/^[\-–—•>]+\s*/u', '', $text) ?? $text;
+        $text = preg_replace('/\s+/u', ' ', $text) ?? $text;
+
+        return trim($text);
+    }
+
+    private function extractGroupLevel(Collection|array $row): ?int
+    {
+        foreach ([3, 4, 5] as $index) {
+            $value = trim((string) ($row[$index] ?? ''));
+
+            if ($value === '>') {
+                return 1;
+            }
+
+            if ($value === '>>') {
+                return 2;
+            }
+        }
+
+        return null;
+    }
+
+    private function collectSdCpText(Collection|array $row): string
+    {
+        $parts = [];
+
+        foreach ([10, 11, 12, 13, 14] as $index) {
+            $value = trim((string) ($row[$index] ?? ''));
+            if ($value !== '') {
+                $parts[] = $value;
+            }
+        }
+
+        return implode(' ', $parts);
+    }
+
+    private function extractJenisKomponen(Collection|array $row): ?string
+    {
+        foreach ([10, 11, 12, 13, 14] as $index) {
+            $value = strtoupper(trim((string) ($row[$index] ?? '')));
+
+            if ($value === 'U') {
+                return 'U';
+            }
+
+            if ($value === 'P') {
+                return 'P';
+            }
+        }
+
+        return null;
+    }
+
+    private function extractSumberDana(string $text): ?string
+    {
+        $text = strtoupper($text);
+
+        if (preg_match('/\bPNBP\b/', $text) || preg_match('/\bPNP\b/', $text)) {
+            return 'PNP';
+        }
+
+        foreach (['RMP', 'PLN', 'BLU', 'HIBAH', 'PDN', 'SBSN', 'RM'] as $code) {
+            if (preg_match('/\b' . preg_quote($code, '/') . '\b/', $text)) {
+                return $code;
+            }
+        }
+
+        return null;
+    }
+
+    private function extractStandarBiaya(string $text): ?string
+    {
+        $text = strtoupper($text);
+
+        foreach (['SBKU', 'SBM', 'SBU', 'SBK'] as $code) {
+            if (preg_match('/\b' . $code . '\b/', $text)) {
+                return $code;
+            }
+        }
+
+        return null;
+    }
+
+    private function currentGroup(array $group): ?string
+    {
+        $parts = array_values(array_filter([
+            $group['level1'] ?? null,
+            $group['level2'] ?? null,
+        ], static fn ($value) => $value !== null && trim((string) $value) !== ''));
+
+        return empty($parts) ? null : implode(' > ', $parts);
+    }
+
+    private function parseVolume(string $value): array
+    {
+        $value = trim($value);
+
+        if ($value === '' || $value === '-') {
+            return [null, null];
+        }
+
+        if (preg_match('/^(-?[\d\.,]+)\s*(.*)$/u', $value, $match)) {
+            $volume = $this->parseNullableNumber($match[1]);
+            $unit = trim($match[2] ?? '');
+            $unit = preg_replace('/[\-_]+$/u', '', $unit) ?? $unit;
+            $unit = trim($unit);
+
+            return [
+                $volume,
+                $unit !== '' ? $this->normalizeUnit($unit) : null,
+            ];
+        }
+
+        return [null, null];
+    }
+
+    private function normalizeUnit(string $unit): string
+    {
+        $unit = strtoupper(trim($unit));
+
+        $commonOcr = [
+            '0K' => 'OK',
+            '0H' => 'OH',
+            '0B' => 'OB',
+            '0T' => 'OT',
+            '0J' => 'OJ',
+        ];
+
+        return $commonOcr[$unit] ?? $unit;
+    }
+
+    private function firstNumber(array $values): ?float
+    {
+        foreach ($values as $value) {
+            $number = $this->parseNullableNumber($value);
+            if ($number !== null) {
+                return $number;
+            }
+        }
+
+        return null;
+    }
+
+    private function parseNullableNumber(mixed $value): ?float
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        if (is_int($value) || is_float($value)) {
             return (float) $value;
         }
 
         $value = trim((string) $value);
-        $value = preg_replace('/[^0-9,\.\-]/', '', $value);
+        $value = preg_replace('/[^0-9,.\-]/', '', $value) ?? '';
 
         if ($value === '' || $value === '-') {
-            return 0.0;
+            return null;
         }
 
         // 31.000.000 atau 31.000.000,50
@@ -275,28 +479,56 @@ class RKAImport implements ToCollection
         elseif (preg_match('/^-?\d{1,3}(?:,\d{3})+(?:\.\d+)?$/', $value)) {
             $value = str_replace(',', '', $value);
         }
-        // Desimal dengan koma, misalnya 1,5
+        // Desimal dengan koma, mis. 1,5
         elseif (substr_count($value, ',') === 1 && substr_count($value, '.') === 0) {
             $value = str_replace(',', '.', $value);
         }
 
-        return is_numeric($value) ? (float) $value : 0.0;
+        return is_numeric($value) ? (float) $value : null;
     }
 
-    private function cleanName($name)
+    private function cleanName(string $name): ?string
     {
-        return trim(preg_replace('/\[.*?\]/i', '', $name));
+        $name = trim($name);
+        if ($name === '') {
+            return null;
+        }
+
+        // Hanya hapus penanda [Base Line], bukan seluruh teks dalam kurung siku.
+        $name = preg_replace('/\s*\[(?:Base\s*Line|BaseLine)\]\s*/iu', ' ', $name) ?? $name;
+        $name = preg_replace('/\s+/u', ' ', $name) ?? $name;
+
+        return trim($name) ?: null;
     }
 
-    private function resetState(&$state, $keys)
+    private function nullableString(string $value): ?string
+    {
+        $value = trim($value);
+        return $value === '' ? null : $value;
+    }
+
+    private function resetState(array &$state, array $keys): void
     {
         foreach ($keys as $key) {
-            if ($key === 'kro') {
-                $state[$key] = ['kode' => null, 'nama' => null, 'volume' => null, 'lokasi' => null];
-            } elseif ($key === 'akun') {
-                $state[$key] = ['kode' => null, 'nama' => null, 'sdcp' => null];
-            } else {
-                $state[$key] = ['kode' => null, 'nama' => null];
+            switch ($key) {
+                case 'kro':
+                    $state[$key] = ['kode' => null, 'nama' => null, 'volume' => null, 'lokasi' => null];
+                    break;
+                case 'ro':
+                    $state[$key] = ['kode' => null, 'nama' => null, 'volume' => null];
+                    break;
+                case 'komponen':
+                    $state[$key] = ['kode' => null, 'nama' => null, 'jenis' => null];
+                    break;
+                case 'akun':
+                    $state[$key] = ['kode' => null, 'nama' => null, 'sumber_dana' => null];
+                    break;
+                case 'kelompok':
+                    $state[$key] = ['level1' => null, 'level2' => null];
+                    break;
+                default:
+                    $state[$key] = ['kode' => null, 'nama' => null];
+                    break;
             }
         }
     }
