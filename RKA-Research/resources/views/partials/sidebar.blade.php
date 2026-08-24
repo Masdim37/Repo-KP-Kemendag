@@ -40,7 +40,9 @@
                 [
                     'key' => 'upload-master-data',
                     'label' => 'Upload Master Data',
-                    'url' => Route::has('upload.masterdata') ? route('upload.masterdata') : url('/Upload-Dokumen/Master-Data'),
+                    'url' => Route::has('upload.masterdata')
+                        ? route('upload.masterdata')
+                        : url('/Upload-Dokumen/Master-Data'),
                 ],
                 [
                     'key' => 'upload-rka',
@@ -60,10 +62,82 @@
             ],
         ],
         [
-            'key' => 'menu3',
-            'label' => 'Menu 3',
-            'icon' => 'bi-bar-chart-line-fill',
+            'key' => 'reference-data',
+            'label' => 'Tambah Data Referensi',
+            'icon' => 'bi-database-add',
             'url' => '#',
+            'submenus' => [
+                [
+                    'key' => 'reference-unit-eselon-1',
+                    'label' => 'Unit Eselon I',
+                    'url' => Route::has('referensi.organisasi.unit1')
+                        ? route('referensi.organisasi.unit1')
+                        : url('/Data-Referensi/Organisasi/Unit-Eselon-I'),
+                ],
+                [
+                    'key' => 'reference-unit-eselon-2',
+                    'label' => 'Unit Eselon II',
+                    'url' => Route::has('referensi.organisasi.unit2')
+                        ? route('referensi.organisasi.unit2')
+                        : url('/Data-Referensi/Organisasi/Unit-Eselon-II'),
+                ],
+                [
+                    'key' => 'reference-satker',
+                    'label' => 'Satker',
+                    'url' => Route::has('referensi.organisasi.satker')
+                        ? route('referensi.organisasi.satker')
+                        : url('/Data-Referensi/Organisasi/Satker'),
+                ],
+                [
+                    'key' => 'reference-program',
+                    'label' => 'Program',
+                    'url' => Route::has('referensi.penganggaran.program')
+                        ? route('referensi.penganggaran.program')
+                        : url('/Data-Referensi/Penganggaran/Program'),
+                ],
+                [
+                    'key' => 'reference-kegiatan',
+                    'label' => 'Kegiatan',
+                    'url' => Route::has('referensi.penganggaran.kegiatan')
+                        ? route('referensi.penganggaran.kegiatan')
+                        : url('/Data-Referensi/Penganggaran/Kegiatan'),
+                ],
+                [
+                    'key' => 'reference-kro',
+                    'label' => 'KRO',
+                    'url' => Route::has('referensi.penganggaran.kro')
+                        ? route('referensi.penganggaran.kro')
+                        : url('/Data-Referensi/Penganggaran/KRO'),
+                ],
+                [
+                    'key' => 'reference-ro',
+                    'label' => 'RO',
+                    'url' => Route::has('referensi.penganggaran.ro')
+                        ? route('referensi.penganggaran.ro')
+                        : url('/Data-Referensi/Penganggaran/RO'),
+                ],
+                [
+                    'key' => 'reference-komponen',
+                    'label' => 'Komponen',
+                    'url' => Route::has('referensi.penganggaran.komponen')
+                        ? route('referensi.penganggaran.komponen')
+                        : url('/Data-Referensi/Penganggaran/Komponen'),
+                ],
+                [
+                    'key' => 'reference-subkomponen',
+                    'label' => 'Subkomponen',
+                    'url' => Route::has('referensi.penganggaran.subkomponen')
+                        ? route('referensi.penganggaran.subkomponen')
+                        : url('/Data-Referensi/Penganggaran/Subkomponen'),
+                ],
+                [
+                    'key' => 'reference-akun',
+                    'label' => 'Akun',
+                    'url' => Route::has('referensi.penganggaran.akun')
+                        ? route('referensi.penganggaran.akun')
+                        : url('/Data-Referensi/Penganggaran/Akun'),
+                ],
+            ],
         ],
         [
             'key' => 'Account',

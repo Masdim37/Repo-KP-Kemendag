@@ -58,18 +58,39 @@ class torrabController extends Controller
             ->select('kode_satker', 'kode_kegiatan')
             ->get();
 
-        $kro = DB::table('kro')
-            ->select('kode_kro', 'nama_kro', 'kode_kegiatan')
-            ->orderBy('kode_kegiatan')
-            ->orderBy('kode_kro')
+        /*
+         * KRO sekarang merupakan master global.
+         * Relasi Kegiatan -> KRO disimpan pada tabel kegiatan_kro.
+         *
+         * Bentuk data yang dikirim ke Blade tetap:
+         * - kode_kegiatan
+         * - kode_kro
+         * - nama_kro
+         *
+         * sehingga mekanisme cascading dropdown di Blade tetap dapat
+         * memfilter KRO berdasarkan Kegiatan yang dipilih.
+         */
+        $kro = DB::table('kegiatan_kro as kk')
+            ->join('kro as k', 'k.kode_kro', '=', 'kk.kode_kro')
+            ->select(
+                'kk.kode_kegiatan',
+                'k.kode_kro',
+                'k.nama_kro'
+            )
+            ->orderBy('kk.kode_kegiatan')
+            ->orderBy('k.kode_kro')
             ->get();
 
+        /*
+         * RO tetap bersifat kontekstual pada kombinasi:
+         * Kegiatan + KRO + RO.
+         */
         $ro = DB::table('ro')
             ->select(
-                'kode_ro',
-                'nama_ro',
+                'kode_kegiatan',
                 'kode_kro',
-                'kode_kegiatan'
+                'kode_ro',
+                'nama_ro'
             )
             ->orderBy('kode_kegiatan')
             ->orderBy('kode_kro')
@@ -516,9 +537,18 @@ class torrabController extends Controller
             );
         }
 
-        $kro = DB::table('kro')
-            ->where('kode_kegiatan', $request->kode_kegiatan)
-            ->where('kode_kro', $request->kode_kro)
+        /*
+         * Validasi KRO menggunakan tabel relasi kegiatan_kro.
+         * Tabel kro tidak lagi menyimpan kode_kegiatan.
+         */
+        $kro = DB::table('kegiatan_kro as kk')
+            ->join('kro as k', 'k.kode_kro', '=', 'kk.kode_kro')
+            ->where('kk.kode_kegiatan', $request->kode_kegiatan)
+            ->where('kk.kode_kro', $request->kode_kro)
+            ->select(
+                'k.kode_kro',
+                'k.nama_kro'
+            )
             ->first();
 
         if (!$kro) {

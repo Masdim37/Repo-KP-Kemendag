@@ -5,6 +5,8 @@ use App\Http\Controllers\usersController;
 use App\Http\Controllers\masterDataController;
 use App\Http\Controllers\rkaController;
 use App\Http\Controllers\torrabController;
+use App\Http\Controllers\referensiOrganisasiController;
+use App\Http\Controllers\referensiPenganggaranController;
 
 
 Route::get('/', [usersController::class, 'ShowLogin'])->name('login');
@@ -103,9 +105,56 @@ Route::controller(torrabController::class)
 
         Route::get('/', 'ShowUploadTorRab')
             ->name('upload.torrab');
- 
+
         Route::post('/Store', 'storeTorRab')
             ->name('upload.torrab.store');
+    });
+
+Route::controller(referensiOrganisasiController::class)
+    ->prefix('Data-Referensi/Organisasi')
+    ->group(function () {
+        Route::get('/Unit-Eselon-I', 'showUnitEselon1')
+            ->name('referensi.organisasi.unit1');
+
+        Route::post('/Unit-Eselon-I/Store', 'storeUnitEselon1')
+            ->name('referensi.organisasi.unit1.store');
+
+        Route::get('/Unit-Eselon-II', 'showUnitEselon2')
+            ->name('referensi.organisasi.unit2');
+
+        Route::post('/Unit-Eselon-II/Store', 'storeUnitEselon2')
+            ->name('referensi.organisasi.unit2.store');
+
+        Route::get('/Satker', 'showSatker')
+            ->name('referensi.organisasi.satker');
+
+        Route::post('/Satker/Store', 'storeSatker')
+            ->name('referensi.organisasi.satker.store');
+    });
+
+Route::controller(referensiPenganggaranController::class)
+    ->prefix('Data-Referensi/Penganggaran')
+    ->group(function () {
+        Route::get('/Program', 'showProgram')->name('referensi.penganggaran.program');
+        Route::post('/Program/Store', 'storeProgram')->name('referensi.penganggaran.program.store');
+
+        Route::get('/Kegiatan', 'showKegiatan')->name('referensi.penganggaran.kegiatan');
+        Route::post('/Kegiatan/Store', 'storeKegiatan')->name('referensi.penganggaran.kegiatan.store');
+
+        Route::get('/KRO', 'showKro')->name('referensi.penganggaran.kro');
+        Route::post('/KRO/Store', 'storeKro')->name('referensi.penganggaran.kro.store');
+
+        Route::get('/RO', 'showRo')->name('referensi.penganggaran.ro');
+        Route::post('/RO/Store', 'storeRo')->name('referensi.penganggaran.ro.store');
+
+        Route::get('/Komponen', 'showKomponen')->name('referensi.penganggaran.komponen');
+        Route::post('/Komponen/Store', 'storeKomponen')->name('referensi.penganggaran.komponen.store');
+
+        Route::get('/Subkomponen', 'showSubkomponen')->name('referensi.penganggaran.subkomponen');
+        Route::post('/Subkomponen/Store', 'storeSubkomponen')->name('referensi.penganggaran.subkomponen.store');
+
+        Route::get('/Akun', 'showAkun')->name('referensi.penganggaran.akun');
+        Route::post('/Akun/Store', 'storeAkun')->name('referensi.penganggaran.akun.store');
     });
 
 Route::get('/satker', [MasterDataController::class, 'ShowSatker']);
