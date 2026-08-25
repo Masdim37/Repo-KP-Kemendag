@@ -1316,7 +1316,7 @@
     @include('partials.sidebar', [
         'activeMenu' => 'Account',
         'sidebarUserName' => $userName,
-        'sidebarUserRole' => $jabatanName,
+        // 'sidebarUserRole' => $jabatanName,
         'sidebarInitials' => $initials,
     ])
 

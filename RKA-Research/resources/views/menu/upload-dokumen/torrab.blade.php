@@ -986,7 +986,7 @@
         @include('partials.sidebar', [
             'activeMenu' => 'upload-tor-rab',
             'sidebarUserName' => $userName,
-            'sidebarUserRole' => $jabatanName,
+            // 'sidebarUserRole' => $jabatanName,
             'sidebarInitials' => $initials,
         ])
 

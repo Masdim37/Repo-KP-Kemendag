@@ -411,7 +411,7 @@
         @include('partials.sidebar', [
             'activeMenu' => 'upload-master-data',
             'sidebarUserName' => $userName,
-            'sidebarUserRole' => $jabatanName,
+            // 'sidebarUserRole' => $jabatanName,
             'sidebarInitials' => $initials,
         ])
 

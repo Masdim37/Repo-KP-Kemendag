@@ -786,7 +786,7 @@
     @include('partials.sidebar', [
         'activeMenu' => 'view-reference-budget',
         'sidebarUserName' => $userName,
-        'sidebarUserRole' => $jabatanName,
+        // 'sidebarUserRole' => $jabatanName,
         'sidebarInitials' => $initials,
     ])
 

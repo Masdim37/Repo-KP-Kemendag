@@ -16,7 +16,7 @@
     <div class="app-shell">@include('partials.sidebar', [
         'activeMenu' => 'reference-kro',
         'sidebarUserName' => $userName,
-        'sidebarUserRole' => $jabatanName,
+        // 'sidebarUserRole' => $jabatanName,
         'sidebarInitials' => $initials,
     ])<div class="app-main">
             <header class="dashboard-header">

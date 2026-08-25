@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
@@ -17,6 +18,10 @@ class usersController extends Controller
 {
     public function ShowLogin()
     {
+        if (Auth::check()) {
+            return redirect()->route('dashboard');
+        }
+
         return view('login');
     }
 
@@ -51,8 +56,15 @@ class usersController extends Controller
         }
 
         /*
-     * Regenerasi session untuk mencegah session fixation.
-     */
+         * Login-kan user juga ke Laravel Auth guard.
+         * Ini diperlukan agar middleware bawaan "auth" dapat mengenali
+         * session sebagai session user yang sudah terautentikasi.
+         */
+        Auth::login($user);
+
+        /*
+         * Regenerasi session untuk mencegah session fixation.
+         */
         $request->session()->regenerate();
 
         Session::put([
@@ -61,8 +73,6 @@ class usersController extends Controller
             'username' => $user->username,
             'jabatan_id' => $user->jabatanID,
             'role_id' => $user->roleID,
-            'unit_id' => $user->unitID,
-            'satker_id' => $user->satkerID,
         ]);
 
         $user->last_login_at = now();
@@ -175,8 +185,6 @@ class usersController extends Controller
                         'is_data_confirmed' => 0,
                         'data_confirmed_at' => null,
                         'roleID' => null,
-                        'unitID' => null,
-                        'satkerID' => null,
                     ]);
 
                     return $trashedUser; // Return trashed user yang sudah diperbarui
@@ -202,10 +210,8 @@ class usersController extends Controller
                     'is_data_confirmed' => 0,
                     'data_confirmed_at' => null,
 
-                    // Ditunda untuk tahap berikutnya.
+                    // Role ditentukan pada tahap 2 berdasarkan level jabatan.
                     'roleID' => null,
-                    'unitID' => null,
-                    'satkerID' => null,
                 ]);
             });
 
@@ -1811,10 +1817,15 @@ class usersController extends Controller
         return view('menu.dashboard.dashboard');
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
-        Session::flush();
+        Auth::logout();
 
-        return redirect('/login')->with('success', 'Berhasil logout.');
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()
+            ->route('login')
+            ->with('success', 'Berhasil logout.');
     }
 }

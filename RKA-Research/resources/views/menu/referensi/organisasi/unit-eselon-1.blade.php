@@ -553,7 +553,7 @@
         @include('partials.sidebar', [
             'activeMenu' => 'reference-unit-eselon-1',
             'sidebarUserName' => $userName,
-            'sidebarUserRole' => $jabatanName,
+            // 'sidebarUserRole' => $jabatanName,
             'sidebarInitials' => $initials,
         ])
         <div class="app-main">

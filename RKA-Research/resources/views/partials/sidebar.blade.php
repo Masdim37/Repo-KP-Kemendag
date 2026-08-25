@@ -4,25 +4,42 @@
     | KONFIGURASI SIDEBAR
     |--------------------------------------------------------------------------
     |
-    | Variabel dapat dikirim melalui @include. Jika tidak dikirim, partial
-    | menggunakan data session/default agar tetap aman digunakan.
+    | Identitas user untuk sidebar diambil LANGSUNG dari user Laravel Auth.
+    | Blade halaman lain tidak perlu lagi mengirim:
+    | - sidebarUserName
+    | - sidebarUserRole
+    | - sidebarInitials
+    |
+    | Dengan demikian nama jabatan hanya mempunyai satu sumber kebenaran:
+    | users.jabatanID -> jabatan.jabatan_name.
     |
     */
 
     $sidebarActiveMenu = $activeMenu ?? 'account';
 
-    $sidebarUserName = $sidebarUserName ?? ($userName ?? session('user_name', 'Pengguna Sistem'));
+    $sidebarAuthUser = auth()->user();
 
-    $sidebarUserRole = $sidebarUserRole ?? ($jabatanName ?? 'Pengguna Sistem');
+    $sidebarUserName =
+        $sidebarAuthUser?->name
+        ?? session('user_name')
+        ?? 'Pengguna Sistem';
+
+    $sidebarUserRole = 'Pengguna Sistem';
+
+    if ($sidebarAuthUser?->jabatanID) {
+        $sidebarUserRole =
+            \Illuminate\Support\Facades\DB::table('jabatan')
+                ->where('jabatanID', $sidebarAuthUser->jabatanID)
+                ->value('jabatan_name')
+            ?? 'Pengguna Sistem';
+    }
 
     $sidebarInitials =
-        $sidebarInitials ??
-        ($initials ??
-            collect(explode(' ', $sidebarUserName))
-                ->filter()
-                ->take(2)
-                ->map(fn($word) => strtoupper(substr($word, 0, 1)))
-                ->implode(''));
+        collect(explode(' ', $sidebarUserName))
+            ->filter()
+            ->take(2)
+            ->map(fn($word) => strtoupper(substr($word, 0, 1)))
+            ->implode('');
 
     $sidebarMenus = $sidebarMenus ?? [
         [
@@ -40,9 +57,7 @@
                 [
                     'key' => 'upload-master-data',
                     'label' => 'Upload Master Data',
-                    'url' => Route::has('upload.masterdata')
-                        ? route('upload.masterdata')
-                        : url('/Upload-Dokumen/Master-Data'),
+                    'url' => Route::has('upload.masterdata') ? route('upload.masterdata') : url('/Upload-Dokumen/Master-Data'),
                 ],
                 [
                     'key' => 'upload-rka',

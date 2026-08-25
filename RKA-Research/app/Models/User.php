@@ -32,8 +32,6 @@ class User extends Authenticatable
         'data_confirmed_at',
         'roleID',
         'jabatanID',
-        'unitID',
-        'satkerID',
     ];
 
     protected $hidden = [

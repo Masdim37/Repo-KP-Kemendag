@@ -10,14 +10,23 @@ use App\Http\Controllers\referensiPenganggaranController;
 use App\Http\Controllers\lihatReferensiOrganisasiController;
 use App\Http\Controllers\lihatReferensiPenganggaranController;
 
+/*
+|--------------------------------------------------------------------------
+| ROUTE PUBLIK
+|--------------------------------------------------------------------------
+|
+| Route pada bagian ini harus tetap bisa diakses tanpa login karena dipakai
+| untuk proses autentikasi, registrasi, dan pemulihan password.
+|
+*/
 
-Route::get('/', [usersController::class, 'ShowLogin'])->name('login');
+Route::get('/', [usersController::class, 'ShowLogin'])
+    ->name('login');
 
 Route::get('/login', [usersController::class, 'ShowLogin']);
 
-Route::post('/login-process', [usersController::class, 'login'])->name('login.process');
-
-Route::post('/logout', [usersController::class, 'logout'])->name('logout');
+Route::post('/login-process', [usersController::class, 'login'])
+    ->name('login.process');
 
 Route::controller(usersController::class)
     ->prefix('register')
@@ -70,106 +79,155 @@ Route::controller(usersController::class)
             ->name('forgot.password.success');
     });
 
-Route::controller(usersController::class)
-    ->prefix('Account')
-    ->group(function () {
-        Route::get('/', 'showAccount')
-            ->name('account.show');
+/*
+|--------------------------------------------------------------------------
+| ROUTE TERPROTEKSI
+|--------------------------------------------------------------------------
+|
+| Semua halaman dan aksi internal aplikasi wajib melewati middleware auth.
+| User yang belum login akan diarahkan ke route bernama "login".
+|
+*/
 
-        Route::put('/', 'updateAccount')
-            ->middleware('throttle:10,1')
-            ->name('account.update');
+Route::middleware('auth')->group(function () {
 
-        Route::delete('/', 'deleteAccount')
-            ->middleware('throttle:3,1')
-            ->name('account.destroy');
-    });
+    Route::post('/logout', [usersController::class, 'logout'])
+        ->name('logout');
 
-Route::get('/Dashboard', [usersController::class, 'ShowDashboard'])->name('dashboard');
+    Route::get('/Dashboard', [usersController::class, 'ShowDashboard'])
+        ->name('dashboard');
 
-Route::controller(MasterDataController::class)
-    ->prefix('Upload-Dokumen/Master-Data')
-    ->group(function () {
-        Route::get('/', 'ShowUploadMasterData')->name('upload.masterdata');
-        Route::post('/Store', 'storeMasterData')->name('upload.masterdata.store');
-    });
+    Route::controller(usersController::class)
+        ->prefix('Account')
+        ->group(function () {
+            Route::get('/', 'showAccount')
+                ->name('account.show');
 
-Route::controller(rkaController::class)
-    ->prefix('Upload-Dokumen/RKA')
-    ->group(function () {
-        Route::get('/', 'ShowUploadRka')->name('upload.rka');
-        Route::post('/Store', 'storeRka')->name('upload.rka.store');
-    });
+            Route::put('/', 'updateAccount')
+                ->middleware('throttle:10,1')
+                ->name('account.update');
 
-Route::controller(torrabController::class)
-    ->prefix('Upload-Dokumen/TOR-RAB')
-    ->group(function () {
+            Route::delete('/', 'deleteAccount')
+                ->middleware('throttle:3,1')
+                ->name('account.destroy');
+        });
 
-        Route::get('/', 'ShowUploadTorRab')
-            ->name('upload.torrab');
+    Route::controller(masterDataController::class)
+        ->prefix('Upload-Dokumen/Master-Data')
+        ->group(function () {
+            Route::get('/', 'ShowUploadMasterData')
+                ->name('upload.masterdata');
 
-        Route::post('/Store', 'storeTorRab')
-            ->name('upload.torrab.store');
-    });
+            Route::post('/Store', 'storeMasterData')
+                ->name('upload.masterdata.store');
+        });
 
-Route::controller(referensiOrganisasiController::class)
-    ->prefix('Data-Referensi/Organisasi')
-    ->group(function () {
-        Route::get('/Unit-Eselon-I', 'showUnitEselon1')
-            ->name('referensi.organisasi.unit1');
+    Route::controller(rkaController::class)
+        ->prefix('Upload-Dokumen/RKA')
+        ->group(function () {
+            Route::get('/', 'ShowUploadRka')
+                ->name('upload.rka');
 
-        Route::post('/Unit-Eselon-I/Store', 'storeUnitEselon1')
-            ->name('referensi.organisasi.unit1.store');
+            Route::post('/Store', 'storeRka')
+                ->name('upload.rka.store');
+        });
 
-        Route::get('/Unit-Eselon-II', 'showUnitEselon2')
-            ->name('referensi.organisasi.unit2');
+    Route::controller(torrabController::class)
+        ->prefix('Upload-Dokumen/TOR-RAB')
+        ->group(function () {
+            Route::get('/', 'ShowUploadTorRab')
+                ->name('upload.torrab');
 
-        Route::post('/Unit-Eselon-II/Store', 'storeUnitEselon2')
-            ->name('referensi.organisasi.unit2.store');
+            Route::post('/Store', 'storeTorRab')
+                ->name('upload.torrab.store');
+        });
 
-        Route::get('/Satker', 'showSatker')
-            ->name('referensi.organisasi.satker');
+    Route::controller(referensiOrganisasiController::class)
+        ->prefix('Data-Referensi/Organisasi')
+        ->group(function () {
+            Route::get('/Unit-Eselon-I', 'showUnitEselon1')
+                ->name('referensi.organisasi.unit1');
 
-        Route::post('/Satker/Store', 'storeSatker')
-            ->name('referensi.organisasi.satker.store');
-    });
+            Route::post('/Unit-Eselon-I/Store', 'storeUnitEselon1')
+                ->name('referensi.organisasi.unit1.store');
 
-Route::controller(referensiPenganggaranController::class)
-    ->prefix('Data-Referensi/Penganggaran')
-    ->group(function () {
-        Route::get('/Program', 'showProgram')->name('referensi.penganggaran.program');
-        Route::post('/Program/Store', 'storeProgram')->name('referensi.penganggaran.program.store');
+            Route::get('/Unit-Eselon-II', 'showUnitEselon2')
+                ->name('referensi.organisasi.unit2');
 
-        Route::get('/Kegiatan', 'showKegiatan')->name('referensi.penganggaran.kegiatan');
-        Route::post('/Kegiatan/Store', 'storeKegiatan')->name('referensi.penganggaran.kegiatan.store');
+            Route::post('/Unit-Eselon-II/Store', 'storeUnitEselon2')
+                ->name('referensi.organisasi.unit2.store');
 
-        Route::get('/KRO', 'showKro')->name('referensi.penganggaran.kro');
-        Route::post('/KRO/Store', 'storeKro')->name('referensi.penganggaran.kro.store');
+            Route::get('/Satker', 'showSatker')
+                ->name('referensi.organisasi.satker');
 
-        Route::get('/RO', 'showRo')->name('referensi.penganggaran.ro');
-        Route::post('/RO/Store', 'storeRo')->name('referensi.penganggaran.ro.store');
+            Route::post('/Satker/Store', 'storeSatker')
+                ->name('referensi.organisasi.satker.store');
+        });
 
-        Route::get('/Komponen', 'showKomponen')->name('referensi.penganggaran.komponen');
-        Route::post('/Komponen/Store', 'storeKomponen')->name('referensi.penganggaran.komponen.store');
+    Route::controller(referensiPenganggaranController::class)
+        ->prefix('Data-Referensi/Penganggaran')
+        ->group(function () {
+            Route::get('/Program', 'showProgram')
+                ->name('referensi.penganggaran.program');
 
-        Route::get('/Subkomponen', 'showSubkomponen')->name('referensi.penganggaran.subkomponen');
-        Route::post('/Subkomponen/Store', 'storeSubkomponen')->name('referensi.penganggaran.subkomponen.store');
+            Route::post('/Program/Store', 'storeProgram')
+                ->name('referensi.penganggaran.program.store');
 
-        Route::get('/Akun', 'showAkun')->name('referensi.penganggaran.akun');
-        Route::post('/Akun/Store', 'storeAkun')->name('referensi.penganggaran.akun.store');
-    });
+            Route::get('/Kegiatan', 'showKegiatan')
+                ->name('referensi.penganggaran.kegiatan');
 
-Route::get(
-    '/Lihat-Data-Referensi/Organisasi',
-    [lihatReferensiOrganisasiController::class, 'index']
-)->name('referensi.lihat.organisasi');
+            Route::post('/Kegiatan/Store', 'storeKegiatan')
+                ->name('referensi.penganggaran.kegiatan.store');
 
-Route::get(
-    '/Lihat-Data-Referensi/Penganggaran',
-    [lihatReferensiPenganggaranController::class, 'index']
-)->name('referensi.lihat.penganggaran');
+            Route::get('/KRO', 'showKro')
+                ->name('referensi.penganggaran.kro');
 
+            Route::post('/KRO/Store', 'storeKro')
+                ->name('referensi.penganggaran.kro.store');
 
-Route::get('/satker', [MasterDataController::class, 'ShowSatker']);
+            Route::get('/RO', 'showRo')
+                ->name('referensi.penganggaran.ro');
 
-Route::post('/satker-store', [MasterDataController::class, 'importDataSatker'])->name('upload.satker.store');
+            Route::post('/RO/Store', 'storeRo')
+                ->name('referensi.penganggaran.ro.store');
+
+            Route::get('/Komponen', 'showKomponen')
+                ->name('referensi.penganggaran.komponen');
+
+            Route::post('/Komponen/Store', 'storeKomponen')
+                ->name('referensi.penganggaran.komponen.store');
+
+            Route::get('/Subkomponen', 'showSubkomponen')
+                ->name('referensi.penganggaran.subkomponen');
+
+            Route::post('/Subkomponen/Store', 'storeSubkomponen')
+                ->name('referensi.penganggaran.subkomponen.store');
+
+            Route::get('/Akun', 'showAkun')
+                ->name('referensi.penganggaran.akun');
+
+            Route::post('/Akun/Store', 'storeAkun')
+                ->name('referensi.penganggaran.akun.store');
+        });
+
+    Route::get(
+        '/Lihat-Data-Referensi/Organisasi',
+        [lihatReferensiOrganisasiController::class, 'index']
+    )->name('referensi.lihat.organisasi');
+
+    Route::get(
+        '/Lihat-Data-Referensi/Penganggaran',
+        [lihatReferensiPenganggaranController::class, 'index']
+    )->name('referensi.lihat.penganggaran');
+
+    /*
+     * Route legacy/pendukung Satker juga harus dilindungi karena membaca
+     * dan menulis data internal.
+     */
+    Route::get('/satker', [masterDataController::class, 'ShowSatker']);
+
+    Route::post(
+        '/satker-store',
+        [masterDataController::class, 'importDataSatker']
+    )->name('upload.satker.store');
+});

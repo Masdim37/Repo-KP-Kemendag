@@ -503,7 +503,7 @@
     @include('partials.sidebar', [
         'activeMenu' => 'upload-rka',
         'sidebarUserName' => $userName,
-        'sidebarUserRole' => $jabatanName,
+        // 'sidebarUserRole' => $jabatanName,
         'sidebarInitials' => $initials,
     ])
 
