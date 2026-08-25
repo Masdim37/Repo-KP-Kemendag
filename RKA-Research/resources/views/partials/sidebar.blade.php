@@ -140,6 +140,28 @@
             ],
         ],
         [
+            'key' => 'view-reference-data',
+            'label' => 'Lihat Data Referensi',
+            'icon' => 'bi-database-check',
+            'url' => '#',
+            'submenus' => [
+                [
+                    'key' => 'view-reference-organization',
+                    'label' => 'Data Referensi Organisasi',
+                    'url' => Route::has('referensi.lihat.organisasi')
+                        ? route('referensi.lihat.organisasi')
+                        : url('/Lihat-Data-Referensi/Organisasi'),
+                ],
+                [
+                    'key' => 'view-reference-budget',
+                    'label' => 'Data Referensi Penganggaran',
+                    'url' => Route::has('referensi.lihat.penganggaran')
+                        ? route('referensi.lihat.penganggaran')
+                        : url('/Lihat-Data-Referensi/Penganggaran'),
+                ],
+            ],
+        ],
+        [
             'key' => 'Account',
             'label' => 'Account',
             'icon' => 'bi-person-circle',

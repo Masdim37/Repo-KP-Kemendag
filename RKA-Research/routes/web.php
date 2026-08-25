@@ -7,6 +7,8 @@ use App\Http\Controllers\rkaController;
 use App\Http\Controllers\torrabController;
 use App\Http\Controllers\referensiOrganisasiController;
 use App\Http\Controllers\referensiPenganggaranController;
+use App\Http\Controllers\lihatReferensiOrganisasiController;
+use App\Http\Controllers\lihatReferensiPenganggaranController;
 
 
 Route::get('/', [usersController::class, 'ShowLogin'])->name('login');
@@ -156,6 +158,17 @@ Route::controller(referensiPenganggaranController::class)
         Route::get('/Akun', 'showAkun')->name('referensi.penganggaran.akun');
         Route::post('/Akun/Store', 'storeAkun')->name('referensi.penganggaran.akun.store');
     });
+
+Route::get(
+    '/Lihat-Data-Referensi/Organisasi',
+    [lihatReferensiOrganisasiController::class, 'index']
+)->name('referensi.lihat.organisasi');
+
+Route::get(
+    '/Lihat-Data-Referensi/Penganggaran',
+    [lihatReferensiPenganggaranController::class, 'index']
+)->name('referensi.lihat.penganggaran');
+
 
 Route::get('/satker', [MasterDataController::class, 'ShowSatker']);
 
