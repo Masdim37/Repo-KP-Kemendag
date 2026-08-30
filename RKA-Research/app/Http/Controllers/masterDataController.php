@@ -74,6 +74,15 @@ class masterDataController extends Controller
             'jumlah_pegawai_name' => $request->hasFile('jumlah_pegawai_file')
                 ? 'required|string|max:255'
                 : 'nullable|string|max:255',
+        ], [
+            'renja_tahun_anggaran.required' =>
+                'Tahun anggaran RENJA wajib dipilih jika file RENJA diunggah.',
+            'renja_tahun_anggaran.integer' =>
+                'Tahun anggaran RENJA harus berupa tahun yang valid.',
+            'rkbmn_tahun_anggaran.required' =>
+                'Tahun anggaran RKBMN wajib dipilih jika file RKBMN diunggah.',
+            'rkbmn_tahun_anggaran.integer' =>
+                'Tahun anggaran RKBMN harus berupa tahun yang valid.',
         ]);
 
         if (

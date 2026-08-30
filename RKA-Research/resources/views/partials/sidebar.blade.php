@@ -49,6 +49,12 @@
             'url' => Route::has('dashboard') ? route('dashboard') : url('/Dashboard'),
         ],
         [
+            'key' => 'penelitian',
+            'label' => 'Penelitian RKA-K/L',
+            'icon' => 'bi-clipboard2-data-fill',
+            'url' => Route::has('penelitian.index') ? route('penelitian.index') : url('/Penelitian'),
+        ],
+        [
             'key' => 'upload',
             'label' => 'Upload Dokumen',
             'icon' => 'bi-folder2-open',

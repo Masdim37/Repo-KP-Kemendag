@@ -901,6 +901,32 @@
 
                                 </div>
 
+                                <div class="form-group">
+
+                                    <label for="renjaTahunAnggaran" class="form-label">
+                                        Tahun Anggaran Renja
+                                        <span class="required" id="renjaTahunAst">*</span>
+                                    </label>
+
+                                    <select id="renjaTahunAnggaran" name="renja_tahun_anggaran" class="form-input">
+                                        <option value="">Pilih Tahun Anggaran</option>
+                                        @foreach ($tahunAnggaran as $tahun)
+                                            <option value="{{ $tahun }}"
+                                                @selected((string) old('renja_tahun_anggaran') === (string) $tahun)>
+                                                {{ $tahun }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+
+                                    <div class="input-error" id="renjaTahunError">
+                                        Tahun anggaran Renja wajib dipilih jika file diunggah.
+                                    </div>
+                                    @error('renja_tahun_anggaran')
+                                        <div class="input-error show">{{ $message }}</div>
+                                    @enderror
+
+                                </div>
+
                             </div>
 
                             <div class="upload-column">
@@ -909,7 +935,7 @@
                                     role="button" aria-label="Pilih file RKBMN">
 
                                     <input type="file" id="rkbmn_file" name="rkbmn_file" class="file-input"
-                                        accept=".xlsx,.xls,.csv">
+                                        accept=".xlsx,.xls">
 
                                     <div class="upload-zone-content">
 
@@ -951,13 +977,12 @@
                                 </div>
 
                                 <p class="file-note">
-                                    File hanya dapat menggunakan format Excel atau csv
-                                    (.xlsx|.xls|.csv).
+                                    File RKBMN harus menggunakan format Excel
+                                    (.xlsx|.xls) karena membutuhkan sheet Pengadaan dan Pemeliharaan.
                                 </p>
 
                                 <div class="file-error" id="rkbmnFileError">
-                                    File RKBMN harus berformat Excel atau csv
-                                    (.xlsx|.xls|.csv).
+                                    File RKBMN harus berformat Excel (.xlsx|.xls).
                                 </div>
                                 @error('rkbmn_file')
                                     <div class="input-error show">{{ $message }}</div>
@@ -978,6 +1003,32 @@
                                         Nama file RKBMN wajib diisi jika file diunggah.
                                     </div>
                                     @error('rkbmn_name')
+                                        <div class="input-error show">{{ $message }}</div>
+                                    @enderror
+
+                                </div>
+
+                                <div class="form-group">
+
+                                    <label for="rkbmnTahunAnggaran" class="form-label">
+                                        Tahun Anggaran RKBMN
+                                        <span class="required" id="rkbmnTahunAst">*</span>
+                                    </label>
+
+                                    <select id="rkbmnTahunAnggaran" name="rkbmn_tahun_anggaran" class="form-input">
+                                        <option value="">Pilih Tahun Anggaran</option>
+                                        @foreach ($tahunAnggaran as $tahun)
+                                            <option value="{{ $tahun }}"
+                                                @selected((string) old('rkbmn_tahun_anggaran') === (string) $tahun)>
+                                                {{ $tahun }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+
+                                    <div class="input-error" id="rkbmnTahunError">
+                                        Tahun anggaran RKBMN wajib dipilih jika file diunggah.
+                                    </div>
+                                    @error('rkbmn_tahun_anggaran')
                                         <div class="input-error show">{{ $message }}</div>
                                     @enderror
 
@@ -1080,12 +1131,20 @@
                                 Nama File Renja
                             </span>
 
+                            <span class="status-chip" id="renjaTahunStatus">
+                                Tahun Anggaran Renja
+                            </span>
+
                             <span class="status-chip" id="rkbmnFileStatus">
                                 File RKBMN
                             </span>
 
                             <span class="status-chip" id="rkbmnNameStatus">
                                 Nama File RKBMN
+                            </span>
+
+                            <span class="status-chip" id="rkbmnTahunStatus">
+                                Tahun Anggaran RKBMN
                             </span>
 
                             <span class="status-chip" id="jumlahPegawaiFileStatus">
@@ -1187,6 +1246,10 @@
                 nameStatus: document.getElementById("renjaNameStatus"),
                 nameError: document.getElementById("renjaNameError"),
                 nameAsterisk: document.getElementById("renjaNameAst"),
+                yearInput: document.getElementById("renjaTahunAnggaran"),
+                yearStatus: document.getElementById("renjaTahunStatus"),
+                yearError: document.getElementById("renjaTahunError"),
+                yearAsterisk: document.getElementById("renjaTahunAst"),
                 allowedExtensions: ["xlsx", "xls", "csv"]
             },
             rkbmn: {
@@ -1200,7 +1263,11 @@
                 nameStatus: document.getElementById("rkbmnNameStatus"),
                 nameError: document.getElementById("rkbmnNameError"),
                 nameAsterisk: document.getElementById("rkbmnNameAst"),
-                allowedExtensions: ["xlsx", "xls", "csv"]
+                yearInput: document.getElementById("rkbmnTahunAnggaran"),
+                yearStatus: document.getElementById("rkbmnTahunStatus"),
+                yearError: document.getElementById("rkbmnTahunError"),
+                yearAsterisk: document.getElementById("rkbmnTahunAst"),
+                allowedExtensions: ["xlsx", "xls"]
             },
             jumlahPegawai: {
                 input: document.getElementById("jumlah_pegawai_file"),
@@ -1213,6 +1280,10 @@
                 nameStatus: document.getElementById("jumlahPegawaiNameStatus"),
                 nameError: document.getElementById("jumlahPegawaiNameError"),
                 nameAsterisk: document.getElementById("jumlahPegawaiNameAst"),
+                yearInput: null,
+                yearStatus: null,
+                yearError: null,
+                yearAsterisk: null,
                 allowedExtensions: ["xlsx", "xls"]
             }
         };
@@ -1274,6 +1345,10 @@
             config.dropzone.classList.remove("has-file", "has-error");
             config.error.classList.remove("show");
 
+            if (config.yearInput) {
+                config.yearInput.value = "";
+            }
+
             updateFormState();
         }
 
@@ -1315,6 +1390,10 @@
             });
 
             config.nameInput.addEventListener("input", () => updateFormState());
+
+            if (config.yearInput) {
+                config.yearInput.addEventListener("change", () => updateFormState());
+            }
         });
 
         document.querySelectorAll("[data-file-button]").forEach(button => {
@@ -1338,15 +1417,20 @@
 
         function updateFormState(showErrors = false) {
             let atLeastOneFile = false;
-            let allNamesValid = true;
+            let allRequiredFieldsValid = true;
 
             Object.entries(uploadConfig).forEach(([type, config]) => {
                 const fileValid = uploadState[type] !== null;
                 const nameHasValue = config.nameInput.value.trim().length > 0;
                 const nameValid = !fileValid || nameHasValue;
 
+                const needsYear = config.yearInput !== null;
+                const yearHasValue = !needsYear || config.yearInput.value.trim().length > 0;
+                const yearValid = !fileValid || yearHasValue;
+
                 atLeastOneFile = atLeastOneFile || fileValid;
-                allNamesValid = allNamesValid && nameValid;
+                allRequiredFieldsValid =
+                    allRequiredFieldsValid && nameValid && yearValid;
 
                 config.nameAsterisk.style.display = fileValid ? "inline" : "none";
                 config.nameInput.classList.toggle(
@@ -1362,11 +1446,31 @@
                     showErrors && fileValid && !nameHasValue
                 );
 
+                if (needsYear) {
+                    config.yearAsterisk.style.display = fileValid ? "inline" : "none";
+                    config.yearInput.classList.toggle(
+                        "is-invalid",
+                        showErrors && fileValid && !yearHasValue
+                    );
+                    config.yearInput.classList.toggle(
+                        "is-valid",
+                        fileValid && yearHasValue
+                    );
+                    config.yearError.classList.toggle(
+                        "show",
+                        showErrors && fileValid && !yearHasValue
+                    );
+                }
+
                 updateStatusChip(config.fileStatus, fileValid);
                 updateStatusChip(config.nameStatus, nameValid);
+
+                if (config.yearStatus) {
+                    updateStatusChip(config.yearStatus, yearValid);
+                }
             });
 
-            const valid = atLeastOneFile && allNamesValid;
+            const valid = atLeastOneFile && allRequiredFieldsValid;
             saveMasterButton.disabled = !valid;
 
             return valid;

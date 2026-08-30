@@ -5,6 +5,7 @@ use App\Http\Controllers\usersController;
 use App\Http\Controllers\masterDataController;
 use App\Http\Controllers\rkaController;
 use App\Http\Controllers\torrabController;
+use App\Http\Controllers\penelitianController;
 use App\Http\Controllers\referensiOrganisasiController;
 use App\Http\Controllers\referensiPenganggaranController;
 use App\Http\Controllers\lihatReferensiOrganisasiController;
@@ -110,6 +111,82 @@ Route::middleware('auth')->group(function () {
             Route::delete('/', 'deleteAccount')
                 ->middleware('throttle:3,1')
                 ->name('account.destroy');
+        });
+
+    Route::controller(penelitianController::class)
+        ->prefix('Penelitian')
+        ->group(function () {
+            Route::get('/', 'index')
+                ->name('penelitian.index');
+
+            Route::get('/Baru', 'create')
+                ->name('penelitian.create');
+
+            Route::post('/', 'store')
+                ->name('penelitian.store');
+
+            Route::get('/Dokumen', 'documentOptions')
+                ->name('penelitian.documents');
+
+            Route::get('/{penelitianID}/Edit', 'edit')
+                ->whereNumber('penelitianID')
+                ->name('penelitian.edit');
+
+            Route::put('/{penelitianID}', 'update')
+                ->whereNumber('penelitianID')
+                ->name('penelitian.update');
+
+            Route::post('/{penelitianID}/Jalankan-A', 'runPartA')
+                ->whereNumber('penelitianID')
+                ->name('penelitian.run-a');
+
+
+            Route::post('/{penelitianID}/Jalankan-B', 'runPartB')
+                ->whereNumber('penelitianID')
+                ->name('penelitian.run-b');
+
+
+            Route::post('/{penelitianID}/Jalankan-C', 'runPartC')
+                ->whereNumber('penelitianID')
+                ->name('penelitian.run-c');
+
+
+            Route::post('/{penelitianID}/Jalankan-D', 'runPartD')
+                ->whereNumber('penelitianID')
+                ->name('penelitian.run-d');
+
+
+            Route::post('/{penelitianID}/Jalankan-D1', 'runPartD1')
+                ->whereNumber('penelitianID')
+                ->name('penelitian.run-d1');
+
+
+            Route::post('/{penelitianID}/Jalankan-D2', 'runPartD2')
+                ->whereNumber('penelitianID')
+                ->name('penelitian.run-d2');
+
+
+            Route::post('/{penelitianID}/Jalankan-E', 'runPartE')
+                ->whereNumber('penelitianID')
+                ->name('penelitian.run-e');
+
+
+            Route::post('/{penelitianID}/Jalankan-F', 'runPartF')
+                ->whereNumber('penelitianID')
+                ->name('penelitian.run-f');
+
+
+            Route::get('/{penelitianID}/CHP', 'showChp')
+                ->whereNumber('penelitianID')
+                ->name('penelitian.chp');
+
+            Route::get('/{penelitianID}/CHP/Cetak', 'printChp')
+                ->whereNumber('penelitianID')
+                ->name('penelitian.chp.print');
+
+            Route::post('/{penelitianID}/CHP/Catat-Cetak', 'logPrintChp')
+                ->whereNumber('penelitianID')
+                ->name('penelitian.chp.print-log');
         });
 
     Route::controller(masterDataController::class)

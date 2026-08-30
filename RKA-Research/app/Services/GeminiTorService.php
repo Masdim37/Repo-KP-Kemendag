@@ -240,6 +240,20 @@ PRINSIP WAJIB:
 
 ATURAN EKSTRAKSI SETIAP FIELD:
 
+FIELD sasaran_program
+- Ambil TEKS Sasaran Program yang tertulis eksplisit pada bagian identitas/header TOR, biasanya setelah label "Sasaran Program".
+- Salin isi sasaran sedekat mungkin dengan teks sumber. JANGAN meringkas, memparafrasekan, memperbaiki redaksi, atau mengganti kata.
+- Jangan mengambil nama Program sebagai sasaran_program.
+- Jika nilai terpotong ke beberapa baris karena layout PDF, gabungkan hanya pemenggalan baris/spasi yang bersifat teknis tanpa mengubah urutan kata, kapitalisasi, angka, atau tanda baca yang terbaca.
+- Jika label/nilai Sasaran Program tidak ditemukan atau tidak dapat dipastikan, gunakan null.
+
+FIELD sasaran_kegiatan
+- Ambil TEKS Sasaran Kegiatan yang tertulis eksplisit pada bagian identitas/header TOR, biasanya setelah label "Sasaran Kegiatan".
+- Salin isi sasaran sedekat mungkin dengan teks sumber. JANGAN meringkas, memparafrasekan, memperbaiki redaksi, atau mengganti kata.
+- Jangan mengambil nama Kegiatan sebagai sasaran_kegiatan.
+- Jika nilai terpotong ke beberapa baris karena layout PDF, gabungkan hanya pemenggalan baris/spasi yang bersifat teknis tanpa mengubah urutan kata, kapitalisasi, angka, atau tanda baca yang terbaca.
+- Jika label/nilai Sasaran Kegiatan tidak ditemukan atau tidak dapat dipastikan, gunakan null.
+
 A. rincian_output
 - Ambil NAMA Rincian Output (RO).
 - Jika dokumen menggunakan istilah lama "Keluaran (Output)", gunakan nama keluaran tersebut.
@@ -324,6 +338,16 @@ PROMPT;
         return [
             'type' => 'OBJECT',
             'properties' => [
+                'sasaran_program' => [
+                    'type' => 'STRING',
+                    'nullable' => true,
+                    'description' => 'Teks Sasaran Program sebagaimana tertulis pada TOR; tidak diringkas atau diparafrasekan.',
+                ],
+                'sasaran_kegiatan' => [
+                    'type' => 'STRING',
+                    'nullable' => true,
+                    'description' => 'Teks Sasaran Kegiatan sebagaimana tertulis pada TOR; tidak diringkas atau diparafrasekan.',
+                ],
                 'rincian_output' => [
                     'type' => 'STRING',
                     'nullable' => true,
@@ -395,6 +419,8 @@ PROMPT;
                 ],
             ],
             'required' => [
+                'sasaran_program',
+                'sasaran_kegiatan',
                 'rincian_output',
                 'volume_ro',
                 'satuan_ro',
@@ -408,6 +434,8 @@ PROMPT;
                 'total_biaya',
             ],
             'propertyOrdering' => [
+                'sasaran_program',
+                'sasaran_kegiatan',
                 'rincian_output',
                 'volume_ro',
                 'satuan_ro',
@@ -524,6 +552,8 @@ PROMPT;
     private function normalizeTorExtraction(array $data): array
     {
         $default = [
+            'sasaran_program' => null,
+            'sasaran_kegiatan' => null,
             'rincian_output' => null,
             'volume_ro' => null,
             'satuan_ro' => null,
@@ -542,6 +572,8 @@ PROMPT;
 
         foreach (
             [
+                'sasaran_program',
+                'sasaran_kegiatan',
                 'rincian_output',
                 'satuan_ro',
                 'gambaran_umum',

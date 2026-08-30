@@ -684,8 +684,16 @@ class torrabController extends Controller
                     'nama_satker'       => $dataOrganisasi['nama_satker'],
                     'kode_program'      => $dataOrganisasi['kode_program'],
                     'nama_program'      => $dataOrganisasi['nama_program'],
+
+                    'sasaran_program' =>
+                    $extractedData['sasaran_program'] ?? null,
+
                     'kode_kegiatan'     => $dataOrganisasi['kode_kegiatan'],
                     'nama_kegiatan'     => $dataOrganisasi['nama_kegiatan'],
+
+                    'sasaran_kegiatan' =>
+                    $extractedData['sasaran_kegiatan'] ?? null,
+
                     'kode_kro'          => $dataOrganisasi['kode_kro'],
                     'nama_kro'          => $dataOrganisasi['nama_kro'],
                     'kode_ro'           => $dataOrganisasi['kode_ro'],
