@@ -1812,10 +1812,10 @@ class usersController extends Controller
             : 'role0002';
     }
 
-    public function ShowDashboard()
-    {
-        return view('menu.dashboard.dashboard');
-    }
+    // public function ShowDashboard()
+    // {
+    //     return view('menu.dashboard.dashboard');
+    // }
 
     public function logout(Request $request)
     {

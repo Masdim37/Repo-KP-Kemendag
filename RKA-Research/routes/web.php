@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\usersController;
 use App\Http\Controllers\masterDataController;
 use App\Http\Controllers\rkaController;
@@ -95,7 +96,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [usersController::class, 'logout'])
         ->name('logout');
 
-    Route::get('/Dashboard', [usersController::class, 'ShowDashboard'])
+    // Route::get('/Dashboard', [usersController::class, 'ShowDashboard'])
+    //     ->name('dashboard');
+
+    Route::get('/Dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
     Route::controller(usersController::class)
