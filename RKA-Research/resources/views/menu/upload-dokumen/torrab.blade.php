@@ -1049,9 +1049,7 @@
                                 Panduan Unggah Dokumen
                             </strong>
 
-                            Unggah <strong>minimal satu dokumen</strong>: TOR/KAK saja, RAB saja, atau keduanya.
-                            Pastikan seluruh referensi anggaran telah terisi sebelum
-                            menyimpan dokumen.
+                            Unggah minimal satu dokumen (TOR saja/RAB saja/keduanya). TOR hanya menerima format PDF, RAB hanya menerima format PDF & Excel.
                         </div>
 
                     </div>
@@ -1068,20 +1066,20 @@
 
                                 <div>
                                     <h1 class="card-title">
-                                        Upload Dokumen TOR / RAB
+                                        Upload Dokumen TOR & RAB
                                     </h1>
 
                                     <p class="card-description">
-                                        Pilih TOR/KAK, RAB, atau keduanya sesuai dokumen yang tersedia.
+                                        Unggah file TOR dan RAB.
                                     </p>
                                 </div>
 
                             </div>
 
-                            <div class="card-date">
+                            {{-- <div class="card-date">
                                 <i class="bi bi-clock"></i>
                                 {{ now()->translatedFormat('d F Y') }}
-                            </div>
+                            </div> --}}
 
                         </div>
 
@@ -1094,9 +1092,9 @@
                              FILE DOKUMEN
                         ================================ -->
 
-                            <div class="section-title">
+                            {{-- <div class="section-title">
                                 <h2>File Dokumen</h2>
-                            </div>
+                            </div> --}}
 
                             <div class="document-grid">
 
@@ -1107,9 +1105,9 @@
                                     <div class="document-title-row">
                                         <div class="document-title">
                                             <i class="bi bi-file-earmark-pdf"></i>
-                                            Upload TOR / KAK
+                                            Upload TOR
                                         </div>
-                                        <span class="format-badge">Opsional · PDF saja</span>
+                                        <span class="format-badge">PDF</span>
                                     </div>
 
                                     <div class="upload-zone" id="torDropzone">
@@ -1135,9 +1133,9 @@
                                                 Pilih File
                                             </button>
 
-                                            <div class="file-format">
+                                            {{-- <div class="file-format">
                                                 PDF saja
-                                            </div>
+                                            </div> --}}
 
                                             <div class="selected-file" id="torSelected">
                                                 <div class="selected-file-info">
@@ -1158,7 +1156,7 @@
                                     </div>
 
                                     <div class="file-error" id="torFileError">
-                                        TOR/KAK hanya dapat menggunakan file PDF.
+                                        TOR hanya dapat menggunakan file PDF.
                                     </div>
                                     @error('tor_file')
                                         <div class="file-error show">{{ $message }}</div>
@@ -1167,7 +1165,7 @@
                                     <div class="form-group">
 
                                         <label class="form-label">
-                                            Nama File TOR / KAK
+                                            Nama File TOR
                                             <span
                                                 style="font-weight:600;text-transform:none;color:var(--text-muted);">(wajib
                                                 jika TOR dipilih)</span>
@@ -1175,7 +1173,7 @@
 
                                         <input type="text" id="torName" name="tor_name" class="form-control"
                                             value="{{ old('tor_name') }}"
-                                            placeholder="Terisi otomatis saat file TOR/KAK dipilih...">
+                                            placeholder="Terisi otomatis saat file TOR dipilih...">
 
                                     </div>
 
@@ -1190,7 +1188,7 @@
                                             <i class="bi bi-file-earmark-spreadsheet"></i>
                                             Upload RAB
                                         </div>
-                                        <span class="format-badge">Opsional · PDF / Excel</span>
+                                        <span class="format-badge">PDF / Excel</span>
                                     </div>
 
                                     <div class="upload-zone" id="rabDropzone">
@@ -1216,9 +1214,9 @@
                                                 Pilih File
                                             </button>
 
-                                            <div class="file-format">
+                                            {{-- <div class="file-format">
                                                 PDF, XLSX, atau XLS
-                                            </div>
+                                            </div> --}}
 
                                             <div class="selected-file" id="rabSelected">
                                                 <div class="selected-file-info">
@@ -1264,12 +1262,12 @@
 
                             </div>
 
-                            <div
+                            {{-- <div
                                 style="margin-top:10px;padding:9px 11px;border:1px solid #dbe6f0;border-radius:9px;background:#f8fbfe;color:#6f8297;font-size:7.8px;line-height:1.5;">
                                 <i class="bi bi-info-circle" style="margin-right:5px;color:var(--primary);"></i>
-                                Minimal satu file harus dipilih. Anda dapat menyimpan <strong>TOR/KAK saja</strong>,
-                                <strong>RAB saja</strong>, atau <strong>TOR/KAK dan RAB sekaligus</strong>.
-                            </div>
+                                Minimal satu file harus dipilih. Anda dapat menyimpan <strong>TOR saja</strong>,
+                                <strong>RAB saja</strong>, atau <strong>TOR dan RAB sekaligus</strong>.
+                            </div> --}}
 
                             <div class="section-divider"></div>
 
@@ -1331,7 +1329,7 @@
                                     <div class="reference-field">
                                         <label>Status</label>
                                         <input id="statusTahunAnggaran" class="form-control" readonly
-                                            value="Opsional untuk TOR">
+                                            value="Opsional untuk TOR | Wajib untuk RAB">
                                     </div>
 
                                 </div>
@@ -2277,7 +2275,7 @@
         const allowedFileTypes = {
             tor: {
                 extensions: ["pdf"],
-                message: "TOR/KAK hanya dapat menggunakan file PDF."
+                message: "TOR hanya dapat menggunakan file PDF."
             },
             rab: {
                 extensions: ["pdf", "xlsx", "xls"],
@@ -2611,18 +2609,18 @@
             saveButton.disabled = !formReady;
 
             if (mode === "tor") {
-                saveButton.innerHTML = `<i class="bi bi-upload"></i> Simpan Dokumen TOR/KAK`;
+                saveButton.innerHTML = `<i class="bi bi-upload"></i> Simpan Dokumen TOR`;
             } else if (mode === "rab") {
                 saveButton.innerHTML = `<i class="bi bi-upload"></i> Simpan Dokumen RAB`;
             } else if (mode === "both") {
-                saveButton.innerHTML = `<i class="bi bi-upload"></i> Simpan TOR/KAK & RAB`;
+                saveButton.innerHTML = `<i class="bi bi-upload"></i> Simpan TOR & RAB`;
             } else {
                 saveButton.innerHTML = `<i class="bi bi-upload"></i> Simpan Dokumen`;
             }
 
             if (!hasDocument) {
                 actionMessage.textContent =
-                    "Pilih minimal satu dokumen: TOR/KAK atau RAB.";
+                    "Pilih minimal satu dokumen: TOR atau RAB.";
                 return;
             }
 
@@ -2642,7 +2640,7 @@
             }
 
             if (torActive && !torName.value.trim()) {
-                actionMessage.textContent = "Isi nama dokumen TOR/KAK yang dipilih.";
+                actionMessage.textContent = "Isi nama dokumen TOR yang dipilih.";
                 return;
             }
 
@@ -2765,8 +2763,8 @@
                 const hasRab = rabFile.files.length > 0;
 
                 if (!hasTor && !hasRab) {
-                    setFileError("tor", "Pilih TOR/KAK atau RAB. Minimal satu dokumen wajib diunggah.");
-                    setFileError("rab", "Pilih TOR/KAK atau RAB. Minimal satu dokumen wajib diunggah.");
+                    setFileError("tor", "Pilih TOR atau RAB. Minimal satu dokumen wajib diunggah.");
+                    setFileError("rab", "Pilih TOR atau RAB. Minimal satu dokumen wajib diunggah.");
                     updateStatus();
                     return;
                 }
@@ -2805,16 +2803,16 @@
 
                 const mode = getUploadMode();
                 const loadingTitle = mode === "both" ?
-                    "Memproses TOR/KAK dan RAB" :
+                    "Memproses Dokumen TOR dan RAB" :
                     mode === "tor" ?
-                    "Memproses Dokumen TOR/KAK" :
+                    "Memproses Dokumen TOR" :
                     "Memproses Dokumen RAB";
 
                 const loadingMessage = mode === "both" ?
-                    "Dokumen sedang diunggah dan diproses. TOR/KAK akan dianalisis dengan Gemini AI, sedangkan RAB diproses sesuai format file. Mohon tunggu hingga seluruh proses selesai." :
+                    "Dokumen TOR dan RAB sedang diunggah, dibaca, dan disimpan ke database. Mohon tunggu hingga proses selesai." :
                     mode === "tor" ?
-                    "Dokumen TOR/KAK sedang diunggah dan dianalisis dengan Gemini AI. Mohon tunggu hingga proses selesai." :
-                    "Dokumen RAB sedang diunggah dan diproses. PDF akan dianalisis dengan Gemini AI, sedangkan Excel diproses oleh parser aplikasi. Mohon tunggu hingga proses selesai.";
+                    "Dokumen TOR sedang diunggah, dibaca, dan disimpan ke database. Mohon tunggu hingga proses selesai." :
+                    "Dokumen RAB sedang diunggah, dibaca, dan disimpan ke database. Mohon tunggu hingga proses selesai.";
 
                 saveButton.disabled = true;
                 saveButton.innerHTML = `

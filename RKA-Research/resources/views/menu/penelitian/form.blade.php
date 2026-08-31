@@ -801,7 +801,7 @@
                 <div class="page-heading">
                     <div>
                         <h1>{{ $mode === 'edit' ? $penelitian->nama_penelitian : 'Buat Workspace Penelitian Baru' }}</h1>
-                        <p>Workspace disimpan sebagai DRAFT. RKA wajib dipilih karena menjadi objek utama dan sumber header CHP.</p>
+                        <p>Workspace disimpan sebagai DRAFT dan dapat diedit kembali.</p>
                     </div>
                     <span class="status-chip"><i class="bi bi-pencil-fill"></i> DRAFT</span>
                 </div>
@@ -843,8 +843,8 @@
                             <div class="card-header-left">
                                 <div class="card-icon"><i class="bi bi-clipboard2-data"></i></div>
                                 <div>
-                                    <div class="card-title">Identitas Workspace</div>
-                                    <div class="card-subtitle">Nama penelitian diisi user; identitas organisasi divalidasi kembali oleh backend.</div>
+                                    <div class="card-title">Identitas Workspace Penelitian</div>
+                                    <div class="card-subtitle">Isi nama penelitian dan identitas unit/satker yang ingin diteliti.</div>
                                 </div>
                             </div>
                         </div>
@@ -855,7 +855,7 @@
                                     <input id="nama_penelitian" type="text" name="nama_penelitian" class="form-control" maxlength="255" required
                                            value="{{ old('nama_penelitian', $penelitian->nama_penelitian ?? '') }}"
                                            placeholder="Contoh: Penelitian RKA Balai Kalibrasi TA 2027">
-                                    <div class="field-help">Nama ini digunakan sebagai identitas workspace dan activity log, bukan sebagai judul yang mencetak format CHP.</div>
+                                    {{-- <div class="field-help">Nama ini digunakan sebagai identitas workspace dan activity log, bukan sebagai judul yang mencetak format CHP.</div> --}}
                                 </div>
                             </div>
 
@@ -909,8 +909,8 @@
                         <div class="card-body">
                             <div class="document-grid">
                                 <div class="document-card">
-                                    <div class="document-heading"><div class="document-name"><i class="bi bi-file-earmark-spreadsheet"></i> RENJA</div><span class="optional-badge">OPSIONAL DRAFT</span></div>
-                                    <select id="renja_document_id" name="renja_document_id" class="form-control document-single" data-role="RENJA" disabled>
+                                    <div class="document-heading"><div class="document-name"><i class="bi bi-file-earmark-spreadsheet"></i> RENJA</div><span class="required-badge">WAJIB</span></div>
+                                    <select id="renja_document_id" name="renja_document_id" class="form-control document-single" data-role="RENJA" required disabled>
                                         <option value="">Pilih Satker terlebih dahulu</option>
                                     </select>
                                     <div class="document-state" id="state-RENJA"></div>
@@ -961,7 +961,7 @@
                                 <div class="card-icon"><i class="bi bi-person-vcard"></i></div>
                                 <div>
                                     <div class="card-title">Peneliti dan Perwakilan Unit</div>
-                                    <div class="card-subtitle">Maksimal tiga Peneliti dan tiga Perwakilan. Peneliti pertama adalah user pembuat workspace dan tidak editable. Pada CHP final setiap nama mendapatkan ruang tanda tangan kosong untuk penandatanganan fisik.</div>
+                                    <div class="card-subtitle">Maksimal tiga Peneliti RKA-K/L dan tiga Perwakilan Unit yang diteliti.</div>
                                 </div>
                             </div>
                         </div>
@@ -978,14 +978,14 @@
                                 </div>
                                 <div class="party-column">
                                     <div class="party-title">Perwakilan Unit yang Diteliti</div>
-                                    <div class="party-field"><label for="perwakilan_1">Perwakilan 1</label><input id="perwakilan_1" name="perwakilan_1" class="form-control" maxlength="255" value="{{ $perwakilan1 }}" placeholder="Opsional"></div>
+                                    <div class="party-field"><label for="perwakilan_1">Perwakilan 1</label><input id="perwakilan_1" name="perwakilan_1" class="form-control" maxlength="255" value="{{ $perwakilan1 }}" required placeholder="Wajib Diisi"></div>
                                     <div class="party-field"><label for="perwakilan_2">Perwakilan 2</label><input id="perwakilan_2" name="perwakilan_2" class="form-control" maxlength="255" value="{{ $perwakilan2 }}" placeholder="Opsional"></div>
                                     <div class="party-field"><label for="perwakilan_3">Perwakilan 3</label><input id="perwakilan_3" name="perwakilan_3" class="form-control" maxlength="255" value="{{ $perwakilan3 }}" placeholder="Opsional"></div>
                                 </div>
                             </div>
-                            <div class="research-note" style="margin-top:14px;">
+                            {{-- <div class="research-note" style="margin-top:14px;">
                                 <strong>Tanda tangan CHP:</strong> sistem tidak menyimpan tanda tangan digital. Pada tampilan FINAL/cetak tersedia kolom tanda tangan kosong di atas nama Peneliti RKA-K/L dan Perwakilan Unit yang Diteliti sesuai FORMAT CHP.
-                            </div>
+                            </div> --}}
                         </div>
                     </section>
 
@@ -996,7 +996,7 @@
                                     <div class="card-icon"><i class="bi bi-clipboard2-check"></i></div>
                                     <div>
                                         <div class="card-title">A Konsistensi Pencantuman Sasaran Kinerja dalam RKA-K/L dengan Sasaran Kinerja dalam Renja K/L dan RKP</div>
-                                        <div class="card-subtitle">A.1, A.2, dan A.4 diperiksa secara deterministic. A.3 dan A.5 default PERLU_KONFIRMASI karena sumber pembanding belum tersedia.</div>
+                                        {{-- <div class="card-subtitle">A.1, A.2, dan A.4 diperiksa secara deterministic. A.3 dan A.5 default PERLU_KONFIRMASI karena sumber pembanding belum tersedia.</div> --}}
                                     </div>
                                 </div>
                                 <div class="research-header-actions">
@@ -1007,13 +1007,16 @@
                                 </div>
                             </div>
                             <div class="card-body">
-                                <div class="research-note">
+                                {{-- <div class="research-note">
                                     Sasaran Program dan Sasaran Kegiatan dibandingkan RENJA ↔ TOR secara exact text setelah normalisasi teknis trim, line break, dan spasi berulang. Tidak menggunakan Gemini. STATUS dan PENJELASAN dapat diedit selama DRAFT; hasil sistem tetap tersimpan terpisah.
+                                </div> --}}
+                                <div class="research-note">
+                                    Tampilan default setelah menjalankan pemeriksaan bagian A merupakan hasil temuan sistem. <strong>Namun user tetap dapat melakukan perubahan secara manual.</strong>
                                 </div>
 
                                 @if ($hasilAMap->isEmpty())
                                     <div class="research-empty">
-                                        Belum ada hasil penelitian Bagian A. Klik <strong>Jalankan Bagian A</strong> untuk menghasilkan lima baris pemeriksaan. Jika RENJA atau TOR belum dipilih, engine tetap dapat berjalan dan akan menghasilkan status <strong>PERLU_KONFIRMASI</strong> pada pemeriksaan yang tidak dapat dievaluasi.
+                                        Belum ada hasil penelitian Bagian A. Klik <strong>Jalankan Bagian A</strong> untuk menjalankan pemeriksaan.
                                     </div>
                                 @else
                                     <div class="research-table-wrap">
@@ -1071,7 +1074,7 @@
                                     <div class="card-icon"><i class="bi bi-cash-stack"></i></div>
                                     <div>
                                         <div class="card-title">B Kesesuaian Total Pagu dalam RENJA-K/L dengan RKA-K/L</div>
-                                        <div class="card-subtitle">B.1 membandingkan total pagu. B.2 memeriksa Belanja Pegawai akun 51 dan Belanja Barang akun 52 pada level Komponen. B.3 menggunakan default status MVP.</div>
+                                        {{-- <div class="card-subtitle">B.1 membandingkan total pagu. B.2 memeriksa Belanja Pegawai (akun prefix 51) dan Belanja Barang (akun prefix 52) pada level Komponen. B.3 menggunakan default status MVP.</div> --}}
                                     </div>
                                 </div>
                                 <div class="research-header-actions">
@@ -1082,13 +1085,16 @@
                                 </div>
                             </div>
                             <div class="card-body">
-                                <div class="research-note">
+                                {{-- <div class="research-note">
                                     Seluruh perhitungan Bagian B dilakukan secara deterministic tanpa Gemini. Pagu RENJA TA aktif menggunakan alokasi_komponen_0 × 1.000 (RENJA disimpan dalam ribu rupiah); alokasi_komponen_1 s.d. alokasi_komponen_3 tidak dijumlahkan. Pada Pagu Operasional, akun 51/52 hanya dibandingkan langsung jika Komponen RKA tidak bercampur dengan kelompok akun lain. Komponen campuran ditandai PERLU KONFIRMASI. PENJELASAN mengikuti format ringkasan dan bullet per temuan agar mudah dibaca.
+                                </div> --}}
+                                <div class="research-note">
+                                    Tampilan default setelah menjalankan pemeriksaan bagian B merupakan hasil temuan sistem. <strong>Namun user tetap dapat melakukan perubahan secara manual.</strong>
                                 </div>
 
                                 @if ($hasilBMap->isEmpty())
                                     <div class="research-empty">
-                                        Belum ada hasil penelitian Bagian B. Klik <strong>Jalankan Bagian B</strong>. Jika RENJA belum dipilih atau data pembanding tidak tersedia, engine menghasilkan status <strong>PERLU_KONFIRMASI</strong> pada baris yang tidak dapat dievaluasi.
+                                        Belum ada hasil penelitian Bagian B. Klik <strong>Jalankan Bagian B</strong> untuk menjalankan pemeriksaan.
                                     </div>
                                 @else
                                     <div class="research-table-wrap">
@@ -1149,7 +1155,7 @@
                                     <div class="card-icon"><i class="bi bi-table"></i></div>
                                     <div>
                                         <div class="card-title">C Kesesuaian sumber dana dalam RKA-K/L dengan sumber dana yang ditetapkan dalam Pagu Anggaran K/L</div>
-                                        <div class="card-subtitle">C.1 dan C.2 membandingkan nilai RENJA TA aktif dengan RKA. C.3-C.5 menampilkan RENJA Rp0 karena data RENJA tidak tersedia sampai level Akun.</div>
+                                        {{-- <div class="card-subtitle">C.1 dan C.2 membandingkan nilai RENJA TA aktif dengan RKA. C.3-C.5 menampilkan RENJA Rp0 karena data RENJA tidak tersedia sampai level Akun.</div> --}}
                                     </div>
                                 </div>
                                 <div class="research-header-actions">
@@ -1161,13 +1167,17 @@
                             </div>
 
                             <div class="card-body">
-                                <div class="research-note">
+                                {{-- <div class="research-note">
                                     Bagian C dihitung secara deterministic tanpa Gemini. RENJA TA aktif menggunakan <strong>alokasi_komponen_0 × 1.000</strong>; alokasi_komponen_1 s.d. alokasi_komponen_3 tidak dijumlahkan. C.3 memakai mapping kode akun eksplisit untuk PNS/PPPK/Honorer dengan parent seluruh akun 51. C.4 menggunakan daftar struktur operasional configurable (saat ini <strong>EBA → 994 → 002</strong>). Jika struktur tersebut ditemukan pada RKA Satker, akun 52 pada struktur itu menjadi Operasional dan akun 52 lainnya menjadi Non Operasional. Jika tidak ditemukan, parent tetap seluruh akun 52 tetapi child Operasional/Non Operasional tidak ditebak dan diberi catatan perlu konfirmasi. C.5 menggunakan seluruh akun prefix 53 sebagai Belanja Modal. Selama DRAFT, <strong>PAGU RENJA, PAGU RKA, dan CATATAN dapat diubah user</strong>; hasil sistem tetap tersimpan terpisah. <strong>SELISIH tidak dapat diedit dan selalu dihitung otomatis dari PAGU RKA efektif - PAGU RENJA efektif</strong>.
+                                </div> --}}
+                                <div class="research-note">
+                                    Tampilan default setelah menjalankan pemeriksaan bagian C merupakan hasil temuan sistem. <strong>Namun user tetap dapat melakukan perubahan secara manual.</strong>
                                 </div>
+                            
 
                                 @if ($hasilC->isEmpty())
                                     <div class="research-empty">
-                                        Belum ada hasil penelitian Bagian C. Klik <strong>Jalankan Bagian C</strong> untuk menghasilkan rincian kegiatan, sumber dana, Belanja Pegawai, Belanja Barang, dan Belanja Modal.
+                                        Belum ada hasil penelitian Bagian C. Klik <strong>Jalankan Bagian C</strong> untuk menjalankan pemeriksaan.
                                     </div>
                                 @else
                                     <div class="research-table-wrap">
@@ -1300,7 +1310,7 @@
                                     <div class="card-icon"><i class="bi bi-tags"></i></div>
                                     <div>
                                         <div class="card-title">D Kepatuhan dan Ketepatan dalam penandaan (Budget Tagging) sesuai dengan kategori pada semua Keluaran yang dihasilkan</div>
-                                        <div class="card-subtitle">Tujuh kategori mengikuti FORMAT CHP. Baseline MVP tidak melakukan automatic tagging; hasil sistem awal adalah Rp0 dan peneliti dapat melakukan override selama DRAFT.</div>
+                                        {{-- <div class="card-subtitle">Tujuh kategori mengikuti FORMAT CHP. Baseline MVP tidak melakukan automatic tagging; hasil sistem awal adalah Rp0 dan peneliti dapat melakukan override selama DRAFT.</div> --}}
                                     </div>
                                 </div>
                                 <div class="research-header-actions">
@@ -1312,13 +1322,16 @@
                             </div>
 
                             <div class="card-body">
-                                <div class="research-note">
+                                {{-- <div class="research-note">
                                     Bagian D saat ini menggunakan baseline deterministic tanpa Gemini. Sistem membentuk 7 kategori Budget Tagging sesuai FORMAT CHP dengan <strong>PAGU RENJA = Rp0</strong>, <strong>PAGU RKA = Rp0</strong>, dan <strong>PENJELASAN kosong</strong> sebagai hasil sistem awal. Selama DRAFT, user dapat mengubah PAGU RENJA, PAGU RKA, dan PENJELASAN. <strong>SELISIH tidak dapat diedit dan selalu dihitung otomatis dari PAGU RKA efektif - PAGU RENJA efektif</strong>.
+                                </div> --}}
+                                <div class="research-note">
+                                    Tampilan default setelah menjalankan pemeriksaan bagian D merupakan hasil temuan sistem. <strong>Namun user tetap dapat melakukan perubahan secara manual.</strong>
                                 </div>
 
                                 @if ($hasilD->isEmpty())
                                     <div class="research-empty">
-                                        Belum ada hasil penelitian Bagian D. Klik <strong>Jalankan Bagian D</strong> untuk membentuk tujuh kategori Budget Tagging sesuai FORMAT CHP.
+                                        Belum ada hasil penelitian Bagian D. Klik <strong>Jalankan Bagian D</strong> untuk menjalankan pemeriksaan.
                                     </div>
                                 @else
                                     <div class="research-table-wrap">
@@ -1450,7 +1463,7 @@
                                     <div class="card-icon"><i class="bi bi-pc-display-horizontal"></i></div>
                                     <div>
                                         <div class="card-title">D.1 Indentifikasi KRO Belanja Bidang Teknologi Informasi dan Komunikasi</div>
-                                        <div class="card-subtitle">Mengidentifikasi Belanja TIK berdasarkan pasangan kode KRO fixed sesuai FORMAT CHP.</div>
+                                        <div class="card-subtitle">Mengidentifikasi Belanja TIK berdasarkan pasangan kode KRO yang telah ditentukan.</div>
                                     </div>
                                 </div>
                                 <div class="research-header-actions">
@@ -1462,13 +1475,16 @@
                             </div>
 
                             <div class="card-body">
-                                <div class="research-note">
+                                {{-- <div class="research-note">
                                     D.1 dihitung secara deterministic tanpa Gemini. Mapping KRO: <strong>ABO/PBO</strong> Rekomendasi Kebijakan; <strong>CAN/RAN</strong> Pengadaan Sarana; <strong>CCL/RCL</strong> Pemeliharaan Sarana; <strong>CBT/RBT</strong> Pengadaan Prasarana; <strong>CDS/RDS</strong> Pemeliharaan Prasarana; <strong>FAB/UAB</strong> Sistem Informasi Pemerintah; dan <strong>BMA/QMA</strong> Data dan Informasi Publik. RENJA TA aktif menggunakan <strong>alokasi_komponen_0 × 1.000</strong>. Angka bersifat read-only; hanya PENJELASAN yang dapat diedit user selama DRAFT.
+                                </div> --}}
+                                <div class="research-note">
+                                    Tampilan default setelah menjalankan pemeriksaan bagian D.1 merupakan hasil temuan sistem. <strong>Namun user tetap dapat melakukan perubahan secara manual.</strong>
                                 </div>
 
                                 @if ($hasilD1->isEmpty())
                                     <div class="research-empty">
-                                        Belum ada hasil D.1. Klik <strong>Jalankan Bagian D.1</strong> untuk menghitung pagu Belanja TIK berdasarkan KRO pada RENJA dan RKA.
+                                        Belum ada hasil penelitian Bagian D.1. Klik <strong>Jalankan Bagian D.1</strong> untuk menjalankan pemeriksaan.
                                     </div>
                                 @else
                                     <div class="research-table-wrap">
@@ -1544,7 +1560,7 @@
                                     <div class="card-icon"><i class="bi bi-cpu"></i></div>
                                     <div>
                                         <div class="card-title">D.2 Indentifikasi Aset Bidang Teknologi Informasi dan Komunikasi</div>
-                                        <div class="card-subtitle">Menghubungkan RKBMN Pemeliharaan dengan alokasi pemeliharaan dan pengadaan aset TIK pada RKA.</div>
+                                        {{-- <div class="card-subtitle">Menghubungkan RKBMN Pemeliharaan dengan alokasi pemeliharaan dan pengadaan aset TIK pada RKA.</div> --}}
                                     </div>
                                 </div>
                                 <div class="research-header-actions">
@@ -1556,13 +1572,16 @@
                             </div>
 
                             <div class="card-body">
-                                <div class="research-note">
+                                {{-- <div class="research-note">
                                     Gemini hanya digunakan untuk <strong>klasifikasi semantik</strong> nomenklatur aset RKBMN dan detail RKA ke kategori D.2 serta membedakan pemeliharaan/pengadaan. Gemini <strong>tidak menerima tugas menghitung volume atau pagu</strong>. Seluruh angka dihitung deterministic dari database. Jika Gemini gagal, engine tetap berjalan menggunakan fallback keyword. Kolom angka read-only; hanya PENJELASAN dapat diedit selama DRAFT.
+                                </div> --}}
+                                <div class="research-note">
+                                    Tampilan default setelah menjalankan pemeriksaan bagian D.2 merupakan hasil temuan sistem. <strong>Namun user tetap dapat melakukan perubahan secara manual.</strong>
                                 </div>
 
                                 @if ($hasilD2->isEmpty())
                                     <div class="research-empty">
-                                        Belum ada hasil D.2. Klik <strong>Jalankan Bagian D.2</strong> untuk mengidentifikasi aset TIK pada RKBMN dan RKA.
+                                        Belum ada hasil penelitian Bagian D.2. Klik <strong>Jalankan Bagian D.2</strong> untuk menjalankan pemeriksaan.
                                     </div>
                                 @else
                                     <div class="research-table-wrap">
@@ -1671,13 +1690,16 @@
                             </div>
 
                             <div class="card-body">
-                                <div class="research-note">
+                                {{-- <div class="research-note">
                                     Pemeriksaan Bagian E dilakukan secara deterministic tanpa Gemini. <strong>Surat Pengantar</strong> dan <strong>Surat Tugas</strong> default <strong>PERLU KONFIRMASI</strong> karena belum tersedia pada menu upload. RKA Satker, TOR/RAB, RKBMN, dan Data Jumlah Pegawai diperiksa dari dokumen yang tersimpan pada workspace. STATUS dan PENJELASAN dapat diedit selama DRAFT; hasil sistem tetap tersimpan terpisah.
+                                </div> --}}
+                                <div class="research-note">
+                                    Tampilan default setelah menjalankan pemeriksaan bagian E merupakan hasil temuan sistem. <strong>Namun user tetap dapat melakukan perubahan secara manual.</strong>
                                 </div>
 
                                 @if ($hasilEMap->isEmpty())
                                     <div class="research-empty">
-                                        Belum ada hasil penelitian Bagian E. Klik <strong>Jalankan Bagian E</strong> untuk memeriksa lima kelompok kelengkapan dokumen pendukung.
+                                        Belum ada hasil penelitian Bagian E. Klik <strong>Jalankan Bagian E</strong> untuk menjalankan pemeriksaan.
                                     </div>
                                 @else
                                     <div class="research-table-wrap">
@@ -1780,8 +1802,11 @@
                             </div>
 
                             <div class="card-body">
-                                <div class="research-note">
+                                {{-- <div class="research-note">
                                     Bagian F bersifat dinamis. Sistem merangkum hasil A-E, memvalidasi kebutuhan gaji/honor terhadap Data Jumlah Pegawai, dan melakukan double-check setiap RAB terhadap scope RKA yang relevan. RKA tetap authoritative; perbedaan RKA-RAB hanya menjadi catatan F dan tidak mengubah hasil A-E. Gemini, jika tersedia, hanya merapikan redaksi structured findings dan tidak boleh membuat fakta atau angka baru.
+                                </div> --}}
+                                <div class="research-note">
+                                    Tampilan default setelah menjalankan pemeriksaan bagian F merupakan hasil temuan sistem. <strong>Namun user tetap dapat melakukan perubahan secara manual.</strong>
                                 </div>
 
                                 <div class="research-table-wrap">
@@ -1882,7 +1907,7 @@
 
                                 @if ($hasilFSystem->isEmpty() && $hasilFUser->isEmpty())
                                     <div class="research-empty" id="partFEmpty">
-                                        Belum ada Catatan Lain-Lain. Klik <strong>Jalankan Bagian F</strong> untuk menghasilkan catatan sistem, atau tambahkan catatan manual.
+                                        Belum ada Catatan Lain-Lain. Klik <strong>Jalankan Bagian F</strong> untuk menghasilkan catatan sistem, atau tambahkan catatan secara manual.
                                     </div>
                                 @endif
 
@@ -1903,7 +1928,7 @@
                                     <div class="card-icon"><i class="bi bi-lock-fill"></i></div>
                                     <div>
                                         <div class="card-title">Finalisasi CHP</div>
-                                        <div class="card-subtitle">Finalisasi mengunci seluruh workspace dan menjadikan CHP read-only. Status PERLU KONFIRMASI tidak menghalangi finalisasi.</div>
+                                        <div class="card-subtitle">Finalisasi mengunci seluruh workspace dan menjadikan CHP tidak dapat diedit kembali.</div>
                                     </div>
                                 </div>
                             </div>

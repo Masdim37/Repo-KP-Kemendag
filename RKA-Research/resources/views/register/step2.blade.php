@@ -1,490 +1,536 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Informasi Jabatan | Penelitian RKA-K/L</title>
-
-    <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-    >
-
+    <meta name="color-scheme" content="light">
+    <title>Informasi Jabatan | Sistem Informasi Penelitian RKA-K/L</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         :root {
-            --primary-900: #102d83;
-            --primary-800: #173fa4;
-            --primary-700: #2056d4;
-            --primary-600: #2468f2;
-            --primary-100: #eaf1ff;
-
-            --success: #13b85c;
-            --success-soft: #f1fff6;
-            --success-border: #39d77f;
-
-            --danger: #ef4355;
-
-            --text-primary: #172f57;
-            --text-secondary: #71829d;
-            --text-muted: #a8b4c5;
-
-            --border: #d5deea;
-            --background: #f3f7fc;
-            --white: #ffffff;
+            --primary: #0759b7;
+            --primary-dark: #06498f;
+            --primary-bright: #0878d4;
+            --primary-soft: #edf5ff;
+            --text-primary: #18365b;
+            --text-secondary: #607995;
+            --text-muted: #879bb1;
+            --background: #f5f8fc;
+            --border: #dbe5ee;
+            --success: #159957;
+            --success-soft: #effaf4;
+            --danger: #c83446;
+            --danger-soft: #fff1f3;
+            --shadow-strong: 0 22px 60px rgba(20, 60, 102, .12)
         }
 
         * {
-            margin: 0;
-            padding: 0;
             box-sizing: border-box;
+            margin: 0;
+            padding: 0
         }
 
         html,
         body {
-            min-height: 100%;
+            min-height: 100%
         }
 
         body {
-            font-family: Inter, "Segoe UI", Arial, sans-serif;
+            min-height: 100vh;
             color: var(--text-primary);
             background: var(--background);
+            font-family: Inter, "Segoe UI", Arial, sans-serif
+        }
+
+        a,
+        button,
+        input,
+        select {
+            font: inherit
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit
         }
 
         button,
         input,
         select {
-            font: inherit;
+            outline: none
         }
 
-        a {
-            color: inherit;
-            text-decoration: none;
-        }
-
-        .register-page {
-            display: flex;
+        .auth-shell {
             min-height: 100vh;
+            display: grid;
+            grid-template-columns: minmax(500px, .95fr) minmax(560px, 1.05fr)
         }
 
-        /* ==================================================
-           PANEL KIRI
-        ================================================== */
-
-        .left-panel {
+        .brand-panel {
             position: relative;
-            width: 44.5%;
-            min-height: 100vh;
-            padding: 28px 20px 18px;
-            color: #ffffff;
-            background:
-                radial-gradient(
-                    circle at 45% 26%,
-                    rgba(255, 255, 255, 0.08),
-                    transparent 20%
-                ),
-                linear-gradient(
-                    155deg,
-                    #102d83 0%,
-                    #173fa4 50%,
-                    #2468f2 100%
-                );
             overflow: hidden;
-        }
-
-        .left-panel::before {
-            content: "";
-            position: absolute;
-            width: 330px;
-            height: 330px;
-            left: -130px;
-            bottom: -170px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.035);
-        }
-
-        .left-content {
-            position: relative;
-            z-index: 2;
             display: flex;
             flex-direction: column;
-            min-height: calc(100vh - 46px);
+            min-height: 100vh;
+            padding: 38px 46px 34px;
+            color: #fff;
+            background: linear-gradient(155deg, #06356c 0%, #064996 48%, #0872cf 100%)
         }
 
-        .brand {
+        .brand-panel:before,
+        .brand-panel:after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none
+        }
+
+        .brand-panel:before {
+            width: 500px;
+            height: 500px;
+            top: -245px;
+            right: -210px;
+            border: 1px solid rgba(255, 255, 255, .09);
+            box-shadow: 0 0 0 60px rgba(255, 255, 255, .025), 0 0 0 120px rgba(255, 255, 255, .018)
+        }
+
+        .brand-panel:after {
+            width: 340px;
+            height: 340px;
+            bottom: -215px;
+            left: -160px;
+            background: rgba(255, 255, 255, .035)
+        }
+
+        .brand-top,
+        .brand-content,
+        .brand-footer {
+            position: relative;
+            z-index: 1
+        }
+
+        .brand-top {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 13px
+        }
+
+        .brand-logo-wrap {
+            width: 54px;
+            height: 54px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px;
+            border: 1px solid rgba(255, 255, 255, .22);
+            border-radius: 14px;
+            background: rgba(255, 255, 255, .96);
+            box-shadow: 0 10px 28px rgba(3, 32, 68, .18)
         }
 
         .brand-logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 29px;
-            height: 29px;
-            border: 1px solid rgba(255, 255, 255, 0.32);
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.12);
-            font-size: 13px;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain
         }
 
-        .brand-government {
+        .brand-ministry small {
+            display: block;
+            margin-bottom: 3px;
+            color: rgba(232, 243, 255, .74);
             font-size: 8px;
-            color: rgba(255, 255, 255, 0.78);
-        }
-
-        .brand-unit {
-            margin-top: 2px;
-            font-size: 9px;
-            font-weight: 700;
-        }
-
-        .portal-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            width: fit-content;
-            margin-top: 24px;
-            padding: 5px 9px;
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            border-radius: 20px;
-            background: rgba(255, 255, 255, 0.10);
-            font-size: 7px;
-        }
-
-        .portal-badge span {
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-            background: #3fe47d;
-        }
-
-        .app-title {
-            margin-top: 15px;
-            font-size: 17px;
-            line-height: 1.22;
             font-weight: 800;
+            letter-spacing: 1.2px;
+            text-transform: uppercase
         }
 
-        .app-description {
-            max-width: 430px;
-            margin-top: 7px;
-            color: rgba(255, 255, 255, 0.78);
-            font-size: 8px;
-            line-height: 1.6;
+        .brand-ministry strong {
+            display: block;
+            font-size: 13px;
+            font-weight: 850
         }
 
-        .illustration {
-            width: 200px;
-            margin: 25px auto 22px;
-            opacity: 0.85;
+        .brand-content {
+            width: 100%;
+            max-width: 650px;
+            margin: auto 0;
+            padding: 38px 0
         }
 
-        .feature-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 7px;
-            margin-bottom: 17px;
-        }
-
-        .feature-chip {
+        .system-chip {
+            width: fit-content;
             display: inline-flex;
             align-items: center;
-            gap: 5px;
-            padding: 5px 10px;
-            border: 1px solid rgba(255, 255, 255, 0.14);
-            border-radius: 20px;
-            background: rgba(255, 255, 255, 0.10);
-            color: rgba(255, 255, 255, 0.88);
-            font-size: 7px;
-        }
-
-        .flow-title {
-            margin-bottom: 10px;
-            color: rgba(255, 255, 255, 0.65);
-            font-size: 7px;
-            font-weight: 700;
-            letter-spacing: 0.8px;
-        }
-
-        .flow-list {
-            display: flex;
-            flex-direction: column;
             gap: 7px;
+            min-height: 28px;
+            padding: 0 11px;
+            border: 1px solid rgba(255, 255, 255, .18);
+            border-radius: 999px;
+            color: #e7f2ff;
+            background: rgba(255, 255, 255, .09);
+            font-size: 8px;
+            font-weight: 850;
+            letter-spacing: .85px;
+            text-transform: uppercase
         }
 
-        .flow-item {
+        .brand-title {
+            max-width: 610px;
+            margin-top: 18px;
+            font-size: clamp(31px, 3.5vw, 44px);
+            font-weight: 900;
+            line-height: 1.08;
+            letter-spacing: -1.2px
+        }
+
+        .brand-title span {
+            color: #a9d4ff
+        }
+
+        .brand-description {
+            max-width: 610px;
+            margin-top: 15px;
+            color: rgba(230, 241, 255, .78);
+            font-size: 12px;
+            line-height: 1.7
+        }
+
+        .info-panel {
+            margin-top: 25px;
+            padding: 16px;
+            border: 1px solid rgba(255, 255, 255, .13);
+            border-radius: 15px;
+            background: rgba(255, 255, 255, .075)
+        }
+
+        .info-title {
             display: flex;
             align-items: center;
+            gap: 8px;
+            font-size: 9px;
+            font-weight: 850;
+            letter-spacing: .7px;
+            text-transform: uppercase;
+            color: #dcecff
+        }
+
+        .info-row {
+            display: flex;
             gap: 10px;
-            min-height: 43px;
-            padding: 8px 10px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 9px;
-            background: rgba(255, 255, 255, 0.06);
+            margin-top: 12px
         }
 
-        .flow-item.active {
-            border-color: rgba(255, 255, 255, 0.35);
-            background: rgba(255, 255, 255, 0.18);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-        }
-
-        .flow-item.completed {
-            background: rgba(255, 255, 255, 0.10);
-        }
-
-        .flow-number {
+        .info-icon {
+            width: 30px;
+            height: 30px;
+            flex: 0 0 auto;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 20px;
-            height: 20px;
-            flex-shrink: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.12);
-            color: rgba(255, 255, 255, 0.65);
-            font-size: 8px;
-            font-weight: 700;
+            border-radius: 9px;
+            background: rgba(255, 255, 255, .11);
+            font-size: 13px
         }
 
-        .flow-item.active .flow-number {
-            color: var(--primary-700);
-            background: #ffffff;
+        .info-row strong {
+            display: block;
+            font-size: 10px
         }
 
-        .flow-item.completed .flow-number {
-            color: #ffffff;
-            background: var(--success);
-        }
-
-        .flow-name {
-            font-size: 8px;
-            font-weight: 700;
-        }
-
-        .flow-description {
+        .info-row span {
+            display: block;
             margin-top: 2px;
-            color: rgba(255, 255, 255, 0.58);
+            color: rgba(226, 241, 255, .66);
+            font-size: 9px;
+            line-height: 1.45
+        }
+
+        .flow {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 7px;
+            margin-top: 20px
+        }
+
+        .flow-step {
+            padding: 10px;
+            border: 1px solid rgba(255, 255, 255, .10);
+            border-radius: 11px;
+            background: rgba(255, 255, 255, .055)
+        }
+
+        .flow-step.completed {
+            background: rgba(21, 153, 87, .18)
+        }
+
+        .flow-step.active {
+            border-color: rgba(255, 255, 255, .28);
+            background: rgba(255, 255, 255, .14)
+        }
+
+        .flow-no {
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 7px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .13);
+            font-size: 8px;
+            font-weight: 900
+        }
+
+        .flow-step.completed .flow-no {
+            background: var(--success);
+            color: #fff
+        }
+
+        .flow-step.active .flow-no {
+            color: var(--primary);
+            background: #fff
+        }
+
+        .flow-step strong {
+            font-size: 8px
+        }
+
+        .flow-step small {
+            display: block;
+            margin-top: 2px;
+            color: rgba(226, 241, 255, .6);
             font-size: 7px;
+            line-height: 1.4
         }
 
-        .left-footer {
-            margin-top: auto;
+        .brand-footer {
             padding-top: 17px;
-            border-top: 1px solid rgba(255, 255, 255, 0.15);
-            text-align: center;
-            color: rgba(255, 255, 255, 0.48);
-            font-size: 6.5px;
-            line-height: 1.6;
+            border-top: 1px solid rgba(255, 255, 255, .13);
+            color: rgba(218, 235, 255, .55);
+            font-size: 8px
         }
 
-        /* ==================================================
-           PANEL KANAN
-        ================================================== */
-
-        .right-panel {
-            width: 55.5%;
+        .form-panel {
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 25px 24px;
-            background: #f3f7fc;
+            padding: 34px;
+            background: var(--background)
         }
 
-        /* Stepper */
+        .form-wrap {
+            width: 100%;
+            max-width: 570px
+        }
 
         .stepper {
-            width: 100%;
-            max-width: 385px;
             display: grid;
-            grid-template-columns: 25px 1fr 25px 1fr 25px;
+            grid-template-columns: 32px 1fr 32px 1fr 32px;
             align-items: start;
-            margin-bottom: 16px;
+            max-width: 440px;
+            margin: 0 auto 26px
         }
 
         .step {
-            position: relative;
             text-align: center;
+            position: relative
         }
 
         .step-circle {
+            width: 32px;
+            height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 25px;
-            height: 25px;
             margin: auto;
-            border: 1px solid #d7dfeb;
+            border: 1px solid var(--border);
             border-radius: 50%;
-            color: #b0bccb;
-            background: #ffffff;
-            font-size: 8px;
-            font-weight: 700;
-        }
-
-        .step.active .step-circle {
-            color: #ffffff;
-            border-color: var(--primary-600);
-            background: var(--primary-600);
-            box-shadow: 0 0 0 5px rgba(36, 104, 242, 0.08);
+            color: #9baabd;
+            background: #fff;
+            font-size: 10px;
+            font-weight: 850
         }
 
         .step.completed .step-circle {
-            color: #ffffff;
+            color: #fff;
             border-color: var(--success);
-            background: var(--success);
+            background: var(--success)
+        }
+
+        .step.active .step-circle {
+            color: #fff;
+            border-color: var(--primary);
+            background: var(--primary);
+            box-shadow: 0 0 0 5px rgba(7, 89, 183, .09)
         }
 
         .step-label {
             position: absolute;
-            top: 31px;
+            top: 39px;
             left: 50%;
-            width: 70px;
+            width: 100px;
             transform: translateX(-50%);
-            color: #a2afc0;
-            font-size: 7px;
-            line-height: 1.3;
-        }
-
-        .step.active .step-label {
-            color: var(--primary-600);
-            font-weight: 700;
+            font-size: 8px;
+            color: #91a4b9;
+            line-height: 1.35
         }
 
         .step.completed .step-label {
             color: var(--success);
-            font-weight: 700;
+            font-weight: 800
+        }
+
+        .step.active .step-label {
+            color: var(--primary);
+            font-weight: 800
         }
 
         .step-line {
             height: 1px;
-            margin-top: 12px;
-            background: #dce4ee;
+            margin-top: 15px;
+            background: #dbe5ee
         }
 
         .step-line.completed {
-            background: var(--success);
+            background: var(--success)
         }
 
-        /* Card */
+        .card {
+            margin-top: 37px;
+            padding: 25px 27px 24px;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            background: #fff;
+            box-shadow: var(--shadow-strong)
+        }
 
-        .register-card {
-            width: 100%;
-            max-width: 430px;
-            margin-top: 20px;
-            padding: 23px 22px 20px;
-            border: 1px solid rgba(216, 225, 235, 0.75);
-            border-radius: 15px;
-            background: #ffffff;
-            box-shadow:
-                0 16px 45px rgba(46, 72, 105, 0.10),
-                0 3px 8px rgba(46, 72, 105, 0.05);
+        .card-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            min-height: 25px;
+            padding: 0 9px;
+            border-radius: 999px;
+            color: var(--primary);
+            background: var(--primary-soft);
+            font-size: 8px;
+            font-weight: 850;
+            letter-spacing: .7px;
+            text-transform: uppercase
         }
 
         .card-title {
-            font-size: 15px;
-            font-weight: 800;
+            margin-top: 12px;
+            font-size: 21px;
+            font-weight: 900
         }
 
         .card-description {
-            margin-top: 4px;
-            margin-bottom: 17px;
+            margin-top: 6px;
+            margin-bottom: 19px;
             color: var(--text-secondary);
-            font-size: 8px;
-            line-height: 1.55;
+            font-size: 11px;
+            line-height: 1.6
         }
 
-        /* Form */
+        .server-message {
+            margin-bottom: 15px;
+            padding: 11px 12px;
+            border: 1px solid #f0b7bf;
+            border-radius: 10px;
+            color: #a82c3c;
+            background: var(--danger-soft);
+            font-size: 10px
+        }
 
         .form-group {
-            margin-bottom: 11px;
+            margin-bottom: 14px
         }
 
         .form-label {
             display: block;
             margin-bottom: 6px;
-            color: #27476f;
-            font-size: 8px;
-            font-weight: 700;
+            color: #355575;
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .35px
         }
 
         .required {
-            color: var(--danger);
+            color: var(--danger)
         }
 
         .select-wrapper {
-            position: relative;
+            position: relative
         }
 
         .select-icon {
             position: absolute;
-            top: 50%;
             left: 12px;
-            z-index: 2;
+            top: 50%;
             transform: translateY(-50%);
-            color: #8fa3ba;
-            font-size: 11px;
-            pointer-events: none;
+            z-index: 2;
+            color: #8da0b5;
+            font-size: 13px;
+            pointer-events: none
         }
 
         .jabatan-select {
             width: 100%;
-            height: 39px;
-            padding: 0 38px 0 34px;
-            border: 1.4px solid var(--border);
-            border-radius: 10px;
-            outline: none;
-            color: #294b71;
-            background: #ffffff;
-            font-size: 9px;
-            cursor: pointer;
+            height: 40px;
+            padding: 0 38px 0 36px;
+            border: 1px solid #d5dee7;
+            border-radius: 9px;
+            color: #274766;
+            background: #fff;
+            font-size: 11px;
             appearance: none;
-            transition: 0.2s ease;
+            cursor: pointer;
+            transition: .18s
         }
 
-        .jabatan-select:hover {
-            border-color: #9db4cf;
+        .jabatan-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(7, 89, 183, .09)
         }
 
-        .jabatan-select:focus,
         .jabatan-select.has-value {
-            border-color: var(--success-border);
-            box-shadow: 0 0 0 3px rgba(19, 184, 92, 0.07);
+            border-color: #8cb7e6
         }
 
         .select-arrow {
             position: absolute;
-            top: 50%;
             right: 12px;
+            top: 50%;
             transform: translateY(-50%);
-            color: #8fa3ba;
-            font-size: 10px;
-            pointer-events: none;
+            color: #8599ae;
+            font-size: 11px;
+            pointer-events: none
         }
 
-        .field-error {
+        .field-error,
+        .confirmation-error {
             display: none;
             margin-top: 5px;
             color: var(--danger);
-            font-size: 7px;
+            font-size: 8px
         }
 
-        .field-error.show {
-            display: block;
+        .field-error.show,
+        .confirmation-error.show {
+            display: block
         }
-
-        /* Detail jabatan */
 
         .detail-card {
-            margin-top: 9px;
-            padding: 12px;
-            border: 1px solid #c8d9f7;
-            border-radius: 10px;
-            background: #f8fbff;
+            margin-top: 10px;
+            padding: 14px;
+            border: 1px solid #d4e4f6;
+            border-radius: 12px;
+            background: #f8fbff
         }
 
         .detail-header {
@@ -492,1094 +538,470 @@
             align-items: center;
             justify-content: space-between;
             gap: 10px;
-            margin-bottom: 10px;
+            margin-bottom: 12px
         }
 
         .detail-title {
             display: flex;
             align-items: center;
-            gap: 5px;
-            color: var(--primary-600);
-            font-size: 8px;
-            font-weight: 700;
+            gap: 7px;
+            color: var(--primary);
+            font-size: 9px;
+            font-weight: 850;
+            text-transform: uppercase;
+            letter-spacing: .3px
         }
 
         .position-badge {
             display: none;
-            padding: 3px 6px;
-            border: 1px solid #bcd3ff;
-            border-radius: 12px;
-            color: var(--primary-600);
-            background: #edf4ff;
-            font-size: 6px;
-            font-weight: 700;
+            padding: 4px 8px;
+            border: 1px solid #c6ddf6;
+            border-radius: 999px;
+            color: var(--primary);
+            background: #edf5ff;
+            font-size: 7px;
+            font-weight: 800
         }
 
         .position-badge.show {
-            display: inline-flex;
+            display: inline-flex
+        }
+
+        .readonly-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px
         }
 
         .readonly-group {
-            margin-bottom: 9px;
-        }
-
-        .readonly-group:last-child {
-            margin-bottom: 0;
+            margin-bottom: 10px
         }
 
         .readonly-label {
             display: block;
-            margin-bottom: 4px;
-            color: #6f829a;
-            font-size: 7px;
+            margin-bottom: 5px;
+            color: #72869d;
+            font-size: 8px
         }
 
         .readonly-wrapper {
-            position: relative;
+            position: relative
         }
 
         .readonly-icon {
             position: absolute;
-            top: 50%;
             left: 11px;
+            top: 50%;
             transform: translateY(-50%);
-            color: #a4b2c3;
-            font-size: 10px;
+            color: #9badc0;
+            font-size: 11px
         }
 
         .readonly-input {
             width: 100%;
-            height: 34px;
+            height: 36px;
             padding: 0 30px;
-            border: 1px solid #d9e2ec;
-            border-radius: 9px;
-            outline: none;
-            color: #526d89;
-            background: #f5f8fb;
-            font-size: 8px;
-            cursor: default;
+            border: 1px solid #dce5ee;
+            border-radius: 8px;
+            color: #536d88;
+            background: #f4f7fa;
+            font-size: 9px
         }
 
         .readonly-status {
             position: absolute;
-            top: 50%;
             right: 11px;
+            top: 50%;
             transform: translateY(-50%);
             width: 5px;
             height: 5px;
             border-radius: 50%;
-            background: var(--primary-600);
+            background: #9eb1c4
         }
 
-        .detail-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 9px;
+        .readonly-input:not(:placeholder-shown)+.readonly-status {
+            background: var(--primary)
         }
-
-        /* Checkbox */
 
         .confirmation-box {
             position: relative;
-            margin-top: 11px;
-            padding: 12px 12px 12px 38px;
+            margin-top: 14px;
+            padding: 13px 13px 13px 41px;
             border: 1px solid var(--border);
-            border-radius: 10px;
-            background: #ffffff;
-            transition: 0.2s ease;
+            border-radius: 11px;
+            background: #fff;
+            transition: .18s
         }
 
         .confirmation-box.checked {
-            border-color: var(--success-border);
-            background: var(--success-soft);
+            border-color: #b8e3cb;
+            background: var(--success-soft)
         }
 
         .confirmation-checkbox {
             position: absolute;
             width: 1px;
             height: 1px;
-            opacity: 0;
+            opacity: 0
         }
 
         .custom-checkbox {
             position: absolute;
-            top: 12px;
-            left: 12px;
+            left: 13px;
+            top: 14px;
+            width: 17px;
+            height: 17px;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 16px;
-            height: 16px;
-            border: 1.5px solid #b6c3d2;
+            border: 1.5px solid #afbdcc;
             border-radius: 5px;
             color: transparent;
-            background: #ffffff;
+            background: #fff;
             cursor: pointer;
-            font-size: 10px;
-            transition: 0.2s ease;
+            font-size: 10px
         }
 
-        .confirmation-checkbox:focus + .custom-checkbox {
-            box-shadow: 0 0 0 3px rgba(36, 104, 242, 0.12);
-        }
-
-        .confirmation-checkbox:checked + .custom-checkbox {
-            color: #ffffff;
-            border-color: var(--primary-600);
-            background: var(--primary-600);
+        .confirmation-checkbox:checked+.custom-checkbox {
+            border-color: var(--primary);
+            color: #fff;
+            background: var(--primary)
         }
 
         .confirmation-title {
             display: block;
-            color: #25476d;
-            font-size: 8px;
-            font-weight: 700;
-            cursor: pointer;
+            color: #355575;
+            font-size: 9px;
+            font-weight: 850;
+            cursor: pointer
         }
 
         .confirmation-text {
             display: block;
             margin-top: 4px;
-            color: #71849a;
-            font-size: 7px;
+            color: #71869d;
+            font-size: 8px;
             line-height: 1.55;
-            cursor: pointer;
+            cursor: pointer
         }
-
-        .confirmation-error {
-            display: none;
-            margin-top: 5px;
-            color: var(--danger);
-            font-size: 7px;
-        }
-
-        .confirmation-error.show {
-            display: block;
-        }
-
-        /* Buttons */
 
         .form-actions {
             display: grid;
-            grid-template-columns: 95px 1fr;
+            grid-template-columns: 120px 1fr;
             gap: 10px;
-            margin-top: 14px;
+            margin-top: 17px
         }
 
         .back-button,
         .submit-button {
+            min-height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 39px;
+            gap: 7px;
             border-radius: 9px;
-            font-size: 8px;
-            font-weight: 700;
-            transition: 0.2s ease;
+            font-size: 10px;
+            font-weight: 850
         }
 
         .back-button {
-            border: 1px solid #d4dee9;
-            color: #536d89;
-            background: #ffffff;
+            border: 1px solid #d5dee7;
+            color: #56708b;
+            background: #fff
         }
 
         .back-button:hover {
-            color: var(--primary-600);
-            border-color: #9db9e2;
-            background: #f7faff;
+            color: var(--primary);
+            border-color: #a8c4e4;
+            background: #f8fbff
         }
 
         .submit-button {
-            border: none;
-            color: #ffffff;
-            background: var(--primary-600);
-            box-shadow: 0 7px 16px rgba(36, 104, 242, 0.23);
-            cursor: pointer;
-        }
-
-        .submit-button i {
-            margin-right: 6px;
-        }
-
-        .submit-button:hover:not(:disabled) {
-            background: #1857d7;
-            transform: translateY(-1px);
+            border: 0;
+            color: #fff;
+            background: linear-gradient(135deg, var(--primary), var(--primary-bright));
+            box-shadow: 0 8px 18px rgba(7, 89, 183, .19);
+            cursor: pointer
         }
 
         .submit-button:disabled {
-            color: rgba(255, 255, 255, 0.8);
-            background: #9db7ef;
+            background: #a9c4e5;
             box-shadow: none;
-            cursor: not-allowed;
+            cursor: not-allowed
         }
 
-        .help-button {
-            position: fixed;
-            right: 11px;
-            bottom: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            color: #ffffff;
-            background: #24292f;
-            box-shadow: 0 2px 7px rgba(0, 0, 0, 0.25);
-            font-size: 12px;
-        }
-
-        /* ==================================================
-           RESPONSIVE
-        ================================================== */
-
-        @media (max-width: 900px) {
-            .register-page {
-                display: block;
+        @media(max-width:1024px) {
+            .auth-shell {
+                display: block
             }
 
-            .left-panel,
-            .right-panel {
-                width: 100%;
-                min-height: auto;
+            .brand-panel {
+                display: none
             }
 
-            .left-panel {
-                padding: 25px 20px;
+            .form-panel {
+                min-height: 100vh;
+                padding: 30px 18px
             }
 
-            .left-content {
-                min-height: auto;
-            }
-
-            .illustration,
-            .feature-list,
-            .flow-list,
-            .flow-title,
-            .left-footer {
-                display: none;
-            }
-
-            .right-panel {
-                padding: 32px 15px 50px;
-            }
-
-            .register-card {
-                max-width: 470px;
+            .form-wrap {
+                max-width: 620px
             }
         }
 
-        @media (max-width: 480px) {
-            .register-card {
-                padding: 20px 16px;
+        @media(max-width:620px) {
+            .form-panel {
+                padding: 24px 14px
             }
 
-            .detail-grid {
-                grid-template-columns: 1fr;
+            .card {
+                padding: 22px 17px
+            }
+
+            .readonly-grid {
+                grid-template-columns: 1fr
             }
 
             .form-actions {
-                grid-template-columns: 1fr;
-            }
-
-            .submit-button {
-                grid-row: 1;
-            }
-
-            .back-button {
-                grid-row: 2;
+                grid-template-columns: 1fr
             }
 
             .step-label {
-                width: 60px;
-                font-size: 6.5px;
+                width: 76px;
+                font-size: 7px
             }
         }
     </style>
 </head>
 
 <body>
-
-<div class="register-page">
-
-    <!-- ==================================================
-         PANEL KIRI
-    ================================================== -->
-
-    <aside class="left-panel">
-
-        <div class="left-content">
-
-            <div class="brand">
-
-                <div class="brand-logo">
-                    <i class="bi bi-star-fill"></i>
-                </div>
-
-                <div>
-                    <div class="brand-government">
-                        Kementerian Perdagangan RI
-                    </div>
-
-                    <div class="brand-unit">
-                        Biro Perencanaan
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="portal-badge">
-                <span></span>
-                Portal Pendaftaran Akun
-            </div>
-
-            <h1 class="app-title">
-                Sistem Informasi<br>
-                Penelitian RKA-K/L
-            </h1>
-
-            <p class="app-description">
-                Kelola usulan penelitian anggaran secara mudah, aman,
-                dan terkoordinasi.
-            </p>
-
-            <svg
-                class="illustration"
-                viewBox="0 0 260 150"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-            >
-                <circle
-                    cx="120"
-                    cy="75"
-                    r="60"
-                    fill="rgba(255,255,255,.04)"
-                />
-
-                <rect
-                    x="54"
-                    y="28"
-                    width="68"
-                    height="91"
-                    rx="7"
-                    fill="rgba(255,255,255,.15)"
-                    stroke="rgba(255,255,255,.25)"
-                />
-
-                <rect
-                    x="64"
-                    y="38"
-                    width="46"
-                    height="5"
-                    rx="2"
-                    fill="rgba(255,255,255,.55)"
-                />
-
-                <rect
-                    x="64"
-                    y="49"
-                    width="36"
-                    height="3"
-                    rx="1.5"
-                    fill="rgba(255,255,255,.28)"
-                />
-
-                <rect
-                    x="66"
-                    y="86"
-                    width="8"
-                    height="22"
-                    rx="2"
-                    fill="rgba(255,255,255,.38)"
-                />
-
-                <rect
-                    x="79"
-                    y="77"
-                    width="8"
-                    height="31"
-                    rx="2"
-                    fill="rgba(255,255,255,.52)"
-                />
-
-                <rect
-                    x="92"
-                    y="67"
-                    width="8"
-                    height="41"
-                    rx="2"
-                    fill="rgba(255,255,255,.68)"
-                />
-
-                <circle
-                    cx="163"
-                    cy="54"
-                    r="21"
-                    stroke="#f9d248"
-                    stroke-width="2"
-                />
-
-                <path
-                    d="M149 61L157 52L164 57L176 43"
-                    stroke="#f9d248"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                />
-
-                <circle
-                    cx="195"
-                    cy="91"
-                    r="8"
-                    stroke="rgba(255,255,255,.4)"
-                />
-
-                <circle
-                    cx="217"
-                    cy="105"
-                    r="8"
-                    stroke="rgba(255,255,255,.4)"
-                />
-
-                <path
-                    d="M179 70L190 84M202 96L210 101"
-                    stroke="rgba(255,255,255,.35)"
-                    stroke-width="2"
-                />
-            </svg>
-
-            <div class="feature-list">
-
-                <div class="feature-chip">
-                    <i class="bi bi-shield-check"></i>
-                    Data terenkripsi & aman
-                </div>
-
-                <div class="feature-chip">
-                    <i class="bi bi-speedometer2"></i>
-                    Dashboard riset terintegrasi
-                </div>
-
-                <div class="feature-chip">
-                    <i class="bi bi-briefcase"></i>
-                    Manajemen RKA-K/L terpusat
-                </div>
-
-            </div>
-
-            <div class="flow-title">
-                ALUR PENDAFTARAN
-            </div>
-
-            <div class="flow-list">
-
-                <div class="flow-item completed">
-                    <div class="flow-number">
-                        <i class="bi bi-check-lg"></i>
-                    </div>
-
-                    <div>
-                        <div class="flow-name">
-                            Informasi Akun
-                        </div>
-
-                        <div class="flow-description">
-                            Data diri dan kredensial login
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flow-item active">
-                    <div class="flow-number">2</div>
-
-                    <div>
-                        <div class="flow-name">
-                            Informasi Jabatan
-                        </div>
-
-                        <div class="flow-description">
-                            Jabatan dan posisi di instansi
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flow-item">
-                    <div class="flow-number">3</div>
-
-                    <div>
-                        <div class="flow-name">
-                            Verifikasi OTP
-                        </div>
-
-                        <div class="flow-description">
-                            Konfirmasi melalui kode OTP
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="left-footer">
-                © 2025 Biro Perencanaan — Kementerian Perdagangan RI<br>
-                Seluruh data dilindungi berdasarkan regulasi yang berlaku.
-            </div>
-
-        </div>
-
-    </aside>
-
-    <!-- ==================================================
-         PANEL KANAN
-    ================================================== -->
-
-    <main class="right-panel">
-
-        <div class="stepper">
-
-            <div class="step completed">
-                <div class="step-circle">
-                    <i class="bi bi-check-lg"></i>
-                </div>
-
-                <div class="step-label">
-                    Informasi<br>Akun
+    <div class="auth-shell">
+        <aside class="brand-panel">
+            <div class="brand-top">
+                <div class="brand-logo-wrap"><img src="{{ asset('images/logo-kemendag.png') }}"
+                        alt="Logo Kementerian Perdagangan" class="brand-logo"></div>
+                <div class="brand-ministry"><small>Kementerian Perdagangan RI</small><strong>Biro Perencanaan</strong>
                 </div>
             </div>
-
-            <div class="step-line completed"></div>
-
-            <div class="step active">
-                <div class="step-circle">2</div>
-
-                <div class="step-label">
-                    Informasi<br>Jabatan
+            <div class="brand-content">
+                <div class="system-chip"><i class="bi bi-person-badge"></i> Registrasi Pengguna</div>
+                <h1 class="brand-title">Lengkapi informasi <span>jabatan pengguna</span></h1>
+                <p class="brand-description">Pilih jabatan sesuai data kepegawaian. Informasi ini disimpan sebagai
+                    bagian dari profil pribadi dan data kepegawaian pengguna pada sistem.</p>
+                <div class="info-panel">
+                    <div class="info-title"><i class="bi bi-info-circle"></i> Mengapa informasi jabatan diperlukan?
+                    </div>
+                    <div class="info-row">
+                        <div class="info-icon"><i class="bi bi-person-vcard"></i></div>
+                        <div><strong>Kelengkapan profil</strong><span>Jabatan melengkapi informasi pribadi dan data
+                                kepegawaian pengguna pada sistem.</span></div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-icon"><i class="bi bi-card-checklist"></i></div>
+                        <div><strong>Informasi kepegawaian</strong><span>Nama, tipe, level, dan eselon jabatan dicatat
+                                sebagai informasi profil pengguna.</span></div>
+                    </div>
+                </div>
+                <div class="flow">
+                    <div class="flow-step completed">
+                        <div class="flow-no"><i class="bi bi-check-lg"></i></div><strong>Informasi
+                            Akun</strong><small>Identitas telah dilengkapi.</small>
+                    </div>
+                    <div class="flow-step active">
+                        <div class="flow-no">2</div><strong>Jabatan</strong><small>Lengkapi data jabatan Anda.</small>
+                    </div>
+                    <div class="flow-step">
+                        <div class="flow-no">3</div><strong>Verifikasi OTP</strong><small>Konfirmasi email dan
+                            aktivasi.</small>
+                    </div>
                 </div>
             </div>
-
-            <div class="step-line"></div>
-
-            <div class="step">
-                <div class="step-circle">3</div>
-
-                <div class="step-label">
-                    Verifikasi<br>OTP
+            <div class="brand-footer">© {{ date('Y') }} Biro Perencanaan — Kementerian Perdagangan Republik
+                Indonesia</div>
+        </aside>
+        <main class="form-panel">
+            <div class="form-wrap">
+                <div class="stepper">
+                    <div class="step completed">
+                        <div class="step-circle"><i class="bi bi-check-lg"></i></div>
+                        <div class="step-label">Informasi<br>Akun</div>
+                    </div>
+                    <div class="step-line completed"></div>
+                    <div class="step active">
+                        <div class="step-circle">2</div>
+                        <div class="step-label">Informasi<br>Jabatan</div>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step">
+                        <div class="step-circle">3</div>
+                        <div class="step-label">Verifikasi<br>OTP</div>
+                    </div>
                 </div>
-            </div>
-
-        </div>
-
-        <section class="register-card">
-
-            <h2 class="card-title">
-                Informasi Jabatan
-            </h2>
-
-            <p class="card-description">
-                Pilih jabatan sesuai data kepegawaian resmi Anda.
-            </p>
-
-            <form
-                id="registerStepTwo"
-                action="{{ route('register.step2') }}"
-                method="POST"
-                novalidate
-            >
-
-                @csrf
-
-                <!-- JABATAN ID -->
-
-                <div class="form-group">
-
-                    <label for="jabatanID" class="form-label">
-                        Jabatan
-                        <span class="required">*</span>
-                    </label>
-
-                    <div class="select-wrapper">
-
-                        <i class="bi bi-briefcase select-icon"></i>
-
-                        <select
-                            id="jabatanID"
-                            name="jabatanID"
-                            class="jabatan-select
-                                @error('jabatanID') is-invalid @enderror"
-                            required
-                        >
-                            <option value="">
-                                Pilih nama jabatan
-                            </option>
-
-                            @isset($jabatans)
-
-                                @forelse($jabatans as $jabatan)
-
-                                    <option
-                                        value="{{ $jabatan->jabatanID }}"
-                                        data-name="{{ $jabatan->jabatan_name }}"
-                                        data-type="{{ $jabatan->jabatan_type }}"
-                                        data-level="{{ $jabatan->jabatan_level }}"
-                                        data-eselon="{{ $jabatan->eselon }}"
-                                        {{ old('jabatanID') == $jabatan->jabatanID ? 'selected' : '' }}
-                                    >
-                                        {{ $jabatan->jabatan_name }}
-                                    </option>
-
-                                @empty
-
-                                    <option value="" disabled>
-                                        Data jabatan belum tersedia
-                                    </option>
-
-                                @endforelse
-
-                            @else
-
-                                <option value="" disabled>
-                                    Data jabatan belum dimuat
-                                </option>
-
-                            @endisset
-
-                        </select>
-
-                        <i class="bi bi-chevron-down select-arrow"></i>
-
-                    </div>
-
-                    <div
-                        class="field-error"
-                        id="jabatanError"
-                    >
-                        Silakan pilih jabatan.
-                    </div>
-
-                    @error('jabatanID')
-                        <div class="field-error show">
-                            {{ $message }}
-                        </div>
-                    @enderror
-
-                </div>
-
-                <!-- DETAIL JABATAN -->
-
-                <div class="detail-card">
-
-                    <div class="detail-header">
-
-                        <div class="detail-title">
-                            <i class="bi bi-info-circle-fill"></i>
-                            Detail Jabatan Terpilih
-                        </div>
-
-                        <span
-                            class="position-badge"
-                            id="positionBadge"
-                        >
-                            Jabatan
-                        </span>
-
-                    </div>
-
-                    <div class="readonly-group">
-
-                        <label
-                            for="jabatanNameDisplay"
-                            class="readonly-label"
-                        >
-                            Nama Jabatan
-                        </label>
-
-                        <div class="readonly-wrapper">
-
-                            <i class="bi bi-briefcase readonly-icon"></i>
-
-                            <input
-                                type="text"
-                                id="jabatanNameDisplay"
-                                class="readonly-input"
-                                placeholder="Belum ada jabatan dipilih"
-                                readonly
-                            >
-
-                            <span class="readonly-status"></span>
-
-                        </div>
-
-                    </div>
-
-                    <div class="detail-grid">
-
-                        <div class="readonly-group">
-
-                            <label
-                                for="jabatanTypeDisplay"
-                                class="readonly-label"
-                            >
-                                Tipe Jabatan
-                            </label>
-
-                            <div class="readonly-wrapper">
-
-                                <i class="bi bi-diagram-3 readonly-icon"></i>
-
-                                <input
-                                    type="text"
-                                    id="jabatanTypeDisplay"
-                                    class="readonly-input"
-                                    placeholder="-"
-                                    readonly
-                                >
-
-                                <span class="readonly-status"></span>
-
+                <section class="card">
+                    <div class="card-kicker"><i class="bi bi-briefcase"></i> Tahap 2 dari 3</div>
+                    <h2 class="card-title">Informasi Jabatan</h2>
+                    <p class="card-description">Pilih jabatan sesuai data kepegawaian resmi. Detail jabatan akan
+                        ditampilkan otomatis untuk membantu memastikan pilihan Anda benar.</p>
+                    @if (session('error'))
+                        <div class="server-message"><i class="bi bi-exclamation-triangle-fill"></i>
+                            {{ session('error') }}</div>
+                    @endif
+                    <form id="registerStepTwo" action="{{ route('register.step2') }}" method="POST" novalidate>@csrf
+                        <div class="form-group"><label for="jabatanID" class="form-label">Jabatan <span
+                                    class="required">*</span></label>
+                            <div class="select-wrapper"><i class="bi bi-briefcase select-icon"></i><select
+                                    id="jabatanID" name="jabatanID"
+                                    class="jabatan-select @error('jabatanID') is-invalid @enderror" required>
+                                    <option value="">Pilih nama jabatan</option>
+                                    @isset($jabatans)@forelse($jabatans as $jabatan)
+                                        <option value="{{ $jabatan->jabatanID }}"
+                                            data-name="{{ $jabatan->jabatan_name }}"
+                                            data-type="{{ $jabatan->jabatan_type }}"
+                                            data-level="{{ $jabatan->jabatan_level }}"
+                                            data-eselon="{{ $jabatan->eselon }}"
+                                            {{ old('jabatanID') == $jabatan->jabatanID ? 'selected' : '' }}>
+                                            {{ $jabatan->jabatan_name }}</option>@empty<option value="" disabled>
+                                                Data jabatan belum tersedia</option>
+                                    @endforelse @else<option value="" disabled>Data jabatan
+                                        belum dimuat</option>@endisset
+                                </select>
+                                <i class="bi bi-chevron-down select-arrow"></i>
                             </div>
-
+                            <div class="field-error" id="jabatanError">Silakan pilih jabatan.</div>
+                            @error('jabatanID')
+                                <div class="field-error show">{{ $message }}</div>
+                            @enderror
                         </div>
-
-                        <div class="readonly-group">
-
-                            <label
-                                for="jabatanLevelDisplay"
-                                class="readonly-label"
-                            >
-                                Level Jabatan
-                            </label>
-
-                            <div class="readonly-wrapper">
-
-                                <i class="bi bi-award readonly-icon"></i>
-
-                                <input
-                                    type="text"
-                                    id="jabatanLevelDisplay"
-                                    class="readonly-input"
-                                    placeholder="-"
-                                    readonly
-                                >
-
-                                <span class="readonly-status"></span>
-
+                        <div class="detail-card">
+                            <div class="detail-header">
+                                <div class="detail-title"><i class="bi bi-info-circle-fill"></i> Detail Jabatan Terpilih
+                                </div><span class="position-badge" id="positionBadge">Jabatan</span>
                             </div>
-
+                            <div class="readonly-group"><label for="jabatanNameDisplay" class="readonly-label">Nama
+                                    Jabatan</label>
+                                <div class="readonly-wrapper"><i class="bi bi-briefcase readonly-icon"></i><input
+                                        type="text" id="jabatanNameDisplay" class="readonly-input"
+                                        placeholder="Belum ada jabatan dipilih" readonly><span
+                                        class="readonly-status"></span></div>
+                            </div>
+                            <div class="readonly-grid">
+                                <div class="readonly-group"><label for="jabatanTypeDisplay"
+                                        class="readonly-label">Tipe Jabatan</label>
+                                    <div class="readonly-wrapper"><i class="bi bi-diagram-3 readonly-icon"></i><input
+                                            type="text" id="jabatanTypeDisplay" class="readonly-input"
+                                            placeholder="-" readonly><span class="readonly-status"></span></div>
+                                </div>
+                                <div class="readonly-group"><label for="jabatanLevelDisplay"
+                                        class="readonly-label">Level Jabatan</label>
+                                    <div class="readonly-wrapper"><i class="bi bi-award readonly-icon"></i><input
+                                            type="text" id="jabatanLevelDisplay" class="readonly-input"
+                                            placeholder="-" readonly><span class="readonly-status"></span></div>
+                                </div>
+                            </div>
+                            <div class="readonly-group" style="margin-bottom:0"><label for="eselonDisplay"
+                                    class="readonly-label">Eselon</label>
+                                <div class="readonly-wrapper"><i class="bi bi-building readonly-icon"></i><input
+                                        type="text" id="eselonDisplay" class="readonly-input" placeholder="-"
+                                        readonly><span class="readonly-status"></span></div>
+                            </div>
                         </div>
+                        <div class="confirmation-box" id="confirmationBox"><input type="checkbox"
+                                id="data_confirmation" name="data_confirmation" value="1"
+                                class="confirmation-checkbox" {{ old('data_confirmation') ? 'checked' : '' }}
+                                required><label for="data_confirmation" class="custom-checkbox"><i
+                                    class="bi bi-check-lg"></i></label><label for="data_confirmation"
+                                class="confirmation-title">Konfirmasi Kebenaran Data <span
+                                    class="required">*</span></label><label for="data_confirmation"
+                                class="confirmation-text">Saya menyatakan bahwa data jabatan yang dipilih benar dan
+                                sesuai dengan data kepegawaian resmi Kementerian Perdagangan RI.</label></div>
+                        <div class="confirmation-error" id="confirmationError">Silakan menyetujui pernyataan kebenaran
+                            data.</div>
+                        @error('data_confirmation')
+                            <div class="confirmation-error show">{{ $message }}</div>
+                        @enderror
+                        <div class="form-actions"><a href="{{ route('register') }}" class="back-button"><i
+                                    class="bi bi-arrow-left"></i> Kembali</a><button type="submit"
+                                class="submit-button" id="submitButton" disabled><i class="bi bi-send-fill"></i>
+                                Daftar dan Kirim OTP</button></div>
+                    </form>
+                </section>
+            </div>
+        </main>
+    </div>
+    <script>
+        const jabatanSelect = document.getElementById('jabatanID'),
+            confirmationCheckbox = document.getElementById('data_confirmation'),
+            confirmationBox = document.getElementById('confirmationBox'),
+            submitButton = document.getElementById('submitButton'),
+            jabatanError = document.getElementById('jabatanError'),
+            confirmationError = document.getElementById('confirmationError'),
+            jabatanNameDisplay = document.getElementById('jabatanNameDisplay'),
+            jabatanTypeDisplay = document.getElementById('jabatanTypeDisplay'),
+            jabatanLevelDisplay = document.getElementById('jabatanLevelDisplay'),
+            eselonDisplay = document.getElementById('eselonDisplay'),
+            positionBadge = document.getElementById('positionBadge');
 
-                    </div>
-
-                    <div class="readonly-group">
-
-                        <label
-                            for="eselonDisplay"
-                            class="readonly-label"
-                        >
-                            Eselon
-                        </label>
-
-                        <div class="readonly-wrapper">
-
-                            <i class="bi bi-building readonly-icon"></i>
-
-                            <input
-                                type="text"
-                                id="eselonDisplay"
-                                class="readonly-input"
-                                placeholder="-"
-                                readonly
-                            >
-
-                            <span class="readonly-status"></span>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <!-- PERNYATAAN DATA -->
-
-                <div
-                    class="confirmation-box"
-                    id="confirmationBox"
-                >
-
-                    <input
-                        type="checkbox"
-                        id="data_confirmation"
-                        name="data_confirmation"
-                        value="1"
-                        class="confirmation-checkbox"
-                        {{ old('data_confirmation') ? 'checked' : '' }}
-                        required
-                    >
-
-                    <label
-                        for="data_confirmation"
-                        class="custom-checkbox"
-                    >
-                        <i class="bi bi-check-lg"></i>
-                    </label>
-
-                    <label
-                        for="data_confirmation"
-                        class="confirmation-title"
-                    >
-                        Konfirmasi Kebenaran Data
-                        <span class="required">*</span>
-                    </label>
-
-                    <label
-                        for="data_confirmation"
-                        class="confirmation-text"
-                    >
-                        Saya menyatakan bahwa seluruh data yang saya masukkan
-                        adalah benar dan sesuai dengan data kepegawaian resmi
-                        Kementerian Perdagangan RI.
-                    </label>
-
-                </div>
-
-                <div
-                    class="confirmation-error"
-                    id="confirmationError"
-                >
-                    Silakan menyetujui pernyataan kebenaran data.
-                </div>
-
-                @error('data_confirmation')
-                    <div class="confirmation-error show">
-                        {{ $message }}
-                    </div>
-                @enderror
-
-                <!-- ACTION -->
-
-                <div class="form-actions">
-
-                    <a
-                        href="{{ route('register') }}"
-                        class="back-button"
-                    >
-                        <i class="bi bi-arrow-left"></i>
-                        &nbsp;Kembali
-                    </a>
-
-                    <button
-                        type="submit"
-                        class="submit-button"
-                        id="submitButton"
-                        disabled
-                    >
-                        <i class="bi bi-send-fill"></i>
-                        Daftar dan Kirim OTP
-                    </button>
-
-                </div>
-
-            </form>
-
-        </section>
-
-    </main>
-
-</div>
-
-<a href="#" class="help-button" aria-label="Bantuan">
-    ?
-</a>
-
-<script>
-    const jabatanSelect =
-        document.getElementById("jabatanID");
-
-    const confirmationCheckbox =
-        document.getElementById("data_confirmation");
-
-    const confirmationBox =
-        document.getElementById("confirmationBox");
-
-    const submitButton =
-        document.getElementById("submitButton");
-
-    const jabatanError =
-        document.getElementById("jabatanError");
-
-    const confirmationError =
-        document.getElementById("confirmationError");
-
-    const jabatanNameDisplay =
-        document.getElementById("jabatanNameDisplay");
-
-    const jabatanTypeDisplay =
-        document.getElementById("jabatanTypeDisplay");
-
-    const jabatanLevelDisplay =
-        document.getElementById("jabatanLevelDisplay");
-
-    const eselonDisplay =
-        document.getElementById("eselonDisplay");
-
-    const positionBadge =
-        document.getElementById("positionBadge");
-
-    function formatDatabaseValue(value) {
-        if (!value) {
-            return "-";
+        function formatDatabaseValue(value) {
+            if (!value) return '-';
+            return value.replaceAll('_', ' ').toLowerCase().replace(/\b\w/g, c => c.toUpperCase())
         }
 
-        return value
-            .replaceAll("_", " ")
-            .toLowerCase()
-            .replace(/\b\w/g, character =>
-                character.toUpperCase()
-            );
-    }
-
-    function updatePositionDetails() {
-        const selectedOption =
-            jabatanSelect.options[jabatanSelect.selectedIndex];
-
-        if (!jabatanSelect.value) {
-            jabatanNameDisplay.value = "";
-            jabatanTypeDisplay.value = "";
-            jabatanLevelDisplay.value = "";
-            eselonDisplay.value = "";
-
-            positionBadge.textContent = "Jabatan";
-            positionBadge.classList.remove("show");
-            jabatanSelect.classList.remove("has-value");
-
-            return;
-        }
-
-        const name =
-            selectedOption.dataset.name || "";
-
-        const type =
-            selectedOption.dataset.type || "";
-
-        const level =
-            selectedOption.dataset.level || "";
-
-        const eselon =
-            selectedOption.dataset.eselon || "";
-
-        jabatanNameDisplay.value =
-            name;
-
-        jabatanTypeDisplay.value =
-            formatDatabaseValue(type);
-
-        jabatanLevelDisplay.value =
-            formatDatabaseValue(level);
-
-        eselonDisplay.value =
-            formatDatabaseValue(eselon);
-
-        positionBadge.textContent =
-            formatDatabaseValue(type);
-
-        positionBadge.classList.add("show");
-        jabatanSelect.classList.add("has-value");
-
-        jabatanError.classList.remove("show");
-    }
-
-    function validateForm(showErrors = false) {
-        const jabatanValid =
-            jabatanSelect.value !== "";
-
-        const confirmationValid =
-            confirmationCheckbox.checked;
-
-        if (showErrors) {
-            jabatanError.classList.toggle(
-                "show",
-                !jabatanValid
-            );
-
-            confirmationError.classList.toggle(
-                "show",
-                !confirmationValid
-            );
-        } else {
-            if (jabatanValid) {
-                jabatanError.classList.remove("show");
+        function updatePositionDetails() {
+            const selected = jabatanSelect.options[jabatanSelect.selectedIndex];
+            if (!jabatanSelect.value) {
+                jabatanNameDisplay.value = '';
+                jabatanTypeDisplay.value = '';
+                jabatanLevelDisplay.value = '';
+                eselonDisplay.value = '';
+                positionBadge.textContent = 'Jabatan';
+                positionBadge.classList.remove('show');
+                jabatanSelect.classList.remove('has-value');
+                return
             }
+            const name = selected.dataset.name || '',
+                type = selected.dataset.type || '',
+                level = selected.dataset.level || '',
+                eselon = selected.dataset.eselon || '';
+            jabatanNameDisplay.value = name;
+            jabatanTypeDisplay.value = formatDatabaseValue(type);
+            jabatanLevelDisplay.value = formatDatabaseValue(level);
+            eselonDisplay.value = formatDatabaseValue(eselon);
+            positionBadge.textContent = formatDatabaseValue(type);
+            positionBadge.classList.add('show');
+            jabatanSelect.classList.add('has-value');
+            jabatanError.classList.remove('show')
+        }
 
-            if (confirmationValid) {
-                confirmationError.classList.remove("show");
+        function validateForm(showErrors = false) {
+            const jabatanValid = jabatanSelect.value !== '',
+                confirmationValid = confirmationCheckbox.checked;
+            if (showErrors) {
+                jabatanError.classList.toggle('show', !jabatanValid);
+                confirmationError.classList.toggle('show', !confirmationValid)
+            } else {
+                if (jabatanValid) jabatanError.classList.remove('show');
+                if (confirmationValid) confirmationError.classList.remove('show')
             }
+            confirmationBox.classList.toggle('checked', confirmationValid);
+            submitButton.disabled = !(jabatanValid && confirmationValid);
+            return jabatanValid && confirmationValid
         }
-
-        confirmationBox.classList.toggle(
-            "checked",
-            confirmationValid
-        );
-
-        submitButton.disabled =
-            !(jabatanValid && confirmationValid);
-
-        return jabatanValid && confirmationValid;
-    }
-
-    jabatanSelect.addEventListener("change", function () {
-        updatePositionDetails();
-        validateForm();
-    });
-
-    confirmationCheckbox.addEventListener(
-        "change",
-        function () {
-            validateForm();
-        }
-    );
-
-    document
-        .getElementById("registerStepTwo")
-        .addEventListener("submit", function (event) {
+        jabatanSelect.addEventListener('change', () => {
+            updatePositionDetails();
+            validateForm()
+        });
+        confirmationCheckbox.addEventListener('change', () => validateForm());
+        document.getElementById('registerStepTwo').addEventListener('submit', event => {
             if (!validateForm(true)) {
                 event.preventDefault();
-                return;
+                return
             }
-
             submitButton.disabled = true;
-
-            submitButton.innerHTML = `
-                <i class="bi bi-arrow-repeat"></i>
-                Mendaftarkan dan Mengirim OTP...
-            `;
-
-            /*
-             * FRONTEND SAJA
-             *
-             * Data yang akan dikirim:
-             * - jabatanID
-             * - data_confirmation
-             *
-             * Detail jabatan tidak dikirim karena dibaca
-             * dari tabel jabatan berdasarkan jabatanID.
-             */
-
-            // setTimeout(() => {
-            //     alert(
-            //         "Frontend saja: data jabatan valid dan OTP siap dikirim."
-            //     );
-
-            //     submitButton.disabled = false;
-
-            //     submitButton.innerHTML = `
-            //         <i class="bi bi-send-fill"></i>
-            //         Daftar dan Kirim OTP
-            //     `;
-            // }, 800);
+            submitButton.innerHTML = '<i class="bi bi-arrow-repeat"></i> Mendaftarkan dan Mengirim OTP...'
         });
-
-    updatePositionDetails();
-    validateForm();
-</script>
-
+        updatePositionDetails();
+        validateForm();
+    </script>
 </body>
+
 </html>

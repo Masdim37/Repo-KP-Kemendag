@@ -838,10 +838,10 @@
                         </p>
                     </div>
 
-                    <div class="read-badge">
+                    {{-- <div class="read-badge">
                         <i class="bi bi-eye"></i>
                         READ ONLY
-                    </div>
+                    </div> --}}
                 </div>
 
                 <div class="summary-strip">

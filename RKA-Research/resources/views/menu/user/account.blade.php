@@ -1365,16 +1365,16 @@
                 Akun Pengguna
             </h1>
 
-            <p class="page-description">
+            {{-- <p class="page-description">
                 Kelola informasi identitas, jabatan, dan kredensial akses Anda
                 dalam Sistem Informasi Penelitian RKA-K/L.
-            </p>
+            </p> --}}
         </div>
 
-        <div class="page-chip">
+        {{-- <div class="page-chip">
             <i class="bi bi-shield-check"></i>
             Profil dan keamanan akun
-        </div>
+        </div> --}}
     </div>
 
     @if (session('success'))

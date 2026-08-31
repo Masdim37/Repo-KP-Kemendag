@@ -41,9 +41,9 @@
             </header>
             <main class="page-container">
                 <div class="content-wrapper">
-                    <div class="info-box"><i class="bi bi-info-circle-fill"></i>
+                    {{-- <div class="info-box"><i class="bi bi-info-circle-fill"></i>
                         <div>Program merupakan parent Kegiatan. Kode Program bersifat master dan harus unik.</div>
-                    </div>
+                    </div> --}}
                     @if (session('success'))
                         <div class="alert success">{{ session('success') }}</div>
                     @endif
@@ -56,7 +56,7 @@
                                 <div class="card-header-icon"><i class="bi bi-database-add"></i></div>
                                 <div>
                                     <h1 class="card-title">Tambah Referensi Program</h1>
-                                    <p class="card-description">Masukkan kode dan nomenklatur Program yang telah
+                                    <p class="card-description">Masukkan kode dan nomenklatur Program baru yang telah
                                         ditetapkan.</p>
                                 </div>
                             </div><span class="card-badge">REFERENSI PENGANGGARAN</span>
@@ -65,8 +65,7 @@
                             action="{{ route('referensi.penganggaran.program.store') }}" method="POST" novalidate>@csrf
                             <div class="section-title">
                                 <div>
-                                    <h2>Data Program</h2><span>Kode disimpan sebagai teks dan tidak diubah menjadi
-                                        angka.</span>
+                                    <h2>Data Program</h2><span>Masukkan kode dan nama program baru</span>
                                 </div>
                             </div>
                             <div class="form-grid">
@@ -82,7 +81,7 @@
                                 <div class="form-group"><label for="namaProgram" class="form-label">Nama Program <span
                                             class="required">*</span></label><input type="text" id="namaProgram"
                                         name="nama_program" class="form-control" maxlength="255"
-                                        value="{{ old('nama_program') }}" placeholder="Masukkan nama Program">
+                                        value="{{ old('nama_program') }}" placeholder="Masukkan nama Program Baru">
                                     <div class="field-error" id="namaProgramError"></div>
                                     @error('nama_program')
                                         <div class="field-error show">{{ $message }}</div>

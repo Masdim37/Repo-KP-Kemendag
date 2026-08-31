@@ -34,10 +34,10 @@
             </header>
             <main class="page-container">
                 <div class="content-wrapper">
-                    <div class="info-box"><i class="bi bi-info-circle-fill"></i>
+                    {{-- <div class="info-box"><i class="bi bi-info-circle-fill"></i>
                         <div>Komponen berada di bawah RO. <strong>jenis_komponen</strong> disimpan dengan kode
                             <strong>U</strong> (Utama) atau <strong>P</strong> (Pendukung).</div>
-                    </div>
+                    </div> --}}
                     @if (session('success'))
                         <div class="alert success">{{ session('success') }}</div>
                         @endif @if (session('error'))
@@ -49,8 +49,8 @@
                                     <div class="card-header-icon"><i class="bi bi-boxes"></i></div>
                                     <div>
                                         <h1 class="card-title">Tambah Referensi Komponen</h1>
-                                        <p class="card-description">Pilih RO, lalu tambahkan kode, nama, dan jenis
-                                            Komponen.</p>
+                                        <p class="card-description">Pilih Program, Kegiatan, KRO, dan RO, lalu tambahkan kode, jenis, dan nama
+                                            Komponen Baru.</p>
                                     </div>
                                 </div><span class="card-badge">REFERENSI PENGANGGARAN</span>
                             </div>
@@ -58,7 +58,7 @@
                                 action="{{ route('referensi.penganggaran.komponen.store') }}" method="POST" novalidate>
                                 @csrf<div class="section-title">
                                     <div>
-                                        <h2>Hierarki Komponen</h2><span>Program → Kegiatan → KRO → RO → Komponen.</span>
+                                        <h2>Data Komponen</h2><span>Pilih Program, Kegiatan, KRO, lalu RO tempat Komponen Baru Digunakan.</span>
                                     </div>
                                 </div>
                                 <div class="form-grid">
@@ -112,7 +112,7 @@
                                     <div class="form-group full"><label class="form-label">Nama Komponen <span
                                                 class="required">*</span></label><input id="namaKomponen"
                                             name="nama_komponen" class="form-control" maxlength="255"
-                                            value="{{ old('nama_komponen') }}" placeholder="Masukkan nama Komponen">
+                                            value="{{ old('nama_komponen') }}" placeholder="Masukkan nama Komponen Baru">
                                         <div class="field-error" id="namaKomponenError"></div>
                                     </div>
                                 </div>

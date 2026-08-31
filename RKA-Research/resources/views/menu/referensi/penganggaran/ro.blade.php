@@ -34,10 +34,10 @@
             </header>
             <main class="page-container">
                 <div class="content-wrapper">
-                    <div class="info-box"><i class="bi bi-info-circle-fill"></i>
+                    {{-- <div class="info-box"><i class="bi bi-info-circle-fill"></i>
                         <div>RO bersifat kontekstual pada kombinasi <strong>Kegiatan + KRO + kode RO</strong>. Kode RO
                             yang sama dapat muncul pada parent berbeda.</div>
-                    </div>
+                    </div> --}}
                     @if (session('success'))
                         <div class="alert success">{{ session('success') }}</div>
                         @endif @if (session('error'))
@@ -50,7 +50,7 @@
                                     <div>
                                         <h1 class="card-title">Tambah Referensi RO</h1>
                                         <p class="card-description">Pilih Kegiatan dan KRO, lalu tambahkan kode dan nama
-                                            RO.</p>
+                                            RO Baru.</p>
                                     </div>
                                 </div><span class="card-badge">REFERENSI PENGANGGARAN</span>
                             </div>
@@ -58,7 +58,7 @@
                                 action="{{ route('referensi.penganggaran.ro.store') }}" method="POST" novalidate>@csrf
                                 <div class="section-title">
                                     <div>
-                                        <h2>Hierarki RO</h2><span>Program → Kegiatan → KRO → RO.</span>
+                                        <h2>Data RO</h2><span>Pilih program, kegiatan, dan KRO tempat RO baru digunakan.</span>
                                     </div>
                                 </div>
                                 <div class="form-grid">
@@ -99,7 +99,7 @@
                                     <div class="form-group full"><label class="form-label">Nama RO <span
                                                 class="required">*</span></label><input id="namaRo" name="nama_ro"
                                             class="form-control" maxlength="255" value="{{ old('nama_ro') }}"
-                                            placeholder="Masukkan nama RO">
+                                            placeholder="Masukkan nama RO Baru">
                                         <div class="field-error" id="namaRoError"></div>
                                         @error('nama_ro')
                                             <div class="field-error show">{{ $message }}</div>

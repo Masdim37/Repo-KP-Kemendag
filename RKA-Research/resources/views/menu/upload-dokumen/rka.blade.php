@@ -533,8 +533,7 @@
                     <i class="bi bi-info-circle"></i>
                     <div>
                         <strong>Panduan Unggah RKA</strong><br>
-                        Unggah RKA/Kertas Kerja Satker dalam format <strong>PDF, XLSX, atau XLS</strong>.
-                        File PDF diproses menggunakan Gemini AI, sedangkan file Excel diproses secara langsung oleh parser sistem.
+                        Unggah RKA/Kertas Kerja Satker dalam format PDF, XLSX, atau XLS.
                     </div>
                 </div>
 
@@ -544,19 +543,19 @@
                             <div class="card-header-icon"><i class="bi bi-file-earmark-bar-graph"></i></div>
                             <div>
                                 <h1 class="card-title">Upload Dokumen RKA</h1>
-                                <p class="card-description">Rincian Kertas Kerja Satker · PDF atau Excel</p>
+                                <p class="card-description">Unggah file Rincian Kertas Kerja Satker sebagai RKA.</p>
                             </div>
                         </div>
-                        <div class="card-date"><i class="bi bi-clock"></i> {{ now()->translatedFormat('d F Y') }}</div>
+                        {{-- <div class="card-date"><i class="bi bi-clock"></i> {{ now()->translatedFormat('d F Y') }}</div> --}}
                     </div>
 
                     <form id="uploadRkaForm" class="main-form" action="{{ route('upload.rka.store') }}" method="POST" enctype="multipart/form-data" novalidate>
                         @csrf
 
-                        <div class="section-title">
+                        {{-- <div class="section-title">
                             <h2>File Dokumen</h2>
                             <span class="section-note">PDF · XLSX · XLS</span>
-                        </div>
+                        </div> --}}
 
                         <div class="document-box">
                             <div class="document-title-row">
@@ -564,7 +563,7 @@
                                     <i class="bi bi-file-earmark-arrow-up"></i>
                                     Upload RKA / Kertas Kerja Satker
                                 </div>
-                                <span class="format-badge">Maks. 50 MB</span>
+                                <span class="format-badge">PDF / Excel</span>
                             </div>
 
                             <div class="upload-zone" id="rkaDropzone">
@@ -581,7 +580,7 @@
                                     <div class="drop-title">Seret & jatuhkan file RKA di sini</div>
                                     <div class="drop-or">atau</div>
                                     <button type="button" class="choose-button" id="chooseFileButton">Pilih File</button>
-                                    <div class="file-format">PDF diproses AI · Excel diproses parser manual</div>
+                                    {{-- <div class="file-format">PDF diproses AI · Excel diproses parser manual</div> --}}
 
                                     <div class="selected-file" id="selectedFile">
                                         <div class="selected-file-info">
@@ -1183,8 +1182,8 @@
         DocumentProcessingModal.showLoading({
             title: 'Memproses Dokumen RKA',
             message: isPdf
-                ? 'Dokumen RKA PDF sedang diunggah dan dianalisis dengan Gemini AI. Proses dapat memerlukan beberapa saat. Mohon tunggu hingga selesai.'
-                : 'Dokumen RKA Excel sedang diunggah dan diproses oleh parser aplikasi. Mohon tunggu hingga proses selesai.'
+                ? 'Dokumen RKA PDF sedang diunggah, dibaca, dan disimpan ke database. Mohon tunggu hingga proses selesai.'
+                : 'Dokumen RKA Excel sedang diunggah, dibaca, dan disimpan ke database. Mohon tunggu hingga proses selesai.'
         });
 
         try {

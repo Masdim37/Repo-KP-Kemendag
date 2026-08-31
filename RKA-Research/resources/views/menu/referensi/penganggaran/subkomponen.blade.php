@@ -59,7 +59,7 @@
                                 novalidate>@csrf
                                 <div class="section-title">
                                     <div>
-                                        <h2>Satker dan Hierarki Anggaran</h2><span>Unit I → Unit II → Satker → Program →
+                                        <h2>Satker dan Hierarki Anggaran</h2><span>Pilih Unit Eselon I → Unit Eselon II → Satker → Program →
                                             Kegiatan → KRO → RO → Komponen.</span>
                                     </div>
                                 </div>
@@ -135,7 +135,7 @@
                                                 class="required">*</span></label><input id="namaSubkomponen"
                                             name="nama_subkomponen" class="form-control" maxlength="255"
                                             value="{{ old('nama_subkomponen') }}"
-                                            placeholder="Masukkan nama Subkomponen">
+                                            placeholder="Masukkan nama Subkomponen Baru">
                                         <div class="field-error" id="namaSubkomponenError"></div>
                                     </div>
                                     <div class="form-group full"><label class="form-label">Deskripsi</label>

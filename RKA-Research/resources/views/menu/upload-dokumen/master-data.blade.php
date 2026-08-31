@@ -810,7 +810,7 @@
                             </h1>
 
                             <p class="master-card-description">
-                                Unggah file Renja, RKBMN, dan/atau Data Jumlah Pegawai sebagai Master Data.
+                                Unggah file Renja, RKBMN, dan Data Jumlah Pegawai sebagai Master Data.
                             </p>
                         </div>
 
@@ -869,13 +869,13 @@
                                 </div>
 
                                 <p class="file-note">
-                                    File hanya dapat menggunakan format Excel atau csv
-                                    (.xlsx|.xls|.csv).
+                                    File hanya dapat menggunakan format Excel
+                                    (.xlsx|.xls).
                                 </p>
 
                                 <div class="file-error" id="renjaFileError">
-                                    File Renja harus berformat Excel atau csv
-                                    (.xlsx|.xls|.csv).
+                                    File Renja harus berformat Excel
+                                    (.xlsx|.xls).
                                 </div>
                                 @error('renja_file')
                                     <div class="input-error show">{{ $message }}</div>
@@ -977,8 +977,7 @@
                                 </div>
 
                                 <p class="file-note">
-                                    File RKBMN harus menggunakan format Excel
-                                    (.xlsx|.xls) karena membutuhkan sheet Pengadaan dan Pemeliharaan.
+                                    File hanya dapat menggunakan format Excel (.xlsx|.xls).
                                 </p>
 
                                 <div class="file-error" id="rkbmnFileError">
@@ -1086,7 +1085,7 @@
                                 </div>
 
                                 <p class="file-note">
-                                    File hanya dapat menggunakan format Excel atau csv
+                                    File hanya dapat menggunakan format Excel
                                     (.xlsx|.xls).
                                 </p>
 
@@ -1545,7 +1544,7 @@
             const selectedLabels = selectedTypes.map(type => labels[type]);
 
             DocumentProcessingModal.showLoading({
-                title: "Memproses Master Data",
+                title: "Memproses Dokumen Master Data",
                 message: `${selectedLabels.join(" & ")} sedang diunggah, dibaca, dan disimpan ke database. Mohon tunggu hingga proses selesai.`
             });
 

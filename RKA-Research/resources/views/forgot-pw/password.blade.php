@@ -1,1522 +1,1431 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Buat Kata Sandi Baru | Penelitian RKA-K/L</title>
-
-    <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-    >
-
+    <meta name="color-scheme" content="light">
+    <title>Buat Kata Sandi Baru | Sistem Informasi Penelitian RKA-K/L</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <style>
         :root {
-            --blue-900: #07366f;
-            --blue-800: #07458f;
-            --blue-700: #075fbe;
-            --blue-600: #0871d1;
-            --blue-100: #eaf4ff;
-
-            --green: #16ad57;
-            --red: #e54444;
-            --orange: #f39a30;
-            --yellow: #e1b62e;
-
-            --text-primary: #123b69;
-            --text-secondary: #7189a4;
-            --text-muted: #a7b5c5;
-
-            --border: #d3dfeb;
-            --background: #f3f7fb;
-            --white: #ffffff;
+            --primary: #0759b7;
+            --primary-dark: #06498f;
+            --primary-deep: #063c7c;
+            --primary-bright: #0878d4;
+            --primary-soft: #edf5ff;
+            --primary-border: #cfe2f8;
+            --text-primary: #18365b;
+            --text-secondary: #607995;
+            --text-muted: #879bb1;
+            --background: #f5f8fc;
+            --surface: #ffffff;
+            --border: #dbe5ee;
+            --success: #159957;
+            --success-soft: #effaf4;
+            --success-border: #c7ead7;
+            --warning: #b7770b;
+            --warning-soft: #fff8e8;
+            --warning-border: #f0ddb0;
+            --danger: #b42f40;
+            --danger-soft: #fff0f2;
+            --danger-border: #efc4cb;
+            --shadow: 0 10px 28px rgba(27, 70, 112, .07);
+            --shadow-strong: 0 22px 60px rgba(20, 60, 102, .12);
         }
 
         * {
-            margin: 0;
-            padding: 0;
             box-sizing: border-box;
+            margin: 0;
+            padding: 0
         }
 
         html,
         body {
-            width: 100%;
-            min-height: 100%;
+            min-height: 100%
         }
 
         body {
-            font-family: Inter, "Segoe UI", Arial, sans-serif;
-            background: var(--background);
+            min-height: 100vh;
+            overflow-x: hidden;
             color: var(--text-primary);
+            background: var(--background);
+            font-family: Inter, "Segoe UI", Arial, sans-serif
         }
 
+        a,
         button,
         input {
-            font-family: inherit;
+            font: inherit
         }
 
         a {
             color: inherit;
-            text-decoration: none;
+            text-decoration: none
         }
 
-        .page-wrapper {
-            display: flex;
+        button,
+        input {
+            outline: none
+        }
+
+        .recovery-shell {
             min-height: 100vh;
-            overflow: hidden;
+            display: grid;
+            grid-template-columns: minmax(520px, 1.05fr) minmax(440px, .95fr)
         }
 
-        /* =====================================================
-           PANEL KIRI
-        ===================================================== */
-
-        .left-panel {
+        .brand-panel {
             position: relative;
-            width: 38.2%;
-            min-height: 100vh;
-            padding: 31px 26px 27px;
-            color: var(--white);
-            background:
-                linear-gradient(
-                    160deg,
-                    #07356f 0%,
-                    #084990 48%,
-                    #0870cb 100%
-                );
             overflow: hidden;
-        }
-
-        .decoration-circle {
-            position: absolute;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.08);
-            pointer-events: none;
-        }
-
-        .circle-top {
-            width: 210px;
-            height: 210px;
-            top: -64px;
-            right: -61px;
-        }
-
-        .circle-right {
-            width: 132px;
-            height: 132px;
-            right: -50px;
-            top: 213px;
-            background: rgba(255, 255, 255, 0.06);
-        }
-
-        .circle-bottom {
-            width: 210px;
-            height: 210px;
-            left: -76px;
-            bottom: -80px;
-        }
-
-        .left-content {
-            position: relative;
-            z-index: 2;
             display: flex;
             flex-direction: column;
-            min-height: calc(100vh - 58px);
+            min-height: 100vh;
+            padding: 42px 52px 36px;
+            color: #fff;
+            background: linear-gradient(155deg, #06356c 0%, #064996 48%, #0872cf 100%)
         }
 
-        .brand {
+        .brand-panel:before,
+        .brand-panel:after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none
+        }
+
+        .brand-panel:before {
+            width: 520px;
+            height: 520px;
+            top: -245px;
+            right: -205px;
+            border: 1px solid rgba(255, 255, 255, .09);
+            box-shadow: 0 0 0 65px rgba(255, 255, 255, .025), 0 0 0 130px rgba(255, 255, 255, .018)
+        }
+
+        .brand-panel:after {
+            width: 360px;
+            height: 360px;
+            bottom: -225px;
+            left: -165px;
+            background: rgba(255, 255, 255, .035)
+        }
+
+        .brand-top,
+        .brand-content,
+        .brand-footer {
+            position: relative;
+            z-index: 1
+        }
+
+        .brand-top {
             display: flex;
             align-items: center;
-            gap: 11px;
+            gap: 14px
+        }
+
+        .brand-logo-wrap {
+            width: 58px;
+            height: 58px;
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px;
+            border: 1px solid rgba(255, 255, 255, .22);
+            border-radius: 15px;
+            background: rgba(255, 255, 255, .96);
+            box-shadow: 0 10px 28px rgba(3, 32, 68, .18)
         }
 
         .brand-logo {
-            position: relative;
-            width: 27px;
-            height: 27px;
-            flex-shrink: 0;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain
         }
 
-        .brand-logo-shape {
-            position: absolute;
-            inset: 5px;
-            border-radius: 3px;
-            transform: rotate(45deg);
-            background:
-                linear-gradient(
-                    135deg,
-                    #c6e3ff 0%,
-                    #ffffff 45%,
-                    #6ca7df 100%
-                );
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-        }
-
-        .brand-logo-shape::after {
-            content: "";
-            position: absolute;
-            left: 6px;
-            top: 6px;
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: #0758ad;
-        }
-
-        .brand-text-primary {
+        .brand-ministry small {
             display: block;
-            font-size: 9px;
-            line-height: 1.3;
-            font-weight: 600;
-            letter-spacing: 0.65px;
-            color: rgba(255, 255, 255, 0.78);
-        }
-
-        .brand-text-secondary {
-            display: block;
-            font-size: 10px;
-            line-height: 1.35;
-            font-weight: 700;
-            color: #ffffff;
-        }
-
-        .system-label {
-            margin-top: 28px;
+            margin-bottom: 4px;
+            color: rgba(232, 243, 255, .74);
             font-size: 8px;
-            font-weight: 600;
-            letter-spacing: 1px;
-            color: rgba(202, 226, 255, 0.71);
-        }
-
-        .application-title {
-            margin-top: 10px;
-            font-size: 19px;
-            line-height: 1.15;
             font-weight: 800;
-            letter-spacing: -0.4px;
+            letter-spacing: 1.25px;
+            text-transform: uppercase
         }
 
-        .title-line {
-            width: 32px;
-            height: 3px;
-            margin-top: 9px;
-            border-radius: 20px;
-            background: #78baff;
+        .brand-ministry strong {
+            display: block;
+            font-size: 13px;
+            font-weight: 850;
+            line-height: 1.35
         }
 
-        .recovery-title {
+        .brand-content {
+            width: 100%;
+            max-width: 720px;
+            margin: auto 0;
+            padding: 50px 0 42px
+        }
+
+        .system-chip {
+            width: fit-content;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            min-height: 28px;
+            padding: 0 11px;
+            border: 1px solid rgba(255, 255, 255, .18);
+            border-radius: 999px;
+            color: #e7f2ff;
+            background: rgba(255, 255, 255, .09);
+            backdrop-filter: blur(8px);
+            font-size: 8px;
+            font-weight: 850;
+            letter-spacing: .85px;
+            text-transform: uppercase
+        }
+
+        .brand-title {
+            max-width: 650px;
             margin-top: 18px;
-            font-size: 11px;
-            font-weight: 700;
+            color: #fff;
+            font-size: clamp(30px, 3.4vw, 46px);
+            font-weight: 900;
+            line-height: 1.08;
+            letter-spacing: -1.3px
         }
 
-        .recovery-description {
-            width: 238px;
-            max-width: 100%;
-            margin-top: 7px;
-            font-size: 10px;
-            line-height: 1.65;
-            color: rgba(225, 239, 255, 0.75);
+        .brand-title span {
+            color: #a9d4ff
         }
 
-        /* Ilustrasi keamanan */
-
-        .security-illustration {
-            position: relative;
-            width: 280px;
-            height: 164px;
-            max-width: 100%;
-            margin: 22px auto 10px;
+        .brand-description {
+            max-width: 650px;
+            margin-top: 17px;
+            color: rgba(230, 241, 255, .78);
+            font-size: 10.5px;
+            line-height: 1.8
         }
 
-        .illustration-dot {
-            position: absolute;
-            width: 5px;
-            height: 5px;
-            border-radius: 50%;
-            background: rgba(201, 226, 255, 0.3);
+        .recovery-info {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 11px;
+            margin-top: 27px
         }
 
-        .dot-one {
-            left: 39px;
-            top: 13px;
-        }
-
-        .dot-two {
-            left: 35px;
-            bottom: 16px;
-        }
-
-        .dot-three {
-            right: 28px;
-            bottom: 7px;
-        }
-
-        .illustration-lock {
-            position: absolute;
-            left: 74px;
-            top: 10px;
-            width: 28px;
-            height: 25px;
-            border: 1.5px solid rgba(221, 239, 255, 0.6);
-            border-radius: 6px;
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .illustration-lock::before {
-            content: "";
-            position: absolute;
-            left: 4px;
-            top: -11px;
-            width: 16px;
-            height: 13px;
-            border: 1.5px solid rgba(221, 239, 255, 0.6);
-            border-bottom: none;
-            border-radius: 10px 10px 0 0;
-        }
-
-        .illustration-lock::after {
-            content: "";
-            position: absolute;
-            left: 10px;
-            top: 9px;
-            width: 4px;
-            height: 4px;
-            border-radius: 50%;
-            background: rgba(224, 241, 255, 0.85);
-        }
-
-        .illustration-envelope {
-            position: absolute;
-            left: 48px;
-            top: 48px;
-            width: 119px;
-            height: 80px;
-            border: 1.5px solid rgba(213, 233, 255, 0.46);
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.05);
-            overflow: hidden;
-            box-shadow: 0 10px 20px rgba(0, 30, 80, 0.12);
-        }
-
-        .illustration-envelope::before,
-        .illustration-envelope::after {
-            content: "";
-            position: absolute;
-            top: 17px;
-            width: 80px;
-            height: 1.5px;
-            background: rgba(213, 233, 255, 0.36);
-        }
-
-        .illustration-envelope::before {
-            left: -8px;
-            transform: rotate(37deg);
-        }
-
-        .illustration-envelope::after {
-            right: -8px;
-            transform: rotate(-37deg);
-        }
-
-        .envelope-bottom-left,
-        .envelope-bottom-right {
-            position: absolute;
-            bottom: 13px;
-            width: 73px;
-            height: 1.5px;
-            background: rgba(213, 233, 255, 0.22);
-        }
-
-        .envelope-bottom-left {
-            left: -9px;
-            transform: rotate(-34deg);
-        }
-
-        .envelope-bottom-right {
-            right: -9px;
-            transform: rotate(34deg);
-        }
-
-        .mini-code {
-            position: absolute;
-            left: 139px;
-            top: 43px;
+        .info-card {
             display: flex;
-            gap: 4px;
+            align-items: flex-start;
+            gap: 11px;
+            min-height: 88px;
+            padding: 14px;
+            border: 1px solid rgba(255, 255, 255, .13);
+            border-radius: 14px;
+            background: rgba(255, 255, 255, .075);
+            backdrop-filter: blur(8px)
         }
 
-        .mini-code span {
+        .info-icon {
+            width: 36px;
+            height: 36px;
+            flex: 0 0 auto;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 14px;
-            height: 17px;
-            border: 1px solid rgba(221, 239, 255, 0.5);
-            border-radius: 3px;
-            color: rgba(236, 245, 255, 0.85);
-            background: rgba(255, 255, 255, 0.08);
-            font-size: 8px;
+            border: 1px solid rgba(255, 255, 255, .18);
+            border-radius: 11px;
+            background: rgba(255, 255, 255, .105);
+            font-size: 14px
         }
 
-        .illustration-shield {
-            position: absolute;
-            right: 38px;
-            top: 76px;
-            width: 45px;
-            height: 53px;
-            border: 1.7px solid rgba(220, 239, 255, 0.56);
-            background: rgba(255, 255, 255, 0.05);
-            clip-path:
-                polygon(
-                    50% 0%,
-                    93% 17%,
-                    86% 72%,
-                    50% 100%,
-                    14% 72%,
-                    7% 17%
-                );
+        .info-copy strong {
+            display: block;
+            font-size: 9.5px;
+            font-weight: 850;
+            line-height: 1.4
         }
 
-        .illustration-shield::after {
+        .info-copy p {
+            margin-top: 4px;
+            color: rgba(226, 239, 255, .7);
+            font-size: 7.8px;
+            line-height: 1.55
+        }
+
+        .workflow {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, .13)
+        }
+
+        .workflow-label {
+            color: rgba(229, 241, 255, .63);
+            font-size: 7.5px;
+            font-weight: 850;
+            letter-spacing: 1px;
+            text-transform: uppercase
+        }
+
+        .workflow-track {
+            position: relative;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 8px;
+            margin-top: 14px
+        }
+
+        .workflow-track:before {
             content: "";
             position: absolute;
-            left: 14px;
-            top: 20px;
-            width: 18px;
-            height: 10px;
-            border-left: 2px solid #d9efff;
-            border-bottom: 2px solid #d9efff;
-            transform: rotate(-45deg);
+            top: 15px;
+            left: 12.5%;
+            right: 12.5%;
+            height: 1px;
+            background: rgba(255, 255, 255, .16)
         }
 
-        /* Alur pemulihan */
-
-        .recovery-flow {
-            margin-top: auto;
+        .workflow-step {
+            position: relative;
+            z-index: 1;
+            min-width: 0;
+            text-align: center
         }
 
-        .flow-title {
-            margin-bottom: 11px;
-            font-size: 8px;
-            font-weight: 600;
-            letter-spacing: 0.6px;
-            color: rgba(219, 237, 255, 0.7);
-        }
-
-        .flow-list {
+        .workflow-number {
+            width: 30px;
+            height: 30px;
             display: flex;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 6px;
+            justify-content: center;
+            margin: 0 auto;
+            border: 1px solid rgba(255, 255, 255, .21);
+            border-radius: 50%;
+            color: #ddecff;
+            background: #0754a8;
+            box-shadow: 0 0 0 5px rgba(7, 78, 159, .45);
+            font-size: 8px;
+            font-weight: 900
         }
 
-        .flow-item {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            min-height: 20px;
-            padding: 4px 9px;
-            border-radius: 14px;
-            font-size: 7px;
-            font-weight: 600;
-            white-space: nowrap;
-            color: #edf7ff;
-            background: rgba(255, 255, 255, 0.16);
+        .workflow-step.is-active .workflow-number {
+            color: #0759b7;
+            background: #fff
         }
 
-        .flow-item.active {
-            background: rgba(128, 188, 249, 0.5);
+        .workflow-step.is-done .workflow-number {
+            color: #fff;
+            background: #159957
         }
 
-        .flow-arrow {
-            color: rgba(224, 241, 255, 0.48);
-            font-size: 9px;
-        }
-
-        .login-flow {
+        .workflow-step strong {
+            display: block;
             margin-top: 8px;
+            color: #fff;
+            font-size: 8px;
+            font-weight: 800;
+            line-height: 1.35
         }
 
-        .left-footer {
-            margin-top: 19px;
-            padding-top: 16px;
-            border-top: 1px solid rgba(255, 255, 255, 0.14);
-            color: rgba(215, 234, 255, 0.54);
+        .workflow-step span {
+            display: block;
+            margin-top: 3px;
+            color: rgba(220, 235, 252, .56);
+            font-size: 7px;
+            line-height: 1.4
+        }
+
+        .brand-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            padding-top: 18px;
+            border-top: 1px solid rgba(255, 255, 255, .11);
+            color: rgba(220, 235, 252, .58);
             font-size: 7.5px;
+            line-height: 1.5
         }
 
-        /* =====================================================
-           PANEL KANAN
-        ===================================================== */
+        .brand-footer strong {
+            color: rgba(239, 247, 255, .86)
+        }
 
-        .right-panel {
-            position: relative;
-            width: 61.8%;
+        .auth-panel {
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            background: radial-gradient(circle at 100% 0%, rgba(7, 89, 183, .05), transparent 34%), var(--background)
+        }
+
+        .auth-header {
+            min-height: 66px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            padding: 0 34px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, .86);
+            backdrop-filter: blur(12px);
+            font-size: 8px;
+            font-weight: 700
+        }
+
+        .auth-header i {
+            color: var(--primary);
+            font-size: 10px
+        }
+
+        .auth-content {
+            width: 100%;
+            flex: 1;
+            display: flex;
             align-items: center;
             justify-content: center;
-            padding: 28px 30px;
-            background: #f3f7fb;
+            padding: 34px
         }
 
-        .password-card {
+        .recovery-card {
             width: 100%;
-            max-width: 426px;
-            padding: 21px 22px 23px;
-            border: 1px solid rgba(215, 225, 236, 0.78);
-            border-radius: 15px;
-            background: #ffffff;
-            box-shadow:
-                0 15px 40px rgba(58, 88, 123, 0.11),
-                0 2px 7px rgba(58, 88, 123, 0.07);
+            max-width: 460px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            background: var(--surface);
+            box-shadow: var(--shadow-strong)
         }
 
-        .recovery-badge {
-            display: inline-flex;
+        .card-head {
+            padding: 24px 27px 18px;
+            border-bottom: 1px solid #e8eef4
+        }
+
+        .card-heading {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px
+        }
+
+        .card-icon {
+            width: 42px;
+            height: 42px;
+            flex: 0 0 auto;
+            display: flex;
             align-items: center;
-            gap: 5px;
-            padding: 5px 10px;
-            border-radius: 20px;
-            color: #0762bd;
-            background: #edf6ff;
-            font-size: 9px;
-            font-weight: 650;
+            justify-content: center;
+            border: 1px solid var(--primary-border);
+            border-radius: 13px;
+            color: var(--primary);
+            background: var(--primary-soft);
+            font-size: 16px
         }
 
-        /* Stepper */
+        .card-eyebrow {
+            color: var(--text-muted);
+            font-size: 7.5px;
+            font-weight: 850;
+            letter-spacing: .8px;
+            text-transform: uppercase
+        }
+
+        .card-title {
+            margin-top: 3px;
+            color: var(--text-primary);
+            font-size: 18px;
+            font-weight: 900;
+            line-height: 1.3
+        }
+
+        .card-description {
+            margin-top: 10px;
+            color: var(--text-secondary);
+            font-size: 9px;
+            line-height: 1.7
+        }
+
+        .card-body {
+            padding: 21px 27px 27px
+        }
 
         .stepper {
             display: grid;
-            grid-template-columns:
-                25px 1fr
-                25px 1fr
-                25px 1fr
-                25px;
+            grid-template-columns: 28px 1fr 28px 1fr 28px 1fr 28px;
             align-items: start;
-            margin: 18px 0 24px;
+            margin-bottom: 28px;
+            text-align: center
         }
 
         .step {
             position: relative;
-            z-index: 2;
-            text-align: center;
+            z-index: 2
         }
 
         .step-circle {
+            width: 28px;
+            height: 28px;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 25px;
-            height: 25px;
             margin: 0 auto;
+            border: 1px solid #dbe5ee;
             border-radius: 50%;
+            color: #8da0b4;
+            background: #f8fafc;
             font-size: 10px;
-            font-weight: 700;
-        }
-
-        .step.completed .step-circle {
-            color: #ffffff;
-            background: var(--green);
-        }
-
-        .step.current .step-circle {
-            color: #ffffff;
-            background: #075dbd;
-            box-shadow: 0 0 0 5px rgba(7, 93, 189, 0.1);
-        }
-
-        .step.pending .step-circle {
-            color: #9aaabd;
-            background: #e7edf5;
+            font-weight: 850
         }
 
         .step-label {
             position: absolute;
-            top: 31px;
             left: 50%;
-            width: 74px;
+            top: 34px;
+            width: 76px;
             transform: translateX(-50%);
-            font-size: 8px;
-            font-weight: 550;
-            white-space: nowrap;
+            color: #98a8b9;
+            font-size: 7.2px;
+            font-weight: 700;
+            white-space: nowrap
         }
 
-        .step.completed .step-label {
-            color: var(--green);
+        .step.current .step-circle {
+            border-color: var(--primary);
+            color: #fff;
+            background: var(--primary);
+            box-shadow: 0 0 0 4px rgba(7, 89, 183, .09)
         }
 
         .step.current .step-label {
-            color: #075dbd;
-            font-weight: 700;
+            color: var(--primary);
+            font-weight: 850
         }
 
-        .step.pending .step-label {
-            color: #9baabd;
+        .step.completed .step-circle {
+            border-color: var(--success);
+            color: #fff;
+            background: var(--success)
+        }
+
+        .step.completed .step-label {
+            color: var(--success)
         }
 
         .step-line {
             height: 1px;
-            margin-top: 12px;
-            background: #d9e2ed;
+            margin-top: 14px;
+            background: #dfe7ef
         }
 
         .step-line.completed {
-            background: var(--green);
+            background: #8ed0ad
         }
 
-        .card-title {
-            margin-top: 2px;
-            font-size: 17px;
-            line-height: 1.3;
-            font-weight: 800;
-            letter-spacing: -0.2px;
+        .server-message {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 15px;
+            padding: 10px 11px;
+            border: 1px solid;
+            border-radius: 9px;
+            font-size: 8.5px;
+            font-weight: 650;
+            line-height: 1.55
         }
 
-        .card-description {
-            max-width: 330px;
-            margin-top: 5px;
-            margin-bottom: 17px;
-            color: var(--text-secondary);
-            font-size: 10px;
-            line-height: 1.55;
+        .server-message i {
+            flex: 0 0 auto;
+            margin-top: 1px;
+            font-size: 11px
         }
 
-        /* Form */
+        .server-message-error {
+            border-color: var(--danger-border);
+            color: var(--danger);
+            background: var(--danger-soft)
+        }
 
-        .form-group {
-            margin-bottom: 12px;
+        .server-message-success {
+            border-color: var(--success-border);
+            color: #147348;
+            background: var(--success-soft)
+        }
+
+        .server-message-info {
+            border-color: var(--primary-border);
+            color: #476d93;
+            background: var(--primary-soft)
+        }
+
+        .form-group+.form-group {
+            margin-top: 16px
+        }
+
+        .form-label-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 7px
         }
 
         .form-label {
-            display: block;
-            margin-bottom: 6px;
-            color: #21466f;
-            font-size: 10px;
-            font-weight: 700;
+            color: #334b68;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: .18px
         }
 
-        .required {
-            color: #ec4f5b;
+        .form-required {
+            color: var(--text-muted);
+            font-size: 7px
         }
 
-        .password-input-wrapper {
-            position: relative;
-        }
-
-        .password-input {
-            width: 100%;
-            height: 39px;
-            padding: 0 40px 0 35px;
-            border: 1.4px solid var(--border);
-            border-radius: 12px;
-            outline: none;
-            color: #244a72;
-            background: #fbfdff;
-            font-size: 10px;
-            transition:
-                border-color 0.2s ease,
-                box-shadow 0.2s ease,
-                background 0.2s ease;
-        }
-
-        .password-input::placeholder {
-            color: #aab8c8;
-        }
-
-        .password-input:hover {
-            border-color: #abc0d7;
-        }
-
-        .password-input:focus {
-            border-color: #397fc8;
-            background: #ffffff;
-            box-shadow: 0 0 0 3px rgba(27, 111, 198, 0.08);
+        .input-shell {
+            position: relative
         }
 
         .input-icon {
             position: absolute;
             top: 50%;
-            left: 12px;
+            left: 13px;
             transform: translateY(-50%);
-            color: #9eb0c2;
+            color: #8a9db1;
             font-size: 12px;
-            pointer-events: none;
+            pointer-events: none
+        }
+
+        .form-control {
+            width: 100%;
+            height: 42px;
+            padding: 0 42px 0 36px;
+            border: 1px solid #d5dee7;
+            border-radius: 9px;
+            color: #233b58;
+            background: #fff;
+            font-size: 10px;
+            transition: border-color .2s, box-shadow .2s, background .2s
+        }
+
+        .form-control::placeholder {
+            color: #9aaabd
+        }
+
+        .form-control:hover {
+            border-color: #becdda
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(7, 89, 183, .09)
+        }
+
+        .form-control.is-valid {
+            border-color: #55aa7d
+        }
+
+        .form-control.is-invalid {
+            border-color: #d75a68;
+            background: #fffdfd
+        }
+
+        .input-status {
+            position: absolute;
+            top: 50%;
+            right: 13px;
+            display: none;
+            transform: translateY(-50%);
+            color: var(--success);
+            font-size: 12px
+        }
+
+        .field-hint {
+            margin-top: 6px;
+            color: var(--text-muted);
+            font-size: 7.7px;
+            line-height: 1.5
+        }
+
+        .field-error {
+            display: none;
+            margin-top: 6px;
+            color: var(--danger);
+            font-size: 8px;
+            line-height: 1.45
+        }
+
+        .primary-button {
+            width: 100%;
+            min-height: 42px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 20px;
+            padding: 0 16px;
+            border: 0;
+            border-radius: 9px;
+            color: #fff;
+            background: linear-gradient(135deg, var(--primary), var(--primary-bright));
+            box-shadow: 0 8px 18px rgba(7, 89, 183, .17);
+            font-size: 10px;
+            font-weight: 850;
+            cursor: pointer;
+            transition: transform .2s, box-shadow .2s, filter .2s
+        }
+
+        .primary-button:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 11px 22px rgba(7, 89, 183, .21)
+        }
+
+        .primary-button:disabled {
+            cursor: not-allowed;
+            opacity: .55;
+            box-shadow: none
+        }
+
+        .secondary-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 15px;
+            color: var(--primary);
+            font-size: 8.5px;
+            font-weight: 800
+        }
+
+        .secondary-link:hover {
+            text-decoration: underline;
+            color: var(--primary-dark)
+        }
+
+        .auth-footer {
+            min-height: 58px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 24px;
+            border-top: 1px solid var(--border);
+            color: #8a9db1;
+            background: #f1f5f9;
+            font-size: 7.5px;
+            text-align: center;
+            line-height: 1.5
+        }
+
+        .security-note {
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            margin-top: 17px;
+            padding: 10px 11px;
+            border: 1px solid var(--primary-border);
+            border-radius: 9px;
+            color: #4f6d8d;
+            background: var(--primary-soft);
+            font-size: 8px;
+            line-height: 1.55
+        }
+
+        .security-note i {
+            flex: 0 0 auto;
+            margin-top: 1px;
+            color: var(--primary);
+            font-size: 12px
+        }
+
+        .security-note strong {
+            color: var(--text-primary)
+        }
+
+        .otp-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px
+        }
+
+        .otp-input {
+            width: 100%;
+            height: 48px;
+            border: 1px solid #d5dee7;
+            border-radius: 9px;
+            color: var(--text-primary);
+            background: #fff;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 850;
+            transition: .2s
+        }
+
+        .otp-input:hover {
+            border-color: #becdda
+        }
+
+        .otp-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(7, 89, 183, .09)
+        }
+
+        .otp-input.filled {
+            border-color: #84afd9;
+            background: #f8fbff
+        }
+
+        .resend-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            margin-top: 13px;
+            color: var(--text-secondary);
+            font-size: 8px;
+            text-align: center
+        }
+
+        .resend-action {
+            color: var(--text-muted)
+        }
+
+        .countdown {
+            color: var(--primary);
+            font-weight: 850
+        }
+
+        .resend-button {
+            display: none;
+            padding: 0;
+            border: 0;
+            color: var(--primary);
+            background: transparent;
+            font-size: 8px;
+            font-weight: 850;
+            cursor: pointer
+        }
+
+        .resend-button:hover {
+            text-decoration: underline
         }
 
         .toggle-password {
             position: absolute;
             top: 50%;
-            right: 11px;
-            transform: translateY(-50%);
+            right: 8px;
+            width: 30px;
+            height: 30px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: none;
-            outline: none;
-            color: #9eb0c2;
+            transform: translateY(-50%);
+            border: 0;
+            border-radius: 7px;
+            color: #8295aa;
             background: transparent;
-            cursor: pointer;
-            font-size: 12px;
+            cursor: pointer
         }
 
-        .toggle-password:hover {
-            color: #075dbd;
+        .toggle-password:hover,
+        .toggle-password:focus-visible {
+            color: var(--primary);
+            background: var(--primary-soft)
         }
-
-        /* Password strength */
 
         .strength-section {
-            margin-top: 8px;
-            margin-bottom: 15px;
+            margin-top: 10px;
+            padding: 11px 12px;
+            border: 1px solid #e2e9f0;
+            border-radius: 10px;
+            background: #fafcff
         }
 
         .strength-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 6px;
-            font-size: 8px;
-            font-weight: 650;
+            gap: 12px
         }
 
         .strength-title {
-            color: #45627f;
+            color: #5f7590;
+            font-size: 7.8px;
+            font-weight: 800
         }
 
         .strength-label {
-            color: var(--red);
-            font-weight: 700;
+            font-size: 7.8px;
+            font-weight: 850
         }
 
         .strength-bars {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 4px;
+            gap: 5px;
+            margin-top: 7px
         }
 
         .strength-bar {
-            height: 4px;
-            border-radius: 20px;
-            background: #e6ebf1;
-            transition: background 0.25s ease;
+            height: 3px;
+            border-radius: 99px;
+            background: #e6ebf1
         }
 
         .criteria-list {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            margin-top: 8px;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 6px 10px;
+            margin-top: 10px
         }
 
         .criteria-item {
             display: flex;
-            align-items: center;
-            gap: 6px;
-            color: #a0afbf;
-            font-size: 8px;
-            transition: color 0.2s ease;
+            align-items: flex-start;
+            gap: 5px;
+            color: #8b9caf;
+            font-size: 7.3px;
+            line-height: 1.45
         }
 
         .criteria-icon {
+            width: 13px;
+            height: 13px;
+            flex: 0 0 auto;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 11px;
-            height: 11px;
-            flex-shrink: 0;
+            margin-top: 1px;
             border-radius: 50%;
-            color: #a8b5c3;
-            background: #e7edf3;
-            font-size: 7px;
+            color: #a4b2c1;
+            background: #edf1f5;
+            font-size: 7px
         }
 
         .criteria-item.valid {
-            color: #38a866;
+            color: #3e7f5e
         }
 
         .criteria-item.valid .criteria-icon {
-            color: #ffffff;
-            background: #31b66d;
+            color: #fff;
+            background: var(--success)
         }
 
         .confirm-message {
-            display: none;
-            margin-top: 5px;
-            font-size: 8px;
+            min-height: 16px;
+            margin-top: 6px;
+            font-size: 7.8px;
+            line-height: 1.45
         }
 
         .confirm-message.error {
-            display: block;
-            color: #dc4d4d;
+            color: var(--danger)
         }
 
         .confirm-message.success {
-            display: block;
-            color: #25a55c;
+            color: #147348
         }
 
-        .submit-button {
-            width: 100%;
-            height: 42px;
-            margin-top: 3px;
-            border: none;
-            border-radius: 12px;
-            color: #ffffff;
-            background: #0862c4;
-            box-shadow: 0 8px 18px rgba(8, 98, 196, 0.2);
-            font-size: 10px;
-            font-weight: 700;
-            cursor: pointer;
-            transition:
-                background 0.2s ease,
-                transform 0.15s ease,
-                box-shadow 0.2s ease;
+        .success-hero {
+            text-align: center
         }
 
-        .submit-button i {
-            margin-right: 7px;
-        }
-
-        .submit-button:hover:not(:disabled) {
-            background: #0754aa;
-            transform: translateY(-1px);
-            box-shadow: 0 10px 20px rgba(8, 98, 196, 0.25);
-        }
-
-        .submit-button:disabled {
-            color: rgba(255, 255, 255, 0.88);
-            background: #80afe0;
-            box-shadow: none;
-            cursor: not-allowed;
-        }
-
-        .right-footer {
-            margin-top: 15px;
-            text-align: center;
-            color: #adbaca;
-            font-size: 8px;
-            line-height: 1.8;
-        }
-
-        .right-footer a {
-            color: #075dbd;
-            font-weight: 600;
-        }
-
-        .help-button {
-            position: fixed;
-            right: 10px;
-            bottom: 9px;
-            z-index: 10;
+        .success-icon {
+            width: 60px;
+            height: 60px;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 23px;
-            height: 23px;
+            margin: 0 auto 15px;
+            border: 1px solid var(--success-border);
             border-radius: 50%;
-            color: #ffffff;
-            background: #24292f;
-            box-shadow: 0 2px 7px rgba(0, 0, 0, 0.27);
-            font-size: 12px;
+            color: var(--success);
+            background: var(--success-soft);
+            box-shadow: 0 0 0 8px rgba(21, 153, 87, .055);
+            font-size: 26px
         }
 
-        .server-message {
-            margin: 0 0 14px;
-            padding: 10px 12px;
-            border-radius: 10px;
+        .success-title {
+            color: var(--text-primary);
+            font-size: 18px;
+            font-weight: 900;
+            line-height: 1.35
+        }
+
+        .success-description {
+            max-width: 360px;
+            margin: 9px auto 0;
+            color: var(--text-secondary);
             font-size: 9px;
-            line-height: 1.5;
+            line-height: 1.7
         }
 
-        .server-message ul {
-            margin: 0;
-            padding-left: 16px;
+        .tips-box {
+            margin-top: 19px;
+            padding: 12px 13px;
+            border: 1px solid var(--success-border);
+            border-radius: 10px;
+            background: var(--success-soft);
+            text-align: left
         }
 
-        .server-message-error {
-            color: #a52f3f;
-            border: 1px solid #f1c1c8;
-            background: #fff2f4;
+        .tips-title {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            color: #28734c;
+            font-size: 8.5px;
+            font-weight: 850
         }
 
-        /* =====================================================
-           RESPONSIVE
-        ===================================================== */
+        .tips-list {
+            margin: 8px 0 0 17px;
+            color: #547463;
+            font-size: 7.7px;
+            line-height: 1.75
+        }
 
-        @media (max-width: 900px) {
-            .page-wrapper {
-                display: block;
-                overflow: visible;
+        @media(max-width:1180px) {
+            .recovery-shell {
+                grid-template-columns: minmax(480px, 1fr) minmax(410px, .88fr)
             }
 
-            .left-panel,
-            .right-panel {
-                width: 100%;
-                min-height: auto;
-            }
-
-            .left-panel {
-                padding: 28px 23px;
-            }
-
-            .left-content {
-                min-height: auto;
-            }
-
-            .security-illustration,
-            .recovery-flow,
-            .circle-right {
-                display: none;
-            }
-
-            .right-panel {
-                padding: 32px 16px 50px;
-            }
-
-            .password-card {
-                max-width: 450px;
+            .brand-panel {
+                padding-left: 38px;
+                padding-right: 38px
             }
         }
 
-        @media (max-width: 480px) {
-            .right-panel {
-                padding: 25px 12px 45px;
+        @media(max-width:1024px) {
+            .recovery-shell {
+                display: block
             }
 
-            .password-card {
-                padding: 20px 16px 22px;
+            .brand-panel {
+                display: none
+            }
+
+            .auth-panel {
+                min-height: 100vh
+            }
+
+            .auth-header {
+                justify-content: space-between
+            }
+
+            .auth-header:before {
+                content: "Penelitian RKA-K/L";
+                color: var(--text-primary);
+                font-size: 9px;
+                font-weight: 850
+            }
+
+            .recovery-card {
+                max-width: 480px
+            }
+        }
+
+        @media(max-width:680px) {
+            .auth-header {
+                min-height: 58px;
+                padding: 0 17px
+            }
+
+            .auth-header span {
+                display: none
+            }
+
+            .auth-content {
+                align-items: flex-start;
+                padding: 24px 14px 30px
+            }
+
+            .recovery-card {
+                border-radius: 14px
+            }
+
+            .card-head {
+                padding: 22px 20px 18px
+            }
+
+            .card-body {
+                padding: 20px
+            }
+
+            .criteria-list {
+                grid-template-columns: 1fr
+            }
+
+            .auth-footer {
+                padding-left: 18px;
+                padding-right: 18px
+            }
+        }
+
+        @media(max-width:420px) {
+            .stepper {
+                grid-template-columns: 26px 1fr 26px 1fr 26px 1fr 26px
+            }
+
+            .step-circle {
+                width: 26px;
+                height: 26px
             }
 
             .step-label {
-                width: 62px;
-                font-size: 7px;
+                top: 32px;
+                font-size: 6.7px;
+                width: 68px
             }
 
-            .card-title {
-                font-size: 16px;
-            }
-        }
-
-        @media (max-width: 370px) {
-            .password-card {
-                padding-left: 13px;
-                padding-right: 13px;
+            .otp-grid {
+                gap: 5px
             }
 
-            .step-label {
-                width: 55px;
-                font-size: 6.5px;
+            .otp-input {
+                height: 44px;
+                font-size: 14px
             }
         }
     </style>
 </head>
 
 <body>
+    <main class="recovery-shell">
 
-<div class="page-wrapper">
-
-    <!-- PANEL KIRI -->
-    <aside class="left-panel">
-
-        <div class="decoration-circle circle-top"></div>
-        <div class="decoration-circle circle-right"></div>
-        <div class="decoration-circle circle-bottom"></div>
-
-        <div class="left-content">
-
-            <div>
-                <div class="brand">
-                    <div class="brand-logo">
-                        <div class="brand-logo-shape"></div>
-                    </div>
-
-                    <div>
-                        <span class="brand-text-primary">
-                            KEMENTERIAN PERDAGANGAN RI
-                        </span>
-
-                        <span class="brand-text-secondary">
-                            Biro Perencanaan
-                        </span>
-                    </div>
+        <section class="brand-panel" aria-label="Informasi pemulihan akun">
+            <div class="brand-top">
+                <div class="brand-logo-wrap">
+                    <img src="{{ asset('images/logo-kemendag.png') }}" alt="Logo Kementerian Perdagangan"
+                        class="brand-logo">
                 </div>
-
-                <div class="system-label">
-                    SISTEM INFORMASI
+                <div class="brand-ministry">
+                    <small>Kementerian Perdagangan Republik Indonesia</small>
+                    <strong>Sistem Informasi Penelitian RKA-K/L</strong>
                 </div>
-
-                <h1 class="application-title">
-                    Penelitian RKA-K/L
-                </h1>
-
-                <div class="title-line"></div>
-
-                <h2 class="recovery-title">
-                    Pemulihan Akses Akun
-                </h2>
-
-                <p class="recovery-description">
-                    Ikuti langkah-langkah berikut untuk mengatur ulang kata
-                    sandi akun Anda dengan aman melalui verifikasi email.
-                </p>
             </div>
-
-            <div class="security-illustration">
-
-                <span class="illustration-dot dot-one"></span>
-                <span class="illustration-dot dot-two"></span>
-                <span class="illustration-dot dot-three"></span>
-
-                <div class="illustration-lock"></div>
-
-                <div class="mini-code">
-                    <span>3</span>
-                    <span>8</span>
-                    <span>4</span>
-                </div>
-
-                <div class="illustration-envelope">
-                    <span class="envelope-bottom-left"></span>
-                    <span class="envelope-bottom-right"></span>
-                </div>
-
-                <div class="illustration-shield"></div>
-
-            </div>
-
-            <div class="recovery-flow">
-
-                <div class="flow-title">
-                    ALUR PEMULIHAN
-                </div>
-
-                <div class="flow-list">
-
-                    <div class="flow-item">
-                        <i class="bi bi-envelope-fill"></i>
-                        Masukkan Email
-                    </div>
-
-                    <i class="bi bi-chevron-right flow-arrow"></i>
-
-                    <div class="flow-item">
-                        <i class="bi bi-key-fill"></i>
-                        Verifikasi OTP
-                    </div>
-
-                    <i class="bi bi-chevron-right flow-arrow"></i>
-
-                    <div class="flow-item active">
-                        <i class="bi bi-lock-fill"></i>
-                        Buat Password Baru
-                    </div>
-
-                    <i class="bi bi-chevron-right flow-arrow"></i>
-
-                </div>
-
-                <div class="login-flow">
-                    <div class="flow-item">
-                        <i class="bi bi-check-circle-fill"></i>
-                        Login
-                    </div>
-                </div>
-
-                <div class="left-footer">
-                    © 2025 Kementerian Perdagangan Republik Indonesia.
-                    Hak Cipta Dilindungi.
-                </div>
-
-            </div>
-
-        </div>
-
-    </aside>
-
-    <!-- PANEL KANAN -->
-    <main class="right-panel">
-
-        <section class="password-card">
-
-            <div class="recovery-badge">
-                <i class="bi bi-shield-lock"></i>
-                Pemulihan Akses Akun
-            </div>
-
-            <div class="stepper">
-
-                <div class="step completed">
-                    <div class="step-circle">
-                        <i class="bi bi-check-lg"></i>
-                    </div>
-                    <span class="step-label">Email</span>
-                </div>
-
-                <div class="step-line completed"></div>
-
-                <div class="step completed">
-                    <div class="step-circle">
-                        <i class="bi bi-check-lg"></i>
-                    </div>
-                    <span class="step-label">Verifikasi</span>
-                </div>
-
-                <div class="step-line completed"></div>
-
-                <div class="step current">
-                    <div class="step-circle">
-                        <i class="bi bi-lock-fill"></i>
-                    </div>
-                    <span class="step-label">Password Baru</span>
-                </div>
-
-                <div class="step-line"></div>
-
-                <div class="step pending">
-                    <div class="step-circle">
-                        <i class="bi bi-check-circle"></i>
-                    </div>
-                    <span class="step-label">Selesai</span>
-                </div>
-
-            </div>
-
-            <h2 class="card-title">
-                Buat Kata Sandi Baru
-            </h2>
-
-            <p class="card-description">
-                Buat kata sandi yang kuat dan tidak pernah digunakan
-                sebelumnya untuk menjaga keamanan akun Anda.
-            </p>
-
-            <form
-                id="newPasswordForm"
-                action="{{ route('forgot.password.update') }}"
-                method="POST"
-                autocomplete="off"
-            >
-                @csrf
-                <input
-                    type="hidden"
-                    name="reset_token"
-                    value="{{ $resetToken }}"
-                >
-
-                @if (session('error'))
-                    <div class="server-message server-message-error">
-                        {{ session('error') }}
-                    </div>
-                @endif
-
-                @if ($errors->any())
-                    <div class="server-message server-message-error">
-                        <ul>
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
-
-                <div class="form-group">
-
-                    <label for="password" class="form-label">
-                        Kata Sandi Baru
-                        <span class="required">*</span>
-                    </label>
-
-                    <div class="password-input-wrapper">
-
-                        <i class="bi bi-lock input-icon"></i>
-
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            class="password-input"
-                            placeholder="Masukkan kata sandi baru"
-                            autocomplete="new-password"
-                            minlength="8"
-                            required
-                        >
-
-                        <button
-                            type="button"
-                            class="toggle-password"
-                            data-target="password"
-                            aria-label="Tampilkan kata sandi"
-                        >
-                            <i class="bi bi-eye"></i>
-                        </button>
-
-                    </div>
-
-                    <div class="strength-section">
-
-                        <div class="strength-header">
-                            <span class="strength-title">
-                                Kekuatan Kata Sandi
-                            </span>
-
-                            <span class="strength-label" id="strengthLabel">
-                                Sangat Lemah
-                            </span>
+            <div class="brand-content">
+                <div class="system-chip"><i class="bi bi-shield-lock"></i> Pemulihan Akses Akun</div>
+                <h1 class="brand-title">Tetapkan password baru untuk <span>mengamankan akun.</span></h1>
+                <p class="brand-description">Setelah OTP terverifikasi, buat kata sandi baru yang memenuhi ketentuan
+                    keamanan sebelum akses akun dipulihkan.</p>
+                <div class="recovery-info">
+                    <article class="info-card">
+                        <div class="info-icon"><i class="bi bi-envelope-check"></i></div>
+                        <div class="info-copy"><strong>Verifikasi melalui email</strong>
+                            <p>Kode OTP dikirim ke alamat email yang telah terdaftar pada akun pengguna.</p>
                         </div>
-
-                        <div class="strength-bars">
-                            <span class="strength-bar"></span>
-                            <span class="strength-bar"></span>
-                            <span class="strength-bar"></span>
-                            <span class="strength-bar"></span>
+                    </article>
+                    <article class="info-card">
+                        <div class="info-icon"><i class="bi bi-person-check"></i></div>
+                        <div class="info-copy"><strong>Validasi identitas akun</strong>
+                            <p>OTP memastikan proses perubahan password dilakukan oleh pemilik akses yang sah.</p>
                         </div>
-
-                        <div class="criteria-list">
-
-                            <div class="criteria-item" id="ruleLength">
-                                <span class="criteria-icon">
-                                    <i class="bi bi-check-lg"></i>
-                                </span>
-                                Minimal 8 karakter
-                            </div>
-
-                            <div class="criteria-item" id="ruleUppercase">
-                                <span class="criteria-icon">
-                                    <i class="bi bi-check-lg"></i>
-                                </span>
-                                Mengandung huruf kapital (A–Z)
-                            </div>
-
-                            <div class="criteria-item" id="ruleLowercase">
-                                <span class="criteria-icon">
-                                    <i class="bi bi-check-lg"></i>
-                                </span>
-                                Mengandung huruf kecil (a–z)
-                            </div>
-
-                            <div class="criteria-item" id="ruleNumber">
-                                <span class="criteria-icon">
-                                    <i class="bi bi-check-lg"></i>
-                                </span>
-                                Mengandung angka (0–9)
-                            </div>
-
-                            <div class="criteria-item" id="ruleSpecial">
-                                <span class="criteria-icon">
-                                    <i class="bi bi-check-lg"></i>
-                                </span>
-                                Mengandung karakter khusus (!@#$...)
-                            </div>
-
+                    </article>
+                    <article class="info-card">
+                        <div class="info-icon"><i class="bi bi-key"></i></div>
+                        <div class="info-copy"><strong>Password baru</strong>
+                            <p>Pengguna menetapkan password baru setelah verifikasi kode otp berhasil dilakukan.</p>
                         </div>
-
-                    </div>
-
+                    </article>
+                    <article class="info-card">
+                        <div class="info-icon"><i class="bi bi-box-arrow-in-right"></i></div>
+                        <div class="info-copy"><strong>Akses kembali sistem</strong>
+                            <p>Setelah berhasil, gunakan password baru tersebut untuk masuk ke workspace penelitian RKA-K/L.
+                            </p>
+                        </div>
+                    </article>
                 </div>
-
-                <div class="form-group">
-
-                    <label for="passwordConfirmation" class="form-label">
-                        Konfirmasi Kata Sandi
-                        <span class="required">*</span>
-                    </label>
-
-                    <div class="password-input-wrapper">
-
-                        <i class="bi bi-lock input-icon"></i>
-
-                        <input
-                            type="password"
-                            id="passwordConfirmation"
-                            name="password_confirmation"
-                            class="password-input"
-                            placeholder="Ulangi kata sandi baru"
-                            autocomplete="new-password"
-                            minlength="8"
-                            required
-                        >
-
-                        <button
-                            type="button"
-                            class="toggle-password"
-                            data-target="passwordConfirmation"
-                            aria-label="Tampilkan konfirmasi kata sandi"
-                        >
-                            <i class="bi bi-eye"></i>
-                        </button>
-
+                <div class="workflow">
+                    <div class="workflow-label">Alur Pemulihan Akun</div>
+                    <div class="workflow-track">
+                        <div class="workflow-step is-done">
+                            <div class="workflow-number"><i class="bi bi-check-lg"></i></div>
+                            <strong>Email</strong><span>Identifikasi akun</span>
+                        </div>
+                        <div class="workflow-step is-done">
+                            <div class="workflow-number"><i class="bi bi-check-lg"></i></div>
+                            <strong>OTP</strong><span>Verifikasi kode</span>
+                        </div>
+                        <div class="workflow-step is-active">
+                            <div class="workflow-number">3</div><strong>Password</strong><span>Buat kata sandi</span>
+                        </div>
+                        <div class="workflow-step ">
+                            <div class="workflow-number">4</div><strong>Selesai</strong><span>Kembali login</span>
+                        </div>
                     </div>
-
-                    <div
-                        class="confirm-message"
-                        id="confirmationMessage"
-                    ></div>
-
                 </div>
-
-                <button
-                    type="submit"
-                    class="submit-button"
-                    id="submitButton"
-                    disabled
-                >
-                    <i class="bi bi-key"></i>
-                    Simpan Kata Sandi Baru
-                </button>
-
-            </form>
-
+            </div>
+            {{-- <div class="brand-footer">
+                <span><strong>RKA-K/L Research Workspace</strong><br>Pemulihan akses pengguna terdaftar.</span>
+                <span>Internal • Kementerian Perdagangan RI</span>
+            </div> --}}
         </section>
 
-        <footer class="right-footer">
+        <section class="auth-panel">
+            {{-- <header class="auth-header"><i class="bi bi-lock-fill"></i><span>Proses pemulihan akun pengguna</span></header> --}}
+            <div class="auth-content">
+                <section class="recovery-card" aria-labelledby="recoveryTitle">
+                    <div class="card-head">
+                        <div class="card-heading">
+                            <div class="card-icon" aria-hidden="true"><i class="bi bi-key"></i></div>
+                            <div>
+                                <div class="card-eyebrow">Langkah 3 dari 4</div>
+                                <h2 class="card-title" id="recoveryTitle">Buat Kata Sandi Baru</h2>
+                            </div>
+                        </div>
+                        <p class="card-description">Gunakan kombinasi karakter yang kuat. Kata sandi baru akan menjadi
+                            kredensial untuk login berikutnya.</p>
+                    </div>
+                    <div class="card-body">
 
-            <div>
-                Butuh bantuan?
-                <a href="#">Hubungi Administrator Sistem</a>
+                        <div class="stepper">
+                            <div class="step completed">
+                                <div class="step-circle"><i class="bi bi-check-lg"></i></div><span
+                                    class="step-label">Email</span>
+                            </div>
+                            <div class="step-line completed"></div>
+                            <div class="step completed">
+                                <div class="step-circle"><i class="bi bi-check-lg"></i></div><span
+                                    class="step-label">Verifikasi</span>
+                            </div>
+                            <div class="step-line completed"></div>
+                            <div class="step current">
+                                <div class="step-circle"><i class="bi bi-lock-fill"></i></div><span
+                                    class="step-label">Password Baru</span>
+                            </div>
+                            <div class="step-line "></div>
+                            <div class="step ">
+                                <div class="step-circle"><i class="bi bi-check-circle-fill"></i></div><span
+                                    class="step-label">Selesai</span>
+                            </div>
+                        </div>
+                        @if (session('error'))
+                            <div class="server-message server-message-error" role="alert"><i
+                                    class="bi bi-exclamation-circle-fill"></i><span>{{ session('error') }}</span></div>
+                        @endif
+                        @if ($errors->any())
+                            <div class="server-message server-message-error" role="alert">
+                                <i class="bi bi-exclamation-circle-fill"></i>
+                                <div><strong>Periksa kembali kata sandi yang Anda masukkan.</strong>
+                                    <ul style="margin:5px 0 0 16px">
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            </div>
+                        @endif
+
+                        <form id="newPasswordForm" action="{{ route('forgot.password.update') }}" method="POST"
+                            autocomplete="off" novalidate>
+                            @csrf
+                            <input type="hidden" name="reset_token" value="{{ $resetToken }}">
+
+                            <div class="form-group">
+                                <div class="form-label-row"><label for="password" class="form-label">Kata Sandi
+                                        Baru</label><span class="form-required">Wajib diisi</span></div>
+                                <div class="input-shell">
+                                    <i class="bi bi-lock input-icon"></i>
+                                    <input type="password" id="password" name="password" class="form-control"
+                                        placeholder="Masukkan kata sandi baru" autocomplete="new-password"
+                                        minlength="8" required>
+                                    <button type="button" class="toggle-password" data-target="password"
+                                        aria-label="Tampilkan kata sandi"><i class="bi bi-eye"></i></button>
+                                </div>
+                                <div class="strength-section">
+                                    <div class="strength-header"><span class="strength-title">Kekuatan Kata
+                                            Sandi</span><span class="strength-label" id="strengthLabel">Sangat
+                                            Lemah</span></div>
+                                    <div class="strength-bars"><span class="strength-bar"></span><span
+                                            class="strength-bar"></span><span class="strength-bar"></span><span
+                                            class="strength-bar"></span></div>
+                                    <div class="criteria-list">
+                                        <div class="criteria-item" id="ruleLength"><span class="criteria-icon"><i
+                                                    class="bi bi-check-lg"></i></span>Minimal 8 karakter</div>
+                                        <div class="criteria-item" id="ruleUppercase"><span class="criteria-icon"><i
+                                                    class="bi bi-check-lg"></i></span>Huruf kapital (A–Z)</div>
+                                        <div class="criteria-item" id="ruleLowercase"><span class="criteria-icon"><i
+                                                    class="bi bi-check-lg"></i></span>Huruf kecil (a–z)</div>
+                                        <div class="criteria-item" id="ruleNumber"><span class="criteria-icon"><i
+                                                    class="bi bi-check-lg"></i></span>Angka (0–9)</div>
+                                        <div class="criteria-item" id="ruleSpecial"><span class="criteria-icon"><i
+                                                    class="bi bi-check-lg"></i></span>Karakter khusus (!@#$...)</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="form-label-row"><label for="passwordConfirmation"
+                                        class="form-label">Konfirmasi Kata Sandi</label><span
+                                        class="form-required">Wajib diisi</span></div>
+                                <div class="input-shell">
+                                    <i class="bi bi-lock-fill input-icon"></i>
+                                    <input type="password" id="passwordConfirmation" name="password_confirmation"
+                                        class="form-control" placeholder="Ulangi kata sandi baru"
+                                        autocomplete="new-password" minlength="8" required>
+                                    <button type="button" class="toggle-password" data-target="passwordConfirmation"
+                                        aria-label="Tampilkan konfirmasi kata sandi"><i
+                                            class="bi bi-eye"></i></button>
+                                </div>
+                                <div class="confirm-message" id="confirmationMessage"></div>
+                            </div>
+
+                            <button type="submit" class="primary-button" id="submitButton" disabled><i
+                                    class="bi bi-key"></i>Simpan Kata Sandi Baru</button>
+                        </form>
+
+                    </div>
+                </section>
             </div>
-
-            <div>
-                © 2025 Biro Perencanaan — Kementerian Perdagangan
-                Republik Indonesia
-            </div>
-
-        </footer>
-
+            <footer class="auth-footer">© {{ date('Y') }} Biro Perencanaan — Kementerian Perdagangan Republik
+                Indonesia</footer>
+        </section>
     </main>
 
-</div>
+    <script>
+        const passwordInput = document.getElementById("password");
+        const confirmationInput = document.getElementById("passwordConfirmation");
+        const strengthLabel = document.getElementById("strengthLabel");
+        const strengthBars = Array.from(document.querySelectorAll(".strength-bar"));
+        const confirmationMessage = document.getElementById("confirmationMessage");
+        const submitButton = document.getElementById("submitButton");
 
-<a href="#" class="help-button" aria-label="Bantuan">
-    ?
-</a>
-
-<script>
-    const passwordInput = document.getElementById("password");
-    const confirmationInput =
-        document.getElementById("passwordConfirmation");
-
-    const strengthLabel =
-        document.getElementById("strengthLabel");
-
-    const strengthBars =
-        Array.from(document.querySelectorAll(".strength-bar"));
-
-    const confirmationMessage =
-        document.getElementById("confirmationMessage");
-
-    const submitButton =
-        document.getElementById("submitButton");
-
-    const rules = {
-        length: {
-            element: document.getElementById("ruleLength"),
-            validate: value => value.length >= 8
-        },
-        uppercase: {
-            element: document.getElementById("ruleUppercase"),
-            validate: value => /[A-Z]/.test(value)
-        },
-        lowercase: {
-            element: document.getElementById("ruleLowercase"),
-            validate: value => /[a-z]/.test(value)
-        },
-        number: {
-            element: document.getElementById("ruleNumber"),
-            validate: value => /[0-9]/.test(value)
-        },
-        special: {
-            element: document.getElementById("ruleSpecial"),
-            validate: value =>
-                /[!@#$%^&*()_\-+=\[\]{};:'",.<>/?\\|`~]/.test(value)
-        }
-    };
-
-    const strengthLevels = [
-        {
-            minimumScore: 0,
-            label: "Sangat Lemah",
-            color: "#e54444",
-            activeBars: 1
-        },
-        {
-            minimumScore: 2,
-            label: "Lemah",
-            color: "#f07b32",
-            activeBars: 1
-        },
-        {
-            minimumScore: 3,
-            label: "Sedang",
-            color: "#e1b62e",
-            activeBars: 2
-        },
-        {
-            minimumScore: 4,
-            label: "Kuat",
-            color: "#5dbb6e",
-            activeBars: 3
-        },
-        {
-            minimumScore: 5,
-            label: "Sangat Kuat",
-            color: "#17a85a",
-            activeBars: 4
-        }
-    ];
-
-    function evaluatePassword() {
-        const password = passwordInput.value;
-
-        let score = 0;
-
-        Object.values(rules).forEach(rule => {
-            const isValid = rule.validate(password);
-
-            rule.element.classList.toggle("valid", isValid);
-
-            if (isValid) {
-                score++;
+        const rules = {
+            length: {
+                element: document.getElementById("ruleLength"),
+                validate: value => value.length >= 8
+            },
+            uppercase: {
+                element: document.getElementById("ruleUppercase"),
+                validate: value => /[A-Z]/.test(value)
+            },
+            lowercase: {
+                element: document.getElementById("ruleLowercase"),
+                validate: value => /[a-z]/.test(value)
+            },
+            number: {
+                element: document.getElementById("ruleNumber"),
+                validate: value => /[0-9]/.test(value)
+            },
+            special: {
+                element: document.getElementById("ruleSpecial"),
+                validate: value => /[!@#$%^&*()_\-+=\[\]{};:'",.<>/?\\|`~]/.test(value)
             }
-        });
+        };
 
-        updateStrengthIndicator(score, password.length);
-        validateConfirmation();
-        updateSubmitButton();
-    }
-
-    function updateStrengthIndicator(score, passwordLength) {
-        let selectedLevel = strengthLevels[0];
-
-        strengthLevels.forEach(level => {
-            if (score >= level.minimumScore) {
-                selectedLevel = level;
+        const strengthLevels = [{
+                minimumScore: 0,
+                label: "Sangat Lemah",
+                color: "#e54444",
+                activeBars: 1
+            },
+            {
+                minimumScore: 2,
+                label: "Lemah",
+                color: "#f07b32",
+                activeBars: 1
+            },
+            {
+                minimumScore: 3,
+                label: "Sedang",
+                color: "#e1b62e",
+                activeBars: 2
+            },
+            {
+                minimumScore: 4,
+                label: "Kuat",
+                color: "#5dbb6e",
+                activeBars: 3
+            },
+            {
+                minimumScore: 5,
+                label: "Sangat Kuat",
+                color: "#17a85a",
+                activeBars: 4
             }
+        ];
+
+        function updateStrengthIndicator(score, passwordLength) {
+            let selectedLevel = strengthLevels[0];
+            strengthLevels.forEach(level => {
+                if (score >= level.minimumScore) selectedLevel = level;
+            });
+            strengthLabel.textContent = selectedLevel.label;
+            strengthLabel.style.color = selectedLevel.color;
+            strengthBars.forEach((bar, index) => {
+                const active = passwordLength > 0 && index < selectedLevel.activeBars;
+                bar.style.background = active ? selectedLevel.color : "#e6ebf1";
+            });
+        }
+
+        function validateConfirmation() {
+            const password = passwordInput.value;
+            const confirmation = confirmationInput.value;
+            confirmationMessage.className = "confirm-message";
+            confirmationMessage.textContent = "";
+            if (!confirmation.length) return false;
+            if (password !== confirmation) {
+                confirmationMessage.classList.add("error");
+                confirmationMessage.textContent = "Konfirmasi kata sandi belum sama.";
+                return false;
+            }
+            confirmationMessage.classList.add("success");
+            confirmationMessage.textContent = "Konfirmasi kata sandi sesuai.";
+            return true;
+        }
+
+        function areAllRulesValid() {
+            return Object.values(rules).every(rule => rule.validate(passwordInput.value));
+        }
+
+        function updateSubmitButton() {
+            submitButton.disabled = !(areAllRulesValid() && passwordInput.value !== "" && passwordInput.value ===
+                confirmationInput.value);
+        }
+
+        function evaluatePassword() {
+            const password = passwordInput.value;
+            let score = 0;
+            Object.values(rules).forEach(rule => {
+                const valid = rule.validate(password);
+                rule.element.classList.toggle("valid", valid);
+                if (valid) score++;
+            });
+            updateStrengthIndicator(score, password.length);
+            validateConfirmation();
+            updateSubmitButton();
+        }
+
+        passwordInput.addEventListener("input", evaluatePassword);
+        confirmationInput.addEventListener("input", () => {
+            validateConfirmation();
+            updateSubmitButton();
         });
 
-        if (passwordLength === 0) {
-            selectedLevel = strengthLevels[0];
-        }
-
-        strengthLabel.textContent = selectedLevel.label;
-        strengthLabel.style.color = selectedLevel.color;
-
-        strengthBars.forEach((bar, index) => {
-            const shouldActivate =
-                passwordLength > 0 &&
-                index < selectedLevel.activeBars;
-
-            bar.style.background = shouldActivate
-                ? selectedLevel.color
-                : "#e6ebf1";
-        });
-    }
-
-    function validateConfirmation() {
-        const password = passwordInput.value;
-        const confirmation = confirmationInput.value;
-
-        confirmationMessage.className = "confirm-message";
-        confirmationMessage.textContent = "";
-
-        if (confirmation.length === 0) {
-            return false;
-        }
-
-        if (password !== confirmation) {
-            confirmationMessage.classList.add("error");
-            confirmationMessage.textContent =
-                "Konfirmasi kata sandi belum sama.";
-
-            return false;
-        }
-
-        confirmationMessage.classList.add("success");
-        confirmationMessage.textContent =
-            "Konfirmasi kata sandi sesuai.";
-
-        return true;
-    }
-
-    function areAllRulesValid() {
-        const password = passwordInput.value;
-
-        return Object.values(rules).every(rule =>
-            rule.validate(password)
-        );
-    }
-
-    function updateSubmitButton() {
-        const passwordValid = areAllRulesValid();
-
-        const confirmationValid =
-            passwordInput.value !== "" &&
-            passwordInput.value === confirmationInput.value;
-
-        submitButton.disabled =
-            !(passwordValid && confirmationValid);
-    }
-
-    passwordInput.addEventListener(
-        "input",
-        evaluatePassword
-    );
-
-    confirmationInput.addEventListener("input", () => {
-        validateConfirmation();
-        updateSubmitButton();
-    });
-
-    document
-        .querySelectorAll(".toggle-password")
-        .forEach(button => {
-
-            button.addEventListener("click", function () {
-                const targetId =
-                    this.getAttribute("data-target");
-
-                const targetInput =
-                    document.getElementById(targetId);
-
-                const icon =
-                    this.querySelector("i");
-
-                const isPassword =
-                    targetInput.type === "password";
-
-                targetInput.type =
-                    isPassword ? "text" : "password";
-
-                icon.className =
-                    isPassword
-                        ? "bi bi-eye-slash"
-                        : "bi bi-eye";
-
-                this.setAttribute(
-                    "aria-label",
-                    isPassword
-                        ? "Sembunyikan kata sandi"
-                        : "Tampilkan kata sandi"
-                );
+        document.querySelectorAll(".toggle-password").forEach(button => {
+            button.addEventListener("click", function() {
+                const targetInput = document.getElementById(this.getAttribute("data-target"));
+                const icon = this.querySelector("i");
+                const hidden = targetInput.type === "password";
+                targetInput.type = hidden ? "text" : "password";
+                icon.className = hidden ? "bi bi-eye-slash" : "bi bi-eye";
+                this.setAttribute("aria-label", hidden ? "Sembunyikan kata sandi" : "Tampilkan kata sandi");
+                targetInput.focus();
             });
         });
 
-    document
-        .getElementById("newPasswordForm")
-        .addEventListener("submit", event => {
-
+        document.getElementById("newPasswordForm").addEventListener("submit", event => {
             if (submitButton.disabled) {
                 event.preventDefault();
                 return;
             }
-
             submitButton.disabled = true;
-            submitButton.innerHTML =
-                '<i class="bi bi-hourglass-split"></i> Menyimpan...';
+            submitButton.innerHTML = '<i class="bi bi-hourglass-split"></i> Menyimpan...';
         });
-</script>
+    </script>
 
 </body>
+
 </html>

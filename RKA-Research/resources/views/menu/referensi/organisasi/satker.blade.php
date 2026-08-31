@@ -573,11 +573,11 @@
             </header>
             <main class="page-container">
                 <div class="content-wrapper">
-                    <div class="info-box"><i class="bi bi-info-circle-fill"></i>
+                    {{-- <div class="info-box"><i class="bi bi-info-circle-fill"></i>
                         <div>Pilih <strong>Unit Eselon I</strong> lalu <strong>Unit Eselon II</strong>. Sistem hanya
                             menyimpan kode Unit Eselon II pada tabel Satker karena hubungan ke Unit Eselon I sudah
                             diperoleh melalui Unit Eselon II.</div>
-                    </div>
+                    </div> --}}
                     @if (session('success'))
                         <div class="alert success">{{ session('success') }}</div>
                     @endif
@@ -653,7 +653,7 @@
                                 <div class="form-group"><label for="namaSatker" class="form-label">Nama Satker <span
                                             class="required">*</span></label><input type="text" id="namaSatker"
                                         name="nama_satker" class="form-control" maxlength="255" autocomplete="off"
-                                        value="{{ old('nama_satker') }}" placeholder="Masukkan nama Satker">
+                                        value="{{ old('nama_satker') }}" placeholder="Masukkan nama Satker Baru">
                                     <div class="field-help">Gunakan nomenklatur resmi satuan kerja.</div>
                                     <div class="field-error" id="namaSatkerError"></div>
                                     @error('nama_satker')

@@ -39,10 +39,10 @@
             </header>
             <main class="page-container">
                 <div class="content-wrapper">
-                    <div class="info-box"><i class="bi bi-info-circle-fill"></i>
+                    {{-- <div class="info-box"><i class="bi bi-info-circle-fill"></i>
                         <div>Kegiatan berada di bawah Program dan relasinya dengan Satker disimpan pada
                             <strong>satker_kegiatan</strong>. Minimal satu Satker Pelaksana wajib dipilih.</div>
-                    </div>
+                    </div> --}}
                     @if (session('success'))
                         <div class="alert success">{{ session('success') }}</div>
                         @endif @if (session('error'))
@@ -64,7 +64,7 @@
                                 @csrf
                                 <div class="section-title">
                                     <div>
-                                        <h2>Data Kegiatan</h2><span>Pilih Program, masukkan kode/nama Kegiatan, lalu
+                                        <h2>Data Kegiatan</h2><span>Pilih Program, masukkan kode dan nama Kegiatan Baru, lalu
                                             tentukan Satker Pelaksana.</span>
                                     </div>
                                 </div>
@@ -95,7 +95,7 @@
                                     <div class="form-group full"><label class="form-label" for="namaKegiatan">Nama
                                             Kegiatan <span class="required">*</span></label><input id="namaKegiatan"
                                             name="nama_kegiatan" class="form-control" maxlength="255"
-                                            value="{{ old('nama_kegiatan') }}" placeholder="Masukkan nama Kegiatan">
+                                            value="{{ old('nama_kegiatan') }}" placeholder="Masukkan nama Kegiatan Baru">
                                         <div class="field-error" id="namaKegiatanError"></div>
                                         @error('nama_kegiatan')
                                             <div class="field-error show">{{ $message }}</div>

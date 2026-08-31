@@ -765,9 +765,9 @@
                         </div>
 
                         <div class="dashboard-meta">
-                            <div class="dashboard-updated">
+                            {{-- <div class="dashboard-updated">
                                 Kondisi database per {{ $generatedLabel }}.
-                            </div>
+                            </div> --}}
 
                             @if (\Illuminate\Support\Facades\Route::has('penelitian.index'))
                                 <a
@@ -793,9 +793,9 @@
                                 </div>
                             </div>
 
-                            <div class="section-note">
+                            {{-- <div class="section-note">
                                 DRAFT masih dapat diedit; FINAL sudah dikunci.
-                            </div>
+                            </div> --}}
                         </div>
 
                         <div class="stats-grid">
@@ -873,9 +873,9 @@
                                 </div>
                             </div>
 
-                            <div class="section-note">
+                            {{-- <div class="section-note">
                                 Jumlah record pada master referensi organisasi.
-                            </div>
+                            </div> --}}
                         </div>
 
                         <div class="stats-grid reference">
@@ -941,9 +941,9 @@
                                 </div>
                             </div>
 
-                            <div class="section-note">
+                            {{-- <div class="section-note">
                                 Jumlah record pada master referensi penganggaran.
-                            </div>
+                            </div> --}}
                         </div>
 
                         <div class="stats-grid budget">
@@ -988,7 +988,7 @@
                             </div>
 
                             <div class="section-note">
-                                Maksimal 10 aktivitas terbaru dari penelitian_log.
+                                Maksimal 10 aktivitas terbaru.
                             </div>
                         </div>
 

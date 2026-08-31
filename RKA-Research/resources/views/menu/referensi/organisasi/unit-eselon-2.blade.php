@@ -573,10 +573,10 @@
             </header>
             <main class="page-container">
                 <div class="content-wrapper">
-                    <div class="info-box"><i class="bi bi-info-circle-fill"></i>
+                    {{-- <div class="info-box"><i class="bi bi-info-circle-fill"></i>
                         <div>Pilih <strong>Unit Eselon I</strong> sebagai induk terlebih dahulu. Kode Unit Eselon II
                             tetap disimpan sebagai teks, misalnya <strong>09.04</strong>.</div>
-                    </div>
+                    </div> --}}
                     @if (session('success'))
                         <div class="alert success">{{ session('success') }}</div>
                     @endif
@@ -644,7 +644,7 @@
                                         <span class="required">*</span></label><input type="text" id="namaUnit2"
                                         name="nama_unit_eselon2" class="form-control" maxlength="255" autocomplete="off"
                                         value="{{ old('nama_unit_eselon2') }}"
-                                        placeholder="Masukkan nama Unit Eselon II">
+                                        placeholder="Masukkan nama Unit Eselon II Baru">
                                     <div class="field-help">Gunakan nomenklatur resmi sesuai penetapan organisasi.</div>
                                     <div class="field-error" id="namaUnit2Error"></div>
                                     @error('nama_unit_eselon2')

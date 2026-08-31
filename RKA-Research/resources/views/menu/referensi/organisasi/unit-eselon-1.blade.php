@@ -573,10 +573,10 @@
             </header>
             <main class="page-container">
                 <div class="content-wrapper">
-                    <div class="info-box"><i class="bi bi-info-circle-fill"></i>
+                    {{-- <div class="info-box"><i class="bi bi-info-circle-fill"></i>
                         <div>Kode referensi disimpan sebagai teks agar format seperti <strong>01</strong> atau
                             <strong>09.04</strong> tetap terjaga.</div>
-                    </div>
+                    </div> --}}
                     @if (session('success'))
                         <div class="alert success">{{ session('success') }}</div>
                     @endif
@@ -599,7 +599,7 @@
                             @csrf
                             <div class="section-title">
                                 <div>
-                                    <h2>Data Referensi Baru</h2><span>Masukkan kode dan nama Unit Eselon I yang telah
+                                    <h2>Data Referensi Baru</h2><span>Masukkan kode dan nama Unit Eselon I baru yang telah
                                         ditetapkan.</span>
                                 </div>
                             </div>
@@ -622,7 +622,7 @@
                                             class="required">*</span></label>
                                     <input type="text" id="namaUnit1" name="nama_unit_eselon1" class="form-control"
                                         maxlength="255" autocomplete="off" value="{{ old('nama_unit_eselon1') }}"
-                                        placeholder="Masukkan nama Unit Eselon I">
+                                        placeholder="Masukkan nama Unit Eselon I Baru">
                                     <div class="field-help">Gunakan nomenklatur resmi sesuai penetapan organisasi.</div>
                                     <div class="field-error" id="namaUnit1Error"></div>
                                     @error('nama_unit_eselon1')

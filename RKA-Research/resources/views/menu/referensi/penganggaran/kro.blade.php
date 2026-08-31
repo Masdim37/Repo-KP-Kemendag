@@ -34,11 +34,11 @@
             </header>
             <main class="page-container">
                 <div class="content-wrapper">
-                    <div class="info-box"><i class="bi bi-info-circle-fill"></i>
+                    {{-- <div class="info-box"><i class="bi bi-info-circle-fill"></i>
                         <div>KRO merupakan master global. Relasi Kegiatan–KRO disimpan pada
                             <strong>kegiatan_kro</strong>. Jika kode KRO sudah ada, gunakan nomenklatur master yang
                             sama.</div>
-                    </div>
+                    </div> --}}
                     @if (session('success'))
                         <div class="alert success">{{ session('success') }}</div>
                         @endif @if (session('error'))
@@ -59,7 +59,7 @@
                                 action="{{ route('referensi.penganggaran.kro.store') }}" method="POST" novalidate>@csrf
                                 <div class="section-title">
                                     <div>
-                                        <h2>Parent KRO</h2><span>Pilih Program lalu Kegiatan tempat KRO
+                                        <h2>Data KRO</h2><span>Pilih Program lalu Kegiatan tempat KRO Baru 
                                             digunakan.</span>
                                     </div>
                                 </div>
@@ -94,7 +94,7 @@
                                     <div class="form-group"><label class="form-label" for="namaKro">Nama KRO <span
                                                 class="required">*</span></label><input id="namaKro" name="nama_kro"
                                             class="form-control" maxlength="255" value="{{ old('nama_kro') }}"
-                                            placeholder="Masukkan nama KRO">
+                                            placeholder="Masukkan nama KRO Baru">
                                         <div class="field-error" id="namaKroError"></div>
                                         @error('nama_kro')
                                             <div class="field-error show">{{ $message }}</div>

@@ -1,508 +1,520 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Verifikasi OTP | Penelitian RKA-K/L</title>
-
-    <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-    >
-
+    <meta name="color-scheme" content="light">
+    <title>Verifikasi OTP | Sistem Informasi Penelitian RKA-K/L</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         :root {
-            --primary-900: #102d83;
-            --primary-800: #173fa4;
-            --primary-700: #2056d4;
-            --primary-600: #2468f2;
-            --primary-100: #eaf1ff;
-
-            --success: #149653;
-            --success-soft: #eefbf4;
-            --danger: #d9364a;
+            --primary: #0759b7;
+            --primary-bright: #0878d4;
+            --primary-soft: #edf5ff;
+            --text-primary: #18365b;
+            --text-secondary: #607995;
+            --text-muted: #879bb1;
+            --background: #f5f8fc;
+            --border: #dbe5ee;
+            --success: #159957;
+            --success-soft: #effaf4;
+            --danger: #c83446;
             --danger-soft: #fff1f3;
-            --warning: #b7791f;
-            --warning-soft: #fff9e8;
-
-            --text-primary: #173255;
-            --text-secondary: #687d98;
-            --text-muted: #91a2b8;
-            --border: #d7e1ed;
-            --background: #f3f7fc;
-            --white: #ffffff;
+            --shadow-strong: 0 22px 60px rgba(20, 60, 102, .12)
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
-            padding: 0;
+            padding: 0
         }
 
         html,
         body {
-            min-height: 100%;
+            min-height: 100%
         }
 
         body {
-            font-family: Inter, "Segoe UI", Arial, sans-serif;
+            min-height: 100vh;
             color: var(--text-primary);
             background: var(--background);
+            font-family: Inter, "Segoe UI", Arial, sans-serif
+        }
+
+        a,
+        button,
+        input {
+            font: inherit
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit
         }
 
         button,
         input {
-            font: inherit;
+            outline: none
         }
 
-        button,
-        a {
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        a {
-            color: inherit;
-            text-decoration: none;
-        }
-
-        .register-page {
-            display: flex;
+        .auth-shell {
             min-height: 100vh;
+            display: grid;
+            grid-template-columns: minmax(500px, .95fr) minmax(560px, 1.05fr)
         }
 
-        /* Panel kiri */
-        .left-panel {
+        .brand-panel {
             position: relative;
-            width: 43%;
-            min-height: 100vh;
-            padding: 34px 34px 24px;
-            color: #ffffff;
-            background:
-                radial-gradient(circle at 42% 24%, rgba(255,255,255,.10), transparent 22%),
-                linear-gradient(155deg, #102d83 0%, #173fa4 50%, #2468f2 100%);
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 38px 46px 34px;
+            color: #fff;
+            background: linear-gradient(155deg, #06356c 0%, #064996 48%, #0872cf 100%)
         }
 
-        .left-panel::before,
-        .left-panel::after {
+        .brand-panel:before,
+        .brand-panel:after {
             content: "";
             position: absolute;
             border-radius: 50%;
-            background: rgba(255,255,255,.04);
+            pointer-events: none
         }
 
-        .left-panel::before {
-            width: 390px;
-            height: 390px;
-            left: -190px;
-            bottom: -210px;
+        .brand-panel:before {
+            width: 500px;
+            height: 500px;
+            top: -245px;
+            right: -210px;
+            border: 1px solid rgba(255, 255, 255, .09);
+            box-shadow: 0 0 0 60px rgba(255, 255, 255, .025), 0 0 0 120px rgba(255, 255, 255, .018)
         }
 
-        .left-panel::after {
-            width: 240px;
-            height: 240px;
-            right: -120px;
-            top: -110px;
+        .brand-panel:after {
+            width: 340px;
+            height: 340px;
+            bottom: -215px;
+            left: -160px;
+            background: rgba(255, 255, 255, .035)
         }
 
-        .left-content {
+        .brand-top,
+        .brand-content,
+        .brand-footer {
             position: relative;
-            z-index: 2;
-            display: flex;
-            flex-direction: column;
-            min-height: calc(100vh - 58px);
+            z-index: 1
         }
 
-        .brand {
+        .brand-top {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 13px
+        }
+
+        .brand-logo-wrap {
+            width: 54px;
+            height: 54px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px;
+            border: 1px solid rgba(255, 255, 255, .22);
+            border-radius: 14px;
+            background: rgba(255, 255, 255, .96);
+            box-shadow: 0 10px 28px rgba(3, 32, 68, .18)
         }
 
         .brand-logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 38px;
-            height: 38px;
-            border: 1px solid rgba(255,255,255,.32);
-            border-radius: 50%;
-            background: rgba(255,255,255,.12);
-            font-size: 17px;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain
         }
 
-        .brand-government {
-            color: rgba(255,255,255,.78);
-            font-size: 11px;
+        .brand-ministry small {
+            display: block;
+            margin-bottom: 3px;
+            color: rgba(232, 243, 255, .74);
+            font-size: 8px;
+            font-weight: 800;
+            letter-spacing: 1.2px;
+            text-transform: uppercase
         }
 
-        .brand-unit {
-            margin-top: 3px;
+        .brand-ministry strong {
+            display: block;
             font-size: 13px;
-            font-weight: 700;
+            font-weight: 850
         }
 
-        .portal-badge {
+        .brand-content {
+            width: 100%;
+            max-width: 650px;
+            margin: auto 0;
+            padding: 38px 0
+        }
+
+        .system-chip {
+            width: fit-content;
             display: inline-flex;
             align-items: center;
             gap: 7px;
-            width: fit-content;
-            margin-top: 38px;
-            padding: 7px 12px;
-            border: 1px solid rgba(255,255,255,.18);
+            min-height: 28px;
+            padding: 0 11px;
+            border: 1px solid rgba(255, 255, 255, .18);
             border-radius: 999px;
-            background: rgba(255,255,255,.10);
-            font-size: 11px;
+            color: #e7f2ff;
+            background: rgba(255, 255, 255, .09);
+            font-size: 8px;
+            font-weight: 850;
+            letter-spacing: .85px;
+            text-transform: uppercase
         }
 
-        .portal-badge span {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: #48e586;
-            box-shadow: 0 0 0 4px rgba(72,229,134,.12);
+        .brand-title {
+            max-width: 610px;
+            margin-top: 18px;
+            font-size: clamp(31px, 3.5vw, 44px);
+            font-weight: 900;
+            line-height: 1.08;
+            letter-spacing: -1.2px
         }
 
-        .app-title {
-            margin-top: 22px;
-            font-size: clamp(26px, 2.4vw, 38px);
-            line-height: 1.17;
-            font-weight: 800;
-            letter-spacing: -.5px;
+        .brand-title span {
+            color: #a9d4ff
         }
 
-        .app-description {
-            max-width: 500px;
-            margin-top: 12px;
-            color: rgba(255,255,255,.76);
-            font-size: 13px;
-            line-height: 1.7;
-        }
-
-        .security-illustration {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 180px;
-            height: 180px;
-            margin: 38px auto 32px;
-            border: 1px solid rgba(255,255,255,.11);
-            border-radius: 50%;
-            background: rgba(255,255,255,.06);
-        }
-
-        .security-illustration i {
-            font-size: 72px;
-            color: rgba(255,255,255,.88);
-            filter: drop-shadow(0 10px 20px rgba(0,0,0,.12));
-        }
-
-        .flow-title {
-            margin-bottom: 12px;
-            color: rgba(255,255,255,.58);
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 1.2px;
-        }
-
-        .flow-list {
-            display: flex;
-            flex-direction: column;
-            gap: 9px;
-        }
-
-        .flow-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            min-height: 58px;
-            padding: 10px 13px;
-            border: 1px solid rgba(255,255,255,.08);
-            border-radius: 12px;
-            background: rgba(255,255,255,.055);
-        }
-
-        .flow-item.completed {
-            background: rgba(255,255,255,.085);
-        }
-
-        .flow-item.active {
-            border-color: rgba(255,255,255,.33);
-            background: rgba(255,255,255,.17);
-            box-shadow: 0 9px 24px rgba(0,0,0,.08);
-        }
-
-        .flow-number {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 28px;
-            height: 28px;
-            flex-shrink: 0;
-            border-radius: 50%;
-            color: rgba(255,255,255,.72);
-            background: rgba(255,255,255,.13);
-            font-size: 11px;
-            font-weight: 700;
-        }
-
-        .flow-item.completed .flow-number {
-            color: #ffffff;
-            background: #18a85e;
-        }
-
-        .flow-item.active .flow-number {
-            color: var(--primary-700);
-            background: #ffffff;
-        }
-
-        .flow-name {
+        .brand-description {
+            max-width: 610px;
+            margin-top: 15px;
+            color: rgba(230, 241, 255, .78);
             font-size: 12px;
-            font-weight: 700;
+            line-height: 1.7
         }
 
-        .flow-description {
-            margin-top: 3px;
-            color: rgba(255,255,255,.58);
-            font-size: 10px;
-            line-height: 1.4;
+        .security-panel {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-top: 26px;
+            padding: 16px;
+            border: 1px solid rgba(255, 255, 255, .13);
+            border-radius: 15px;
+            background: rgba(255, 255, 255, .075)
         }
 
-        .left-footer {
-            margin-top: auto;
-            padding-top: 22px;
-            border-top: 1px solid rgba(255,255,255,.14);
-            text-align: center;
-            color: rgba(255,255,255,.47);
-            font-size: 10px;
-            line-height: 1.6;
+        .security-icon {
+            width: 50px;
+            height: 50px;
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            color: #e8f4ff;
+            background: rgba(255, 255, 255, .11);
+            font-size: 23px
         }
 
-        /* Panel kanan */
-        .right-panel {
-            width: 57%;
+        .security-panel strong {
+            display: block;
+            font-size: 11px
+        }
+
+        .security-panel span {
+            display: block;
+            margin-top: 4px;
+            color: rgba(226, 241, 255, .66);
+            font-size: 9px;
+            line-height: 1.5
+        }
+
+        .flow {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 7px;
+            margin-top: 20px
+        }
+
+        .flow-step {
+            padding: 10px;
+            border: 1px solid rgba(255, 255, 255, .10);
+            border-radius: 11px;
+            background: rgba(255, 255, 255, .055)
+        }
+
+        .flow-step.completed {
+            background: rgba(21, 153, 87, .18)
+        }
+
+        .flow-step.active {
+            border-color: rgba(255, 255, 255, .28);
+            background: rgba(255, 255, 255, .14)
+        }
+
+        .flow-no {
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 7px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .13);
+            font-size: 8px;
+            font-weight: 900
+        }
+
+        .flow-step.completed .flow-no {
+            background: var(--success);
+            color: #fff
+        }
+
+        .flow-step.active .flow-no {
+            color: var(--primary);
+            background: #fff
+        }
+
+        .flow-step strong {
+            font-size: 8px
+        }
+
+        .flow-step small {
+            display: block;
+            margin-top: 2px;
+            color: rgba(226, 241, 255, .6);
+            font-size: 7px;
+            line-height: 1.4
+        }
+
+        .brand-footer {
+            padding-top: 17px;
+            border-top: 1px solid rgba(255, 255, 255, .13);
+            color: rgba(218, 235, 255, .55);
+            font-size: 8px
+        }
+
+        .form-panel {
             min-height: 100vh;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 40px 28px;
+            padding: 34px;
+            background: var(--background)
+        }
+
+        .form-wrap {
+            width: 100%;
+            max-width: 570px
         }
 
         .stepper {
-            width: 100%;
-            max-width: 470px;
             display: grid;
-            grid-template-columns: 34px 1fr 34px 1fr 34px;
+            grid-template-columns: 32px 1fr 32px 1fr 32px;
             align-items: start;
-            margin-bottom: 28px;
+            max-width: 440px;
+            margin: 0 auto 26px
         }
 
         .step {
-            position: relative;
             text-align: center;
+            position: relative
         }
 
         .step-circle {
+            width: 32px;
+            height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 34px;
-            height: 34px;
             margin: auto;
-            border: 1px solid #d6e0ec;
+            border: 1px solid var(--border);
             border-radius: 50%;
-            color: #a6b3c3;
-            background: #ffffff;
-            font-size: 11px;
-            font-weight: 700;
+            color: #9baabd;
+            background: #fff;
+            font-size: 10px;
+            font-weight: 850
         }
 
         .step.completed .step-circle {
-            color: #ffffff;
+            color: #fff;
             border-color: var(--success);
-            background: var(--success);
+            background: var(--success)
         }
 
         .step.active .step-circle {
-            color: #ffffff;
-            border-color: var(--primary-600);
-            background: var(--primary-600);
-            box-shadow: 0 0 0 6px rgba(36,104,242,.09);
+            color: #fff;
+            border-color: var(--primary);
+            background: var(--primary);
+            box-shadow: 0 0 0 5px rgba(7, 89, 183, .09)
         }
 
         .step-label {
             position: absolute;
-            top: 42px;
+            top: 39px;
             left: 50%;
-            width: 105px;
+            width: 100px;
             transform: translateX(-50%);
-            color: #98a8ba;
-            font-size: 10px;
-            line-height: 1.35;
+            font-size: 8px;
+            color: #91a4b9;
+            line-height: 1.35
         }
 
         .step.completed .step-label {
             color: var(--success);
-            font-weight: 700;
+            font-weight: 800
         }
 
         .step.active .step-label {
-            color: var(--primary-600);
-            font-weight: 700;
+            color: var(--primary);
+            font-weight: 800
         }
 
         .step-line {
-            height: 2px;
-            margin-top: 16px;
-            background: #dce5ef;
+            height: 1px;
+            margin-top: 15px;
+            background: #dbe5ee
         }
 
         .step-line.completed {
-            background: var(--success);
+            background: var(--success)
         }
 
-        .otp-card {
-            width: 100%;
-            max-width: 510px;
-            margin-top: 30px;
-            padding: 32px;
-            border: 1px solid rgba(213,224,236,.9);
-            border-radius: 20px;
-            background: #ffffff;
-            box-shadow:
-                0 22px 55px rgba(47,73,105,.11),
-                0 4px 12px rgba(47,73,105,.05);
-        }
-
-        .otp-icon-wrapper {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 15px;
+        .card {
+            margin-top: 37px;
+            padding: 27px;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            background: #fff;
+            box-shadow: var(--shadow-strong);
+            text-align: center
         }
 
         .otp-icon {
+            width: 56px;
+            height: 56px;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 58px;
-            height: 58px;
-            border-radius: 16px;
-            color: var(--primary-600);
-            background: var(--primary-100);
-            font-size: 28px;
+            margin: 0 auto 13px;
+            border-radius: 15px;
+            color: var(--primary);
+            background: var(--primary-soft);
+            font-size: 25px
+        }
+
+        .card-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            min-height: 25px;
+            padding: 0 9px;
+            border-radius: 999px;
+            color: var(--primary);
+            background: var(--primary-soft);
+            font-size: 8px;
+            font-weight: 850;
+            letter-spacing: .7px;
+            text-transform: uppercase
         }
 
         .card-title {
-            text-align: center;
-            font-size: 22px;
-            font-weight: 800;
-            letter-spacing: -.2px;
+            margin-top: 11px;
+            font-size: 21px;
+            font-weight: 900
         }
 
         .card-description {
-            max-width: 390px;
-            margin: 8px auto 0;
-            text-align: center;
+            max-width: 430px;
+            margin: 7px auto 0;
             color: var(--text-secondary);
-            font-size: 13px;
-            line-height: 1.65;
+            font-size: 11px;
+            line-height: 1.65
         }
 
         .masked-email {
-            color: var(--primary-600);
-            font-weight: 700;
-            word-break: break-word;
+            color: var(--primary);
+            font-weight: 850
         }
 
         .alert {
             display: flex;
             align-items: flex-start;
-            gap: 9px;
-            margin: 18px 0 0;
-            padding: 11px 13px;
-            border-radius: 11px;
-            font-size: 12px;
-            line-height: 1.55;
-        }
-
-        .alert i {
-            margin-top: 1px;
-            flex-shrink: 0;
+            gap: 8px;
+            margin-top: 15px;
+            padding: 10px 11px;
+            border-radius: 10px;
+            text-align: left;
+            font-size: 9px;
+            line-height: 1.5
         }
 
         .alert-success {
-            color: #126a3e;
-            border: 1px solid #b9e7ce;
-            background: var(--success-soft);
+            color: #176b43;
+            border: 1px solid #bde4cc;
+            background: var(--success-soft)
         }
 
         .alert-error {
-            color: #a52637;
-            border: 1px solid #f0b9c1;
-            background: var(--danger-soft);
+            color: #a82c3c;
+            border: 1px solid #f0b7bf;
+            background: var(--danger-soft)
         }
 
         .countdown-box {
+            width: fit-content;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 7px;
-            width: fit-content;
-            margin: 18px auto 22px;
-            padding: 7px 12px;
-            border: 1px solid #dfe7f0;
+            margin: 17px auto 19px;
+            padding: 7px 11px;
+            border: 1px solid #dce6f0;
             border-radius: 999px;
-            color: #71839a;
-            background: #f9fbfe;
-            font-size: 11px;
+            color: #73869b;
+            background: #f8fafc;
+            font-size: 9px
         }
 
         .countdown {
-            min-width: 31px;
-            color: var(--primary-600);
-            font-weight: 800;
+            color: var(--primary);
+            font-weight: 850
         }
 
         .otp-inputs {
             display: flex;
             justify-content: center;
-            gap: 10px;
+            gap: 8px
         }
 
         .otp-input {
-            width: 52px;
-            height: 58px;
-            border: 1.5px solid var(--border);
-            border-radius: 12px;
-            outline: none;
+            width: 49px;
+            height: 55px;
+            border: 1.5px solid #d5dee7;
+            border-radius: 11px;
             color: var(--text-primary);
-            background: #ffffff;
+            background: #fff;
             text-align: center;
-            font-size: 22px;
-            font-weight: 800;
-            caret-color: var(--primary-600);
-            transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
-        }
-
-        .otp-input:hover {
-            border-color: #aebed1;
+            font-size: 20px;
+            font-weight: 900;
+            caret-color: var(--primary);
+            transition: .18s
         }
 
         .otp-input:focus {
-            border-color: var(--primary-600);
-            box-shadow: 0 0 0 4px rgba(36,104,242,.09);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(7, 89, 183, .09)
         }
 
         .otp-input.filled {
-            border-color: #6b9cf6;
-            background: #f7faff;
+            border-color: #72a7df;
+            background: #f8fbff
         }
 
         .otp-input.error {
             border-color: var(--danger);
-            background: var(--danger-soft);
+            background: var(--danger-soft)
         }
 
         .otp-message {
@@ -510,632 +522,370 @@
             align-items: center;
             justify-content: center;
             gap: 6px;
-            margin-top: 10px;
-            font-size: 11px;
-            line-height: 1.5;
+            margin-top: 9px;
+            font-size: 8px
         }
 
         .otp-message.show {
-            display: flex;
+            display: flex
         }
 
         .otp-message.error {
-            color: var(--danger);
+            color: var(--danger)
         }
 
         .otp-message.success {
-            color: var(--success);
+            color: var(--success)
         }
 
         .spam-information {
             display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            margin-top: 13px;
+            color: var(--text-muted);
+            font-size: 8px
+        }
+
+        .form-actions {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 10px;
+            margin-top: 18px
+        }
+
+        .back-button,
+        .verify-button {
+            min-height: 40px;
+            display: flex;
             align-items: center;
             justify-content: center;
             gap: 7px;
-            margin-top: 15px;
-            color: var(--text-muted);
-            font-size: 11px;
+            border-radius: 9px;
+            font-size: 10px;
+            font-weight: 850
+        }
+
+        .back-button {
+            border: 1px solid #d5dee7;
+            color: #56708b;
+            background: #fff
+        }
+
+        .verify-button {
+            border: 0;
+            color: #fff;
+            background: linear-gradient(135deg, var(--primary), var(--primary-bright));
+            box-shadow: 0 8px 18px rgba(7, 89, 183, .19);
+            cursor: pointer
+        }
+
+        .verify-button:disabled {
+            background: #a9c4e5;
+            box-shadow: none;
+            cursor: not-allowed
         }
 
         .resend-wrapper {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
-            margin-top: 15px;
-            color: #8798ad;
-            font-size: 11px;
+            gap: 5px;
+            margin-top: 13px;
+            color: #8293a7;
+            font-size: 8px
         }
 
         .resend-button {
             border: 0;
-            padding: 2px;
-            color: var(--primary-600);
             background: transparent;
-            font-size: 11px;
-            font-weight: 800;
-            cursor: pointer;
-        }
-
-        .resend-button:hover:not(:disabled) {
-            text-decoration: underline;
+            color: var(--primary);
+            font-size: 8px;
+            font-weight: 850;
+            cursor: pointer
         }
 
         .resend-button:disabled {
-            color: #aeb9c7;
-            cursor: not-allowed;
+            color: #a8b5c4;
+            cursor: not-allowed
         }
 
-        .form-actions {
-            display: grid;
-            grid-template-columns: 118px 1fr;
-            gap: 11px;
-            margin-top: 22px;
-        }
-
-        .back-button,
-        .verify-button {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 44px;
-            border-radius: 11px;
-            font-size: 12px;
-            font-weight: 700;
-            transition: .18s ease;
-        }
-
-        .back-button {
-            border: 1px solid #d4dee9;
-            color: #536d89;
-            background: #ffffff;
-        }
-
-        .back-button:hover {
-            color: var(--primary-600);
-            border-color: #9db9e2;
-            background: #f7faff;
-        }
-
-        .verify-button {
-            border: 0;
-            color: #ffffff;
-            background: var(--primary-600);
-            box-shadow: 0 8px 18px rgba(36,104,242,.22);
-            cursor: pointer;
-        }
-
-        .verify-button:hover:not(:disabled) {
-            background: #1959dc;
-            transform: translateY(-1px);
-        }
-
-        .verify-button:disabled {
-            background: #9abff6;
-            box-shadow: none;
-            cursor: not-allowed;
-        }
-
-        @media (max-width: 960px) {
-            .register-page {
-                display: block;
+        @media(max-width:1024px) {
+            .auth-shell {
+                display: block
             }
 
-            .left-panel,
-            .right-panel {
-                width: 100%;
-                min-height: auto;
+            .brand-panel {
+                display: none
             }
 
-            .left-panel {
-                padding: 25px 22px;
+            .form-panel {
+                min-height: 100vh;
+                padding: 30px 18px
             }
 
-            .left-content {
-                min-height: auto;
-            }
-
-            .security-illustration,
-            .flow-list,
-            .flow-title,
-            .left-footer {
-                display: none;
-            }
-
-            .portal-badge {
-                margin-top: 22px;
-            }
-
-            .app-title {
-                font-size: 27px;
-            }
-
-            .right-panel {
-                min-height: calc(100vh - 260px);
-                padding: 42px 16px 55px;
+            .form-wrap {
+                max-width: 620px
             }
         }
 
-        @media (max-width: 560px) {
-            .otp-card {
-                padding: 27px 17px 22px;
-                border-radius: 16px;
+        @media(max-width:620px) {
+            .form-panel {
+                padding: 24px 14px
+            }
+
+            .card {
+                padding: 23px 15px
             }
 
             .otp-inputs {
-                gap: 6px;
+                gap: 5px
             }
 
             .otp-input {
-                width: calc((100% - 30px) / 6);
-                min-width: 39px;
-                height: 52px;
-                font-size: 19px;
+                width: calc((100% - 25px)/6);
+                max-width: 49px;
+                height: 50px;
+                font-size: 18px
             }
 
             .form-actions {
-                grid-template-columns: 1fr;
-            }
-
-            .verify-button {
-                grid-row: 1;
-            }
-
-            .back-button {
-                grid-row: 2;
+                grid-template-columns: 1fr
             }
 
             .step-label {
-                width: 78px;
-                font-size: 9px;
-            }
-        }
-
-        @media (max-width: 390px) {
-            .otp-input {
-                min-width: 34px;
-                height: 48px;
-                font-size: 17px;
+                width: 76px;
+                font-size: 7px
             }
         }
     </style>
 </head>
 
 <body>
-@php
-    $emailValue = $email ?? ($user->email ?? session('register_email', ''));
-    $maskedEmail = $emailValue;
-
-    if ($emailValue && str_contains($emailValue, '@')) {
-        [$localPart, $domainPart] = explode('@', $emailValue, 2);
-
-        $visiblePrefix = mb_substr($localPart, 0, min(2, mb_strlen($localPart)));
-        $maskLength = max(mb_strlen($localPart) - mb_strlen($visiblePrefix), 3);
-
-        $maskedEmail = $visiblePrefix . str_repeat('*', $maskLength) . '@' . $domainPart;
-    }
-@endphp
-
-<div class="register-page">
-    <aside class="left-panel">
-        <div class="left-content">
-            <div class="brand">
-                <div class="brand-logo">
-                    <i class="bi bi-star-fill"></i>
-                </div>
-
-                <div>
-                    <div class="brand-government">Kementerian Perdagangan RI</div>
-                    <div class="brand-unit">Biro Perencanaan</div>
+    @php
+        $emailValue = $email ?? ($user->email ?? session('register_email', ''));
+        $maskedEmail = $emailValue;
+        if ($emailValue && str_contains($emailValue, '@')) {
+            [$localPart, $domainPart] = explode('@', $emailValue, 2);
+            $visiblePrefix = mb_substr($localPart, 0, min(2, mb_strlen($localPart)));
+            $maskLength = max(mb_strlen($localPart) - mb_strlen($visiblePrefix), 3);
+            $maskedEmail = $visiblePrefix . str_repeat('*', $maskLength) . '@' . $domainPart;
+        }
+    @endphp
+    <div class="auth-shell">
+        <aside class="brand-panel">
+            <div class="brand-top">
+                <div class="brand-logo-wrap"><img src="{{ asset('images/logo-kemendag.png') }}"
+                        alt="Logo Kementerian Perdagangan" class="brand-logo"></div>
+                <div class="brand-ministry"><small>Kementerian Perdagangan RI</small><strong>Biro Perencanaan</strong>
                 </div>
             </div>
-
-            <div class="portal-badge">
-                <span></span>
-                Portal Pendaftaran Akun
-            </div>
-
-            <h1 class="app-title">
-                Sistem Informasi<br>
-                Penelitian RKA-K/L
-            </h1>
-
-            <p class="app-description">
-                Verifikasi alamat email untuk mengaktifkan akun dan menjaga keamanan
-                akses ke sistem penelitian RKA-K/L.
-            </p>
-
-            <div class="security-illustration" aria-hidden="true">
-                <i class="bi bi-shield-lock-fill"></i>
-            </div>
-
-            <div class="flow-title">ALUR PENDAFTARAN</div>
-
-            <div class="flow-list">
-                <div class="flow-item completed">
-                    <div class="flow-number">
-                        <i class="bi bi-check-lg"></i>
-                    </div>
-
-                    <div>
-                        <div class="flow-name">Informasi Akun</div>
-                        <div class="flow-description">Data diri dan kredensial login</div>
-                    </div>
+            <div class="brand-content">
+                <div class="system-chip"><i class="bi bi-shield-lock"></i> Verifikasi Registrasi</div>
+                <h1 class="brand-title">Satu langkah lagi untuk <span>mengaktifkan akun</span></h1>
+                <p class="brand-description">Kode OTP dikirim ke email yang didaftarkan untuk memastikan alamat email
+                    benar-benar berada dalam kendali pengguna sebelum akun digunakan.</p>
+                <div class="security-panel">
+                    <div class="security-icon"><i class="bi bi-envelope-check"></i></div>
+                    <div><strong>Verifikasi berbasis email</strong><span>Masukkan kode 6 digit yang diterima. Jangan
+                            membagikan kode OTP kepada pihak lain.</span></div>
                 </div>
-
-                <div class="flow-item completed">
-                    <div class="flow-number">
-                        <i class="bi bi-check-lg"></i>
+                <div class="flow">
+                    <div class="flow-step completed">
+                        <div class="flow-no"><i class="bi bi-check-lg"></i></div><strong>Informasi
+                            Akun</strong><small>Identitas selesai.</small>
                     </div>
-
-                    <div>
-                        <div class="flow-name">Informasi Jabatan</div>
-                        <div class="flow-description">Jabatan dan posisi di instansi</div>
+                    <div class="flow-step completed">
+                        <div class="flow-no"><i class="bi bi-check-lg"></i></div>
+                        <strong>Jabatan</strong><small>Informasi jabatan telah dilengkapi.</small>
                     </div>
-                </div>
-
-                <div class="flow-item active">
-                    <div class="flow-number">3</div>
-
-                    <div>
-                        <div class="flow-name">Verifikasi OTP</div>
-                        <div class="flow-description">Konfirmasi melalui kode OTP email</div>
+                    <div class="flow-step active">
+                        <div class="flow-no">3</div><strong>Verifikasi OTP</strong><small>Konfirmasi email Anda.</small>
                     </div>
                 </div>
             </div>
-
-            <div class="left-footer">
-                © {{ date('Y') }} Biro Perencanaan — Kementerian Perdagangan RI<br>
-                Seluruh data dilindungi berdasarkan regulasi yang berlaku.
-            </div>
-        </div>
-    </aside>
-
-    <main class="right-panel">
-        <div class="stepper" aria-label="Tahapan registrasi">
-            <div class="step completed">
-                <div class="step-circle">
-                    <i class="bi bi-check-lg"></i>
-                </div>
-                <div class="step-label">Informasi<br>Akun</div>
-            </div>
-
-            <div class="step-line completed"></div>
-
-            <div class="step completed">
-                <div class="step-circle">
-                    <i class="bi bi-check-lg"></i>
-                </div>
-                <div class="step-label">Informasi<br>Jabatan</div>
-            </div>
-
-            <div class="step-line completed"></div>
-
-            <div class="step active">
-                <div class="step-circle">3</div>
-                <div class="step-label">Verifikasi<br>OTP</div>
-            </div>
-        </div>
-
-        <section class="otp-card">
-            <div class="otp-icon-wrapper">
-                <div class="otp-icon">
-                    <i class="bi bi-envelope-check-fill"></i>
-                </div>
-            </div>
-
-            <h2 class="card-title">Verifikasi Email Anda</h2>
-
-            <p class="card-description">
-                Masukkan kode OTP 6 digit yang telah dikirim ke
-                <span class="masked-email">{{ $maskedEmail ?: 'alamat email Anda' }}</span>.
-                Kode berlaku selama 10 menit.
-            </p>
-
-            @if (session('success'))
-                <div class="alert alert-success" role="alert">
-                    <i class="bi bi-check-circle-fill"></i>
-                    <span>{{ session('success') }}</span>
-                </div>
-            @endif
-
-            @if (session('error'))
-                <div class="alert alert-error" role="alert">
-                    <i class="bi bi-exclamation-triangle-fill"></i>
-                    <span>{{ session('error') }}</span>
-                </div>
-            @endif
-
-            <div class="countdown-box" id="countdownBox">
-                <i class="bi bi-clock"></i>
-                <span id="countdownText">Kirim ulang tersedia dalam</span>
-                <span class="countdown" id="countdown">01:00</span>
-            </div>
-
-            <form
-                id="verifyOtpForm"
-                action="{{ route('register.step3') }}"
-                method="POST"
-                novalidate
-            >
-                @csrf
-
-                <div class="otp-inputs" id="otpInputs">
-                    @for ($index = 0; $index < 6; $index++)
-                        <input
-                            type="text"
-                            class="otp-input"
-                            inputmode="numeric"
-                            maxlength="1"
-                            autocomplete="{{ $index === 0 ? 'one-time-code' : 'off' }}"
-                            aria-label="Digit OTP ke-{{ $index + 1 }}"
-                        >
-                    @endfor
-                </div>
-
-                <input
-                    type="hidden"
-                    id="otp_code"
-                    name="otp_code"
-                    value="{{ old('otp_code') }}"
-                >
-
-                <div class="otp-message error" id="otpError">
-                    <i class="bi bi-exclamation-circle-fill"></i>
-                    Masukkan kode OTP 6 digit.
-                </div>
-
-                <div class="otp-message success" id="otpSuccess">
-                    <i class="bi bi-check-circle-fill"></i>
-                    Format kode OTP sudah lengkap.
-                </div>
-
-                @error('otp_code')
-                    <div class="otp-message error show">
-                        <i class="bi bi-exclamation-circle-fill"></i>
-                        {{ $message }}
+            <div class="brand-footer">© {{ date('Y') }} Biro Perencanaan — Kementerian Perdagangan Republik
+                Indonesia</div>
+        </aside>
+        <main class="form-panel">
+            <div class="form-wrap">
+                <div class="stepper">
+                    <div class="step completed">
+                        <div class="step-circle"><i class="bi bi-check-lg"></i></div>
+                        <div class="step-label">Informasi<br>Akun</div>
                     </div>
-                @enderror
-
-                <div class="spam-information">
-                    <i class="bi bi-info-circle"></i>
-                    Periksa folder Spam atau Junk jika email belum terlihat.
+                    <div class="step-line completed"></div>
+                    <div class="step completed">
+                        <div class="step-circle"><i class="bi bi-check-lg"></i></div>
+                        <div class="step-label">Informasi<br>Jabatan</div>
+                    </div>
+                    <div class="step-line completed"></div>
+                    <div class="step active">
+                        <div class="step-circle">3</div>
+                        <div class="step-label">Verifikasi<br>OTP</div>
+                    </div>
                 </div>
+                <section class="card">
+                    <div class="otp-icon"><i class="bi bi-shield-check"></i></div>
+                    <div class="card-kicker">Tahap 3 dari 3</div>
+                    <h2 class="card-title">Verifikasi Kode OTP</h2>
+                    <p class="card-description">Kode OTP 6 digit telah dikirim ke <span
+                            class="masked-email">{{ $maskedEmail ?: 'alamat email Anda' }}</span>. Kode berlaku selama
+                        10 menit.</p>
+                    @if (session('success'))
+                        <div class="alert alert-success"><i
+                                class="bi bi-check-circle-fill"></i><span>{{ session('success') }}</span></div>
+                    @endif
+                    @if (session('error'))
+                        <div class="alert alert-error"><i
+                                class="bi bi-exclamation-triangle-fill"></i><span>{{ session('error') }}</span></div>
+                    @endif
+                    <div class="countdown-box"><i class="bi bi-clock"></i><span id="countdownText">Kirim ulang tersedia
+                            dalam</span><span class="countdown" id="countdown">01:00</span></div>
+                    <form id="verifyOtpForm" action="{{ route('register.step3') }}" method="POST" novalidate>@csrf
+                        <div class="otp-inputs" id="otpInputs">
+                            @for ($index = 0; $index < 6; $index++)
+                                <input type="text" class="otp-input" inputmode="numeric" maxlength="1"
+                                    autocomplete="{{ $index === 0 ? 'one-time-code' : 'off' }}"
+                                    aria-label="Digit OTP ke-{{ $index + 1 }}">
+                            @endfor
+                        </div>
+                        <input type="hidden" id="otp_code" name="otp_code" value="{{ old('otp_code') }}">
+                        <div class="otp-message error" id="otpError"><i
+                                class="bi bi-exclamation-circle-fill"></i>Masukkan kode OTP 6 digit.</div>
+                        <div class="otp-message success" id="otpSuccess"><i class="bi bi-check-circle-fill"></i>Format
+                            kode OTP sudah lengkap.</div>
+                        @error('otp_code')
+                            <div class="otp-message error show"><i
+                                    class="bi bi-exclamation-circle-fill"></i>{{ $message }}</div>
+                        @enderror
+                        <div class="spam-information"><i class="bi bi-info-circle"></i>Periksa folder Spam atau Junk
+                            jika email belum terlihat.</div>
+                        <div class="form-actions"><a href="{{ route('register.step2') }}" class="back-button"><i
+                                    class="bi bi-arrow-left"></i> Kembali</a><button type="submit"
+                                class="verify-button" id="verifyButton" disabled><i class="bi bi-shield-check"></i>
+                                Verifikasi dan Aktifkan Akun</button></div>
+                    </form>
+                    <form id="resendOtpForm" method="POST" action="{{ route('register.resend_otp') }}">@csrf<div
+                            class="resend-wrapper"><span>Belum menerima kode?</span><button type="submit"
+                                class="resend-button" id="resendButton" disabled>Kirim Ulang OTP</button></div>
+                    </form>
+                </section>
+            </div>
+        </main>
+    </div>
+    <script>
+        const otpInputs = Array.from(document.querySelectorAll('.otp-input')),
+            hiddenOtpInput = document.getElementById('otp_code'),
+            verifyButton = document.getElementById('verifyButton'),
+            otpError = document.getElementById('otpError'),
+            otpSuccess = document.getElementById('otpSuccess'),
+            verifyOtpForm = document.getElementById('verifyOtpForm'),
+            resendOtpForm = document.getElementById('resendOtpForm'),
+            resendButton = document.getElementById('resendButton'),
+            countdownElement = document.getElementById('countdown'),
+            countdownText = document.getElementById('countdownText');
+        let remainingSeconds = 60,
+            countdownInterval = null;
 
-                <div class="form-actions">
-                    <a
-                        href="{{ route('register.step2') }}"
-                        class="back-button"
-                    >
-                        <i class="bi bi-arrow-left"></i>&nbsp;
-                        Kembali
-                    </a>
+        function collectOtp() {
+            return otpInputs.map(input => input.value).join('')
+        }
 
-                    <button
-                        type="submit"
-                        class="verify-button"
-                        id="verifyButton"
-                        disabled
-                    >
-                        <i class="bi bi-shield-check"></i>&nbsp;
-                        Verifikasi dan Aktifkan Akun
-                    </button>
-                </div>
-            </form>
-
-            <form
-                id="resendOtpForm"
-                method="POST"
-                action="{{ route('register.resend_otp') }}"
-            >
-                @csrf
-
-                <div class="resend-wrapper">
-                    <span>Belum menerima kode?</span>
-
-                    <button
-                        type="submit"
-                        class="resend-button"
-                        id="resendButton"
-                        disabled
-                    >
-                        Kirim Ulang OTP
-                    </button>
-                </div>
-            </form>
-        </section>
-    </main>
-</div>
-
-<script>
-    const otpInputs = Array.from(document.querySelectorAll(".otp-input"));
-    const hiddenOtpInput = document.getElementById("otp_code");
-    const verifyButton = document.getElementById("verifyButton");
-    const otpError = document.getElementById("otpError");
-    const otpSuccess = document.getElementById("otpSuccess");
-    const verifyOtpForm = document.getElementById("verifyOtpForm");
-    const resendOtpForm = document.getElementById("resendOtpForm");
-    const resendButton = document.getElementById("resendButton");
-    const countdownElement = document.getElementById("countdown");
-    const countdownText = document.getElementById("countdownText");
-
-    let remainingSeconds = 60;
-    let countdownInterval = null;
-
-    function collectOtp() {
-        return otpInputs.map(input => input.value).join("");
-    }
-
-    function updateOtpValue() {
-        const otpCode = collectOtp();
-
-        hiddenOtpInput.value = otpCode;
-
-        otpInputs.forEach(input => {
-            input.classList.toggle("filled", input.value !== "");
-            input.classList.remove("error");
-        });
-
-        const isComplete = /^\d{6}$/.test(otpCode);
-
-        verifyButton.disabled = !isComplete;
-        otpError.classList.remove("show");
-        otpSuccess.classList.toggle("show", isComplete);
-    }
-
-    otpInputs.forEach((input, index) => {
-        input.addEventListener("input", event => {
-            event.target.value = event.target.value
-                .replace(/\D/g, "")
-                .slice(0, 1);
-
-            if (event.target.value && index < otpInputs.length - 1) {
-                otpInputs[index + 1].focus();
-            }
-
-            updateOtpValue();
-        });
-
-        input.addEventListener("keydown", event => {
-            if (
-                event.key === "Backspace" &&
-                input.value === "" &&
-                index > 0
-            ) {
-                otpInputs[index - 1].focus();
-                otpInputs[index - 1].value = "";
-                updateOtpValue();
-            }
-
-            if (event.key === "ArrowLeft" && index > 0) {
-                event.preventDefault();
-                otpInputs[index - 1].focus();
-            }
-
-            if (
-                event.key === "ArrowRight" &&
-                index < otpInputs.length - 1
-            ) {
-                event.preventDefault();
-                otpInputs[index + 1].focus();
-            }
-        });
-
-        input.addEventListener("focus", () => input.select());
-    });
-
-    document
-        .getElementById("otpInputs")
-        .addEventListener("paste", event => {
-            event.preventDefault();
-
-            const pastedValue = event.clipboardData
-                .getData("text")
-                .replace(/\D/g, "")
-                .slice(0, 6);
-
-            otpInputs.forEach((input, index) => {
-                input.value = pastedValue[index] || "";
+        function updateOtpValue() {
+            const otpCode = collectOtp();
+            hiddenOtpInput.value = otpCode;
+            otpInputs.forEach(input => {
+                input.classList.toggle('filled', input.value !== '');
+                input.classList.remove('error')
             });
-
-            const focusIndex = Math.min(
-                Math.max(pastedValue.length - 1, 0),
-                otpInputs.length - 1
-            );
-
-            otpInputs[focusIndex].focus();
-            updateOtpValue();
+            const complete = /^\d{6}$/.test(otpCode);
+            verifyButton.disabled = !complete;
+            otpError.classList.remove('show');
+            otpSuccess.classList.toggle('show', complete)
+        }
+        otpInputs.forEach((input, index) => {
+            input.addEventListener('input', event => {
+                event.target.value = event.target.value.replace(/\D/g, '').slice(0, 1);
+                if (event.target.value && index < otpInputs.length - 1) otpInputs[index + 1].focus();
+                updateOtpValue()
+            });
+            input.addEventListener('keydown', event => {
+                if (event.key === 'Backspace' && input.value === '' && index > 0) {
+                    otpInputs[index - 1].focus();
+                    otpInputs[index - 1].value = '';
+                    updateOtpValue()
+                }
+                if (event.key === 'ArrowLeft' && index > 0) {
+                    event.preventDefault();
+                    otpInputs[index - 1].focus()
+                }
+                if (event.key === 'ArrowRight' && index < otpInputs.length - 1) {
+                    event.preventDefault();
+                    otpInputs[index + 1].focus()
+                }
+            });
+            input.addEventListener('focus', () => input.select())
         });
-
-    verifyOtpForm.addEventListener("submit", event => {
-        const otpCode = collectOtp();
-
-        hiddenOtpInput.value = otpCode;
-
-        if (!/^\d{6}$/.test(otpCode)) {
+        document.getElementById('otpInputs').addEventListener('paste', event => {
             event.preventDefault();
-
-            otpError.classList.add("show");
-            otpSuccess.classList.remove("show");
-
-            otpInputs.forEach(input => input.classList.add("error"));
-
-            return;
-        }
-
-        // Form valid: jangan memakai preventDefault().
-        verifyButton.disabled = true;
-        verifyButton.innerHTML = `
-            <i class="bi bi-arrow-repeat"></i>&nbsp;
-            Memverifikasi...
-        `;
-    });
-
-    resendOtpForm.addEventListener("submit", event => {
-        if (resendButton.disabled) {
-            event.preventDefault();
-            return;
-        }
-
-        // Form valid: biarkan POST menuju controller.
-        resendButton.disabled = true;
-        resendButton.innerHTML = `
-            <i class="bi bi-arrow-repeat"></i>
-            Mengirim...
-        `;
-    });
-
-    function formatCountdown(seconds) {
-        const minutes = Math.floor(seconds / 60)
-            .toString()
-            .padStart(2, "0");
-
-        const remainder = (seconds % 60)
-            .toString()
-            .padStart(2, "0");
-
-        return `${minutes}:${remainder}`;
-    }
-
-    function startCountdown() {
-        clearInterval(countdownInterval);
-
-        resendButton.disabled = true;
-        countdownElement.textContent = formatCountdown(remainingSeconds);
-
-        countdownInterval = setInterval(() => {
-            remainingSeconds -= 1;
-            countdownElement.textContent = formatCountdown(
-                Math.max(remainingSeconds, 0)
-            );
-
-            if (remainingSeconds <= 0) {
-                clearInterval(countdownInterval);
-                resendButton.disabled = false;
-                countdownText.textContent = "Anda dapat";
-                countdownElement.textContent = "";
+            const pasted = event.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+            otpInputs.forEach((input, index) => input.value = pasted[index] || '');
+            otpInputs[Math.min(Math.max(pasted.length - 1, 0), otpInputs.length - 1)].focus();
+            updateOtpValue()
+        });
+        verifyOtpForm.addEventListener('submit', event => {
+            const code = collectOtp();
+            hiddenOtpInput.value = code;
+            if (!/^\d{6}$/.test(code)) {
+                event.preventDefault();
+                otpError.classList.add('show');
+                otpSuccess.classList.remove('show');
+                otpInputs.forEach(input => input.classList.add('error'));
+                return
             }
-        }, 1000);
-    }
-
-    function populateOldOtp() {
-        const oldOtp = hiddenOtpInput.value
-            .replace(/\D/g, "")
-            .slice(0, 6);
-
-        oldOtp.split("").forEach((digit, index) => {
-            otpInputs[index].value = digit;
+            verifyButton.disabled = true;
+            verifyButton.innerHTML = '<i class="bi bi-arrow-repeat"></i> Memverifikasi...'
+        });
+        resendOtpForm.addEventListener('submit', event => {
+            if (resendButton.disabled) {
+                event.preventDefault();
+                return
+            }
+            resendButton.disabled = true;
+            resendButton.innerHTML = '<i class="bi bi-arrow-repeat"></i> Mengirim...'
         });
 
-        updateOtpValue();
-    }
+        function formatCountdown(seconds) {
+            return `${Math.floor(seconds/60).toString().padStart(2,'0')}:${(seconds%60).toString().padStart(2,'0')}`
+        }
 
-    populateOldOtp();
-    startCountdown();
+        function startCountdown() {
+            clearInterval(countdownInterval);
+            resendButton.disabled = true;
+            countdownElement.textContent = formatCountdown(remainingSeconds);
+            countdownInterval = setInterval(() => {
+                remainingSeconds--;
+                countdownElement.textContent = formatCountdown(Math.max(remainingSeconds, 0));
+                if (remainingSeconds <= 0) {
+                    clearInterval(countdownInterval);
+                    resendButton.disabled = false;
+                    countdownText.textContent = 'Anda dapat';
+                    countdownElement.textContent = ''
+                }
+            }, 1000)
+        }
 
-    if (otpInputs[0] && !hiddenOtpInput.value) {
-        otpInputs[0].focus();
-    }
-</script>
+        function populateOldOtp() {
+            const oldOtp = hiddenOtpInput.value.replace(/\D/g, '').slice(0, 6);
+            oldOtp.split('').forEach((digit, index) => otpInputs[index].value = digit);
+            updateOtpValue()
+        }
+        populateOldOtp();
+        startCountdown();
+        if (otpInputs[0] && !hiddenOtpInput.value) otpInputs[0].focus();
+    </script>
 </body>
+
 </html>

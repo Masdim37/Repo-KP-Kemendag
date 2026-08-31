@@ -352,7 +352,7 @@
                 <div class="page-heading">
                     <div>
                         <h1>Daftar Penelitian RKA-K/L</h1>
-                        <p>Kelola penelitian DRAFT dan CHP FINAL per Satker. CHP FINAL dapat dibuka dalam mode read-only serta dicetak/disimpan sebagai PDF.</p>
+                        <p>Penelitian yang berstatus draft dapat diedit kembali sedangkan penelitian yang berstatus final tidak dapat diedit kembali.</p>
                     </div>
                     <a href="{{ route('penelitian.create') }}" class="btn-primary">
                         <i class="bi bi-plus-lg"></i>

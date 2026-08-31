@@ -38,12 +38,12 @@
             </header>
             <main class="page-container">
                 <div class="content-wrapper">
-                    <div class="info-box"><i class="bi bi-info-circle-fill"></i>
+                    {{-- <div class="info-box"><i class="bi bi-info-circle-fill"></i>
                         <div>Setiap Akun yang disimpan akan otomatis dibuat atau digunakan kembali pada master
                             <strong>akun</strong>, lalu dipetakan ke Komponen (<strong>komponen_akun</strong>) atau ke
                             Subkomponen spesifik Satker (<strong>subkomponen_akun</strong>).
                         </div>
-                    </div>
+                    </div> --}}
                     @if (session('success'))
                         <div class="alert success">{{ session('success') }}</div>
                         @endif @if (session('error'))
@@ -79,7 +79,7 @@
                                     <div class="form-group"><label class="form-label">Nama Akun <span
                                                 class="required">*</span></label><input id="namaAkun" name="nama_akun"
                                             class="form-control" maxlength="255" value="{{ old('nama_akun') }}"
-                                            placeholder="Masukkan nama Akun">
+                                            placeholder="Masukkan nama Akun Baru">
                                         <div class="field-error" id="namaAkunError"></div>
                                     </div>
                                     <div class="form-group full"><label class="form-label">Jenis Penempatan <span
@@ -319,8 +319,8 @@
             budgetSection.classList.remove('hidden-section');
             subGroup.classList.toggle('hidden-section', m !== 'SUBKOMPONEN');
             modeNote.textContent = m === 'KOMPONEN' ?
-                'Akun otomatis dibuat/digunakan pada master akun, lalu dipetakan ke komponen_akun untuk penggunaan langsung pada Komponen tanpa Subkomponen.' :
-                'Akun otomatis dibuat/digunakan pada master akun, lalu dipetakan ke subkomponen_akun pada Subkomponen spesifik Satker.';
+                'Akun otomatis dibuat/digunakan pada master akun, lalu dipetakan untuk penggunaan langsung pada Komponen tanpa Subkomponen.' :
+                'Akun otomatis dibuat/digunakan pada master akun, lalu dipetakan kepada Subkomponen spesifik Satker.';
             if (!restore) {
                 unit1.value = '';
                 refResetSelect(unit2, '-- Pilih Unit Eselon I terlebih dahulu --');
