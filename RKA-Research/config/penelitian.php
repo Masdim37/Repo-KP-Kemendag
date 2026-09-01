@@ -85,10 +85,12 @@ return [
     | - akun prefix 52 pada path tersebut = Operasional;
     | - akun prefix 52 lainnya = Non Operasional.
     |
-    | Jika tidak satu pun path ditemukan, engine TIDAK menganggap seluruh akun
-    | 52 sebagai Non Operasional. Parent tetap seluruh akun 52, sedangkan child
-    | Operasional/Non Operasional ditampilkan Rp0 dengan CATATAN bahwa
-    | klasifikasi perlu dikonfirmasi.
+    | Jika tidak satu pun path ditemukan pada RKA Satker:
+    | - Belanja Barang Operasional = Rp0;
+    | - seluruh akun prefix 52 = Belanja Barang Non Operasional.
+    |
+    | Dengan demikian total Operasional + Non Operasional selalu sama dengan
+    | total seluruh akun prefix 52 pada parent Belanja Barang.
     |
     | Rule tidak boleh bergantung pada kode/nama Satker.
     |

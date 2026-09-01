@@ -50,6 +50,14 @@ class PenelitianResearchService
         ],
     ];
 
+    /**
+     * Business rule Prioritas Nasional (PN):
+     * seluruh KRO yang huruf pertama kodenya berada pada rentang P sampai U
+     * dikategorikan sebagai PN. Rule yang sama dipakai bersama oleh B.3 dan D.3
+     * agar hasil keduanya selalu konsisten.
+     */
+    private const PN_KRO_PREFIXES = ['P', 'Q', 'R', 'S', 'T', 'U'];
+
 
     /**
      * Mapping fixed D.1 sesuai FORMAT CHP.
@@ -747,7 +755,7 @@ class PenelitianResearchService
                     'B2_BELANJA_BARANG'
                 );
                 $b2 = $this->aggregateB2($b21, $b22);
-                $b3 = $this->evaluateB3();
+                $b3 = $this->evaluateB3($penelitian, $documents);
 
                 $evaluations = [
                     'B1' => $b1,
@@ -1731,20 +1739,18 @@ class PenelitianResearchService
         /*
          * Rule C.4 harus berlaku lintas Satker.
          *
-         * Config dapat memuat lebih dari satu path operasional. Engine TIDAK
-         * menganggap Satker tertentu wajib memiliki salah satu path tersebut.
+         * Config dapat memuat lebih dari satu path operasional.
          *
          * Jika minimal satu configured operational path ditemukan pada RKA:
-         * - akun 52 pada path tersebut          => Operasional
-         * - seluruh akun 52 di luar path itu   => Non Operasional
+         * - akun 52 pada path tersebut          => Operasional;
+         * - seluruh akun 52 di luar path itu   => Non Operasional.
          *
-         * Jika tidak ada configured path yang ditemukan:
-         * - parent tetap = seluruh akun prefix 52;
-         * - child Operasional dan Non Operasional TIDAK ditebak;
-         * - keduanya ditampilkan Rp0 dengan CATATAN konfirmasi.
+         * Jika tidak ada configured operational path yang ditemukan pada RKA:
+         * - seluruh akun prefix 52             => Non Operasional;
+         * - Belanja Barang Operasional          => Rp0.
          *
-         * Ini mencegah seluruh akun 52 sebuah Satker otomatis dianggap
-         * Non Operasional hanya karena struktur EBA -> 994 -> 002 tidak ada.
+         * Dengan rule ini, total child C.4 selalu reconcile dengan parent:
+         * Operasional + Non Operasional = seluruh akun prefix 52.
          */
         $operationalPaths = $this->configuredC4OperationalPaths();
 
@@ -1757,26 +1763,30 @@ class PenelitianResearchService
             $operationalPaths
         );
 
-        $classificationAvailable = !empty($presentPaths);
+        $hasOperationalPath = !empty($presentPaths);
 
         $operasional = 0;
         $nonOperasional = 0;
 
-        if ($classificationAvailable) {
-            foreach ($rows as $row) {
-                $amount = (int) ($row->total ?? 0);
+        foreach ($rows as $row) {
+            $amount = (int) ($row->total ?? 0);
 
-                if ($this->matchesAnyC4OperationalPath($row, $presentPaths)) {
-                    $operasional += $amount;
-                } else {
-                    $nonOperasional += $amount;
-                }
+            if (
+                $hasOperationalPath
+                && $this->matchesAnyC4OperationalPath($row, $presentPaths)
+            ) {
+                $operasional += $amount;
+            } else {
+                // Business rule terbaru:
+                // bila path operasional tidak ditemukan, seluruh akun 52
+                // langsung diklasifikasikan sebagai Non Operasional.
+                $nonOperasional += $amount;
             }
         }
 
         $baseNote = 'Data RENJA tidak tersedia sampai level akun sehingga nilai RENJA pada rincian ini ditampilkan Rp0';
 
-        if ($classificationAvailable) {
+        if ($hasOperationalPath) {
             $pathLabels = array_map(
                 fn (array $path) => $this->formatC4OperationalPath($path),
                 $presentPaths
@@ -1786,7 +1796,7 @@ class PenelitianResearchService
                 $baseNote,
                 [
                     sprintf(
-                        'Klasifikasi Belanja Barang menggunakan struktur operasional yang ditemukan pada RKA: %s',
+                        'Klasifikasi Belanja Barang menggunakan struktur operasional yang ditemukan pada RKA: %s. Akun prefix 52 pada struktur tersebut dikategorikan sebagai Belanja Barang Operasional, sedangkan akun prefix 52 di luar struktur tersebut dikategorikan sebagai Belanja Barang Non Operasional',
                         implode('; ', $pathLabels)
                     ),
                 ]
@@ -1800,20 +1810,29 @@ class PenelitianResearchService
                 $operationalPaths
             );
 
-            $warning = sprintf(
-                'RKA memiliki Belanja Barang akun prefix 52 sebesar %s, tetapi tidak ditemukan struktur operasional yang terdaftar pada konfigurasi (%s). Parent Belanja Barang tetap menggunakan seluruh akun 52, sedangkan nilai Operasional dan Non Operasional tidak ditentukan otomatis dan perlu dikonfirmasi',
-                $this->formatRupiah($prefixTotal),
+            $ruleNote = sprintf(
+                'Struktur operasional yang terdaftar pada konfigurasi (%s) tidak ditemukan pada RKA. Berdasarkan rule C.4, seluruh Belanja Barang akun prefix 52 sebesar %s dikategorikan sebagai Belanja Barang Non Operasional',
                 !empty($configuredLabels)
                     ? implode('; ', $configuredLabels)
-                    : 'belum ada path yang dikonfigurasi'
+                    : 'belum ada path yang dikonfigurasi',
+                $this->formatRupiah($prefixTotal)
             );
 
-            $parentNote = $this->formatExplanation($baseNote, [$warning]);
+            $parentNote = $this->formatExplanation($baseNote, [$ruleNote]);
 
-            $childWarning = 'Klasifikasi belum dapat ditentukan karena struktur operasional yang terdaftar pada konfigurasi tidak ditemukan pada RKA Satker ini. Nilai Rp0 pada baris ini bukan berarti pagu sebenarnya nol dan perlu dikonfirmasi';
+            $operationalNote = $this->formatExplanation(
+                $baseNote,
+                [
+                    'Tidak ditemukan struktur operasional yang terdaftar pada konfigurasi sehingga Belanja Barang Operasional ditetapkan Rp0 sesuai rule C.4',
+                ]
+            );
 
-            $operationalNote = $this->formatExplanation($baseNote, [$childWarning]);
-            $nonOperationalNote = $this->formatExplanation($baseNote, [$childWarning]);
+            $nonOperationalNote = $this->formatExplanation(
+                $baseNote,
+                [
+                    'Tidak ditemukan struktur operasional yang terdaftar pada konfigurasi sehingga seluruh akun prefix 52 dikategorikan sebagai Belanja Barang Non Operasional sesuai rule C.4',
+                ]
+            );
         } else {
             $parentNote = $this->formatExplanation(
                 $baseNote,
@@ -1830,14 +1849,15 @@ class PenelitianResearchService
                 'uraian' => 'Belanja Barang Operasional',
                 'evaluation' => $this->numericResult(
                     0,
-                    $classificationAvailable ? $operasional : 0,
+                    $operasional,
                     $operationalNote,
                     [
                         'kategori' => 'OPERASIONAL',
-                        'classification_method' => $classificationAvailable
+                        'classification_method' => $hasOperationalPath
                             ? 'CONFIGURED_RKA_HIERARCHY'
-                            : 'NOT_CLASSIFIED',
-                        'classification_available' => $classificationAvailable,
+                            : 'NO_OPERATIONAL_PATH_FOUND',
+                        'classification_available' => true,
+                        'operational_path_found' => $hasOperationalPath,
                         'configured_operational_paths' => $operationalPaths,
                         'present_operational_paths' => $presentPaths,
                     ],
@@ -1849,14 +1869,15 @@ class PenelitianResearchService
                 'uraian' => 'Belanja Barang Non Operasional',
                 'evaluation' => $this->numericResult(
                     0,
-                    $classificationAvailable ? $nonOperasional : 0,
+                    $nonOperasional,
                     $nonOperationalNote,
                     [
                         'kategori' => 'NON_OPERASIONAL',
-                        'classification_method' => $classificationAvailable
+                        'classification_method' => $hasOperationalPath
                             ? 'ALL_OTHER_52_ACCOUNTS'
-                            : 'NOT_CLASSIFIED',
-                        'classification_available' => $classificationAvailable,
+                            : 'ALL_52_ACCOUNTS_WHEN_OPERATIONAL_PATH_ABSENT',
+                        'classification_available' => true,
+                        'operational_path_found' => $hasOperationalPath,
                         'configured_operational_paths' => $operationalPaths,
                         'present_operational_paths' => $presentPaths,
                     ],
@@ -1873,12 +1894,13 @@ class PenelitianResearchService
                 [
                     'jenis' => 'BELANJA_BARANG',
                     'akun_prefix_52_total' => $prefixTotal,
-                    'operasional_total' => $classificationAvailable ? $operasional : null,
-                    'non_operasional_total' => $classificationAvailable ? $nonOperasional : null,
-                    'classification_method' => $classificationAvailable
+                    'operasional_total' => $operasional,
+                    'non_operasional_total' => $nonOperasional,
+                    'classification_method' => $hasOperationalPath
                         ? 'CONFIGURED_RKA_HIERARCHY'
-                        : 'PARENT_ONLY_NEEDS_CONFIRMATION',
-                    'classification_available' => $classificationAvailable,
+                        : 'ALL_52_NON_OPERATIONAL_WHEN_OPERATIONAL_PATH_ABSENT',
+                    'classification_available' => true,
+                    'operational_path_found' => $hasOperationalPath,
                     'configured_operational_paths' => $operationalPaths,
                     'present_operational_paths' => $presentPaths,
                 ],
@@ -2401,14 +2423,13 @@ class PenelitianResearchService
     /**
      * Jalankan Research Engine Bagian D.
      *
-     * Baseline MVP CHP menetapkan 7 kategori Budget Tagging fixed dengan nilai
-     * awal Rp0 dan PENJELASAN kosong. Engine tidak menggunakan Gemini dan tidak
-     * menebak nilai tagging dari dokumen sumber.
+     * Tujuh kategori Budget Tagging tetap dibentuk sesuai format CHP.
+     * Khusus D.3 Prioritas Nasional dihitung otomatis berdasarkan business rule
+     * KRO prefix P sampai U. D.1, D.2, dan D.4-D.7 tetap menggunakan baseline
+     * sistem Rp0 sampai tersedia rule otomatis masing-masing.
      *
-     * Tujuan run Bagian D pada fase ini adalah:
-     * - membentuk 7 baris resmi sesuai format CHP;
-     * - menyimpan nilai sistem awal secara auditable;
-     * - menyediakan ruang override user selama DRAFT.
+     * Seluruh perhitungan deterministic dan tidak menggunakan Gemini. Override
+     * user tetap dipertahankan terpisah dari hasil sistem selama masih DRAFT.
      */
     public function runPartD(int $penelitianID, User $user): array
     {
@@ -2431,7 +2452,7 @@ class PenelitianResearchService
             sprintf('%s menjalankan penelitian Bagian D pada "%s".', $user->name, $penelitian->nama_penelitian),
             [
                 'bagian' => 'D',
-                'mode' => 'DEFAULT_MVP',
+                'mode' => 'PARTIAL_AUTOMATIC',
             ]
         );
 
@@ -2459,15 +2480,29 @@ class PenelitianResearchService
                 $rows = $this->partDRows();
                 $generatedCodes = [];
 
+                // Satu kalkulator PN dipakai bersama B.3 dan D.3. Pada Bagian D,
+                // hasilnya hanya diterapkan ke D.3; kategori tagging lain tetap
+                // memakai baseline Rp0 sampai memiliki business rule tersendiri.
+                $pnBudget = $this->calculatePrioritasNasionalBudget(
+                    $penelitian,
+                    $documents
+                );
+                $d3Evaluation = $this->buildPartD3PrioritasNasionalEvaluation(
+                    $pnBudget
+                );
+
                 foreach ($rows as $row) {
+                    $kodeBaris = (string) $row['kode'];
+
                     $this->upsertPartDResult(
                         $penelitianID,
-                        (string) $row['kode'],
+                        $kodeBaris,
                         (int) $row['urutan'],
-                        (string) $row['uraian']
+                        (string) $row['uraian'],
+                        $kodeBaris === 'D3' ? $d3Evaluation : null
                     );
 
-                    $generatedCodes[] = (string) $row['kode'];
+                    $generatedCodes[] = $kodeBaris;
                 }
 
                 // Defensive cleanup jika definisi fixed rows pernah berubah.
@@ -2484,18 +2519,24 @@ class PenelitianResearchService
                     sprintf('%s berhasil menghasilkan penelitian Bagian D.', $user->name),
                     [
                         'bagian' => 'D',
-                        'mode' => 'DEFAULT_MVP',
+                        'mode' => 'PARTIAL_AUTOMATIC',
                         'jumlah_baris' => count($rows),
-                        'default_pagu_renja' => 0,
-                        'default_pagu_rka' => 0,
-                        'automatic_tagging' => false,
+                        'automatic_tagging' => true,
+                        'automatic_tagging_categories' => ['D3'],
+                        'pn_classification_method' => 'KRO_PREFIX_P_TO_U',
+                        'pn_kro_prefixes' => self::PN_KRO_PREFIXES,
+                        'pagu_pn_renja' => $pnBudget['pagu_renja'],
+                        'pagu_pn_rka' => $pnBudget['pagu_rka'],
                     ]
                 );
 
                 return [
                     'jumlah_baris' => count($rows),
-                    'mode' => 'DEFAULT_MVP',
-                    'automatic_tagging' => false,
+                    'mode' => 'PARTIAL_AUTOMATIC',
+                    'automatic_tagging' => true,
+                    'automatic_tagging_categories' => ['D3'],
+                    'pagu_pn_renja' => $pnBudget['pagu_renja'],
+                    'pagu_pn_rka' => $pnBudget['pagu_rka'],
                 ];
             }, 3);
         } catch (\Throwable $e) {
@@ -2568,7 +2609,8 @@ class PenelitianResearchService
         int $penelitianID,
         string $kodeBaris,
         int $urutan,
-        string $uraian
+        string $uraian,
+        ?array $systemResult = null
     ): int {
         $existing = DB::table('penelitian_hasil_nilai')
             ->where('penelitianID', $penelitianID)
@@ -2576,9 +2618,17 @@ class PenelitianResearchService
             ->where('kode_baris', $kodeBaris)
             ->first();
 
-        $systemRenja = 0;
-        $systemRka = 0;
-        $systemExplanation = '';
+        $systemRenja = (int) ($systemResult['pagu_renja'] ?? 0);
+        $systemRka = (int) ($systemResult['pagu_rka'] ?? 0);
+        $systemExplanation = (string) ($systemResult['explanation'] ?? '');
+
+        $systemMetadata = $systemResult['metadata'] ?? [
+            'automatic_check' => false,
+            'default_status_mvp' => true,
+            'budget_tagging_category' => $kodeBaris,
+            'default_pagu_renja' => 0,
+            'default_pagu_rka' => 0,
+        ];
 
         $effectiveRenjaForDifference = $existing && $existing->pagu_renja_user !== null
             ? (int) $existing->pagu_renja_user
@@ -2597,13 +2647,10 @@ class PenelitianResearchService
             'pagu_rka_sistem' => $systemRka,
             'selisih' => $effectiveRkaForDifference - $effectiveRenjaForDifference,
             'penjelasan_sistem' => $systemExplanation,
-            'metadata_json' => json_encode([
-                'automatic_check' => false,
-                'default_status_mvp' => true,
-                'budget_tagging_category' => $kodeBaris,
-                'default_pagu_renja' => 0,
-                'default_pagu_rka' => 0,
-            ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+            'metadata_json' => json_encode(
+                $systemMetadata,
+                JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+            ),
             'updated_at' => now(),
         ];
 
@@ -3980,31 +4027,31 @@ class PenelitianResearchService
             if ($rkbmn == 0.0 && $maintenanceVol > 0) {
                 $warning = true;
                 $details[] = sprintf(
-                    'Terdapat alokasi pemeliharaan %.2f unit senilai %s, tetapi aset tidak ditemukan pada RKBMN Pemeliharaan.',
-                    $maintenanceVol,
+                    'Terdapat alokasi pemeliharaan %s unit senilai %s, tetapi aset tidak ditemukan pada RKBMN Pemeliharaan.',
+                    $this->formatQuantity($maintenanceVol),
                     $this->formatRupiah((int) round($maintenancePagu))
                 );
             } elseif ($maintenanceVol > $rkbmn) {
                 $warning = true;
                 $details[] = sprintf(
-                    'Alokasi pemeliharaan RKA %.2f unit melebihi volume RKBMN %.2f unit sebesar %.2f unit.',
-                    $maintenanceVol,
-                    $rkbmn,
-                    $maintenanceVol - $rkbmn
+                    'Alokasi pemeliharaan RKA %s unit melebihi volume RKBMN %s unit sebesar %s unit.',
+                    $this->formatQuantity($maintenanceVol),
+                    $this->formatQuantity($rkbmn),
+                    $this->formatQuantity($maintenanceVol - $rkbmn)
                 );
             } elseif ($rkbmn > 0 && $maintenanceVol == 0.0) {
                 // RKBMN memiliki aset, tetapi RKA sama sekali tidak menyediakan
                 // alokasi pemeliharaan untuk kategori tersebut.
                 $details[] = sprintf(
-                    'RKBMN mencatat %.2f unit %s, tetapi tidak terdapat alokasi pemeliharaan aset tersebut pada RKA.',
-                    $rkbmn,
+                    'RKBMN mencatat %s unit %s, tetapi tidak terdapat alokasi pemeliharaan aset tersebut pada RKA.',
+                    $this->formatQuantity($rkbmn),
                     $label
                 );
             } elseif ($rkbmn > 0 && $maintenanceVol < $rkbmn) {
                 $details[] = sprintf(
-                    'Alokasi pemeliharaan RKA hanya mencakup %.2f dari %.2f unit %s yang tercatat pada RKBMN.',
-                    $maintenanceVol,
-                    $rkbmn,
+                    'Alokasi pemeliharaan RKA hanya mencakup %s dari %s unit %s yang tercatat pada RKBMN.',
+                    $this->formatQuantity($maintenanceVol),
+                    $this->formatQuantity($rkbmn),
                     $label
                 );
             }
@@ -4012,21 +4059,21 @@ class PenelitianResearchService
 
         if ($rkbmnDocumentSelected && $rkbmn > 0 && $procurementVol > 0) {
             $details[] = sprintf(
-                'Aset telah tercatat pada RKBMN Pemeliharaan %.2f unit dan Satker mengusulkan tambahan pengadaan %.2f unit senilai %s.',
-                $rkbmn,
-                $procurementVol,
+                'Aset telah tercatat pada RKBMN Pemeliharaan %s unit dan Satker mengusulkan tambahan pengadaan %s unit senilai %s.',
+                $this->formatQuantity($rkbmn),
+                $this->formatQuantity($procurementVol),
                 $this->formatRupiah((int) round($procurementPagu))
             );
         } elseif ($rkbmnDocumentSelected && $rkbmn == 0.0 && $procurementVol > 0) {
             $details[] = sprintf(
-                'Terdapat usulan pengadaan baru %.2f unit senilai %s; kondisi ini tidak otomatis dianggap anomali.',
-                $procurementVol,
+                'Terdapat usulan pengadaan baru %s unit senilai %s; kondisi ini tidak otomatis dianggap anomali.',
+                $this->formatQuantity($procurementVol),
                 $this->formatRupiah((int) round($procurementPagu))
             );
         } elseif (!$rkbmnDocumentSelected && $procurementVol > 0) {
             $details[] = sprintf(
-                'Terdapat usulan pengadaan %.2f unit senilai %s, tetapi status pengadaan baru/tambahan belum dapat dibandingkan karena dokumen RKBMN belum dipilih.',
-                $procurementVol,
+                'Terdapat usulan pengadaan %s unit senilai %s, tetapi status pengadaan baru/tambahan belum dapat dibandingkan karena dokumen RKBMN belum dipilih.',
+                $this->formatQuantity($procurementVol),
                 $this->formatRupiah((int) round($procurementPagu))
             );
         }
@@ -7200,6 +7247,8 @@ class PenelitianResearchService
             $localStatuses = [];
             $localMessages = [];
             $localDetails = [];
+            $minorTypoDetails = [];
+            $minorTypoCount = 0;
 
             foreach ($torCandidates as $tor) {
                 if ($tor['sasaran_program'] === '') {
@@ -7223,10 +7272,15 @@ class PenelitianResearchService
                     continue;
                 }
 
-                if ($tor['sasaran_program'] !== $renjaValue) {
+                $comparison = $this->compareObjectiveText(
+                    $renjaValue,
+                    $tor['sasaran_program']
+                );
+
+                if (!$comparison['match']) {
                     $localStatuses[] = 'TIDAK_SESUAI';
-                    $localMessages[] = "TOR {$tor['document_name']}: teks Sasaran Program berbeda dengan RENJA.";
-                    $localDetails[] = "Program {$code} - {$scope['nama_program']}: TOR {$tor['document_name']}: teks Sasaran Program berbeda dengan RENJA";
+                    $localMessages[] = "TOR {$tor['document_name']}: teks Sasaran Program berbeda secara substantif dengan RENJA.";
+                    $localDetails[] = "Program {$code} - {$scope['nama_program']}: TOR {$tor['document_name']}: Sasaran Program berbeda secara substantif dengan RENJA";
                     $findings[] = [
                         'jenis_temuan' => 'A2_SASARAN_PROGRAM_TIDAK_SESUAI',
                         'status_sistem' => 'TIDAK_SESUAI',
@@ -7235,13 +7289,23 @@ class PenelitianResearchService
                         'kode_program' => $code,
                         'nilai_sumber_text' => $renjaRaw,
                         'nilai_pembanding_text' => $tor['sasaran_raw'],
-                        'pesan_sistem' => 'Sasaran Program pada TOR tidak sama persis dengan Sasaran Program pada RENJA setelah normalisasi teknis spasi/line break.',
+                        'pesan_sistem' => 'Sasaran Program pada TOR berbeda secara substantif dengan Sasaran Program pada RENJA setelah normalisasi teknis dan pemeriksaan typo minor.',
                         'metadata_json' => [
                             'nama_program' => $scope['nama_program'],
                             'document_name' => $tor['document_name'],
+                            'comparison_method' => $comparison['method'],
+                            'differences' => $comparison['differences'],
                         ],
                     ];
                     continue;
+                }
+
+                if ($comparison['method'] === 'TYPO_TOLERANT') {
+                    $minorTypoCount++;
+                    $differenceLabel = $this->formatObjectiveTypoDifferences(
+                        $comparison['differences']
+                    );
+                    $minorTypoDetails[] = "Program {$code} - {$scope['nama_program']}: TOR {$tor['document_name']} memiliki perbedaan penulisan minor{$differenceLabel}, namun substansi Sasaran Program dinilai sama dengan RENJA";
                 }
 
                 $localStatuses[] = 'SESUAI';
@@ -7253,7 +7317,8 @@ class PenelitianResearchService
                 'message' => $scopeStatus === 'SESUAI'
                     ? "Program {$code} - {$scope['nama_program']}: Sasaran Program pada seluruh TOR terpilih sesuai dengan RENJA."
                     : "Program {$code} - {$scope['nama_program']}: " . implode(' ', $localMessages),
-                'details' => $scopeStatus === 'SESUAI' ? [] : $localDetails,
+                'details' => $scopeStatus === 'SESUAI' ? $minorTypoDetails : $localDetails,
+                'minor_typo_count' => $minorTypoCount,
             ];
         }
 
@@ -7422,6 +7487,8 @@ class PenelitianResearchService
             $localStatuses = [];
             $localMessages = [];
             $localDetails = [];
+            $minorTypoDetails = [];
+            $minorTypoCount = 0;
 
             foreach ($torCandidates as $tor) {
                 if ($tor['sasaran_kegiatan'] === '') {
@@ -7446,10 +7513,15 @@ class PenelitianResearchService
                     continue;
                 }
 
-                if ($tor['sasaran_kegiatan'] !== $renjaValue) {
+                $comparison = $this->compareObjectiveText(
+                    $renjaValue,
+                    $tor['sasaran_kegiatan']
+                );
+
+                if (!$comparison['match']) {
                     $localStatuses[] = 'TIDAK_SESUAI';
-                    $localMessages[] = "TOR {$tor['document_name']}: teks Sasaran Kegiatan berbeda dengan RENJA.";
-                    $localDetails[] = "{$scopeLabel}: TOR {$tor['document_name']}: teks Sasaran Kegiatan berbeda dengan RENJA";
+                    $localMessages[] = "TOR {$tor['document_name']}: teks Sasaran Kegiatan berbeda secara substantif dengan RENJA.";
+                    $localDetails[] = "{$scopeLabel}: TOR {$tor['document_name']}: Sasaran Kegiatan berbeda secara substantif dengan RENJA";
                     $findings[] = [
                         'jenis_temuan' => 'A4_SASARAN_KEGIATAN_TIDAK_SESUAI',
                         'status_sistem' => 'TIDAK_SESUAI',
@@ -7459,13 +7531,23 @@ class PenelitianResearchService
                         'kode_kegiatan' => $kegiatanCode,
                         'nilai_sumber_text' => $renjaRaw,
                         'nilai_pembanding_text' => $tor['sasaran_raw'],
-                        'pesan_sistem' => 'Sasaran Kegiatan pada TOR tidak sama persis dengan Sasaran Kegiatan pada RENJA setelah normalisasi teknis spasi/line break.',
+                        'pesan_sistem' => 'Sasaran Kegiatan pada TOR berbeda secara substantif dengan Sasaran Kegiatan pada RENJA setelah normalisasi teknis dan pemeriksaan typo minor.',
                         'metadata_json' => [
                             'nama_kegiatan' => $scope['nama_kegiatan'],
                             'document_name' => $tor['document_name'],
+                            'comparison_method' => $comparison['method'],
+                            'differences' => $comparison['differences'],
                         ],
                     ];
                     continue;
+                }
+
+                if ($comparison['method'] === 'TYPO_TOLERANT') {
+                    $minorTypoCount++;
+                    $differenceLabel = $this->formatObjectiveTypoDifferences(
+                        $comparison['differences']
+                    );
+                    $minorTypoDetails[] = "{$scopeLabel}: TOR {$tor['document_name']} memiliki perbedaan penulisan minor{$differenceLabel}, namun substansi Sasaran Kegiatan dinilai sama dengan RENJA";
                 }
 
                 $localStatuses[] = 'SESUAI';
@@ -7477,7 +7559,8 @@ class PenelitianResearchService
                 'message' => $scopeStatus === 'SESUAI'
                     ? "{$scopeLabel}: Sasaran Kegiatan pada seluruh TOR terpilih sesuai dengan RENJA."
                     : "{$scopeLabel}: " . implode(' ', $localMessages),
-                'details' => $scopeStatus === 'SESUAI' ? [] : $localDetails,
+                'details' => $scopeStatus === 'SESUAI' ? $minorTypoDetails : $localDetails,
+                'minor_typo_count' => $minorTypoCount,
             ];
         }
 
@@ -7492,8 +7575,18 @@ class PenelitianResearchService
         $statuses = array_column($scopeResults, 'status');
         $status = $this->aggregateStatuses($statuses);
         $metadata = $this->statusCountMetadata($statuses);
+        $metadata['jumlah_perbedaan_penulisan_minor'] = array_sum(array_map(
+            fn ($row) => (int) ($row['minor_typo_count'] ?? 0),
+            $scopeResults
+        ));
 
         if ($status === 'SESUAI') {
+            $informationalDetails = collect($scopeResults)
+                ->flatMap(fn ($row) => (array) ($row['details'] ?? []))
+                ->filter(fn ($detail) => trim((string) $detail) !== '')
+                ->values()
+                ->all();
+
             return [
                 'status' => 'SESUAI',
                 'explanation' => $this->formatExplanation(
@@ -7501,7 +7594,8 @@ class PenelitianResearchService
                         'Seluruh %s yang dapat diperiksa telah sesuai antara RENJA dan TOR. Diperiksa %d ruang lingkup',
                         $label,
                         count($scopeResults)
-                    )
+                    ),
+                    $informationalDetails
                 ),
                 'metadata' => $metadata,
                 'findings' => [],
@@ -7651,11 +7745,41 @@ class PenelitianResearchService
             $this->formatRupiah($selisih)
         );
 
+        // Setelah total berbeda, uraikan penyebab selisih secara deterministic
+        // pada level Kegiatan. Ini tidak bergantung pada Bagian A/C sehingga B.1
+        // tetap dapat dijalankan secara mandiri.
+        $diagnostic = $this->buildB1ActivityDiagnostics(
+            $penelitian,
+            $rkaID,
+            $renjaID
+        );
+
+        $details = array_merge([$detail], $diagnostic['details']);
+
+        $findings = [[
+            'jenis_temuan' => 'B1_TOTAL_PAGU_TIDAK_SESUAI',
+            'status_sistem' => 'TIDAK_SESUAI',
+            'documentID_sumber' => $renjaID,
+            'documentID_pembanding' => $rkaID,
+            'nilai_sumber_nominal' => $renjaTotal,
+            'nilai_pembanding_nominal' => $rkaTotal,
+            'selisih_nominal' => $selisih,
+            'pesan_sistem' => 'Total Pagu RENJA dan Total Pagu RKA berbeda.',
+            'metadata_json' => [
+                'diagnostic_level' => 'KEGIATAN',
+                'jumlah_kegiatan_penyebab' => $diagnostic['jumlah_kegiatan_penyebab'],
+                'selisih_kegiatan_terjelaskan' => $diagnostic['selisih_terjelaskan'],
+                'diagnostic_reconciled' => $diagnostic['selisih_terjelaskan'] === $selisih,
+            ],
+        ]];
+
+        $findings = array_merge($findings, $diagnostic['findings']);
+
         return [
             'status' => 'TIDAK_SESUAI',
             'explanation' => $this->formatExplanation(
-                'Ditemukan perbedaan Total Pagu antara RENJA dan RKA',
-                [$detail]
+                'Ditemukan perbedaan Total Pagu antara RENJA dan RKA. Penyebab selisih ditelusuri pada level Kegiatan',
+                $details
             ),
             'metadata' => [
                 'pagu_renja' => $renjaTotal,
@@ -7665,17 +7789,207 @@ class PenelitianResearchService
                 'jumlah_baris_rka' => $rkaCount,
                 'renja_allocation_source' => 'alokasi_komponen_0',
                 'renja_multiplier' => 1000,
+                'diagnostic_level' => 'KEGIATAN',
+                'jumlah_kegiatan_penyebab' => $diagnostic['jumlah_kegiatan_penyebab'],
+                'selisih_kegiatan_terjelaskan' => $diagnostic['selisih_terjelaskan'],
+                'diagnostic_reconciled' => $diagnostic['selisih_terjelaskan'] === $selisih,
             ],
-            'findings' => [[
-                'jenis_temuan' => 'B1_TOTAL_PAGU_TIDAK_SESUAI',
+            'findings' => $findings,
+        ];
+    }
+
+    /**
+     * Diagnostic B.1 pada level Kegiatan.
+     *
+     * Seluruh Kegiatan dari RKA dan RENJA di-union, lalu dibandingkan pagunya.
+     * Baris tanpa kode Kegiatan tetap dimasukkan sebagai scope khusus agar jumlah
+     * selisih diagnostic tetap dapat direkonsiliasi dengan selisih Total Pagu.
+     */
+    private function buildB1ActivityDiagnostics(
+        object $penelitian,
+        string $rkaID,
+        string $renjaID
+    ): array {
+        $rkaRows = $this->rkaScopedQuery($penelitian, $rkaID)
+            ->select([
+                'kode_kegiatan',
+                DB::raw('MAX(nama_kegiatan) AS nama_kegiatan'),
+                DB::raw('SUM(COALESCE(jumlah_biaya, 0)) AS total'),
+            ])
+            ->groupBy('kode_kegiatan')
+            ->get();
+
+        $renjaRows = $this->renjaScopedQuery($penelitian, $renjaID)
+            ->select([
+                'kode_kegiatan',
+                DB::raw('MAX(kegiatan) AS nama_kegiatan'),
+                DB::raw('SUM(COALESCE(alokasi_komponen_0, 0)) * 1000 AS total'),
+            ])
+            ->groupBy('kode_kegiatan')
+            ->get();
+
+        $normalizeRows = function (Collection $rows): array {
+            $result = [];
+
+            foreach ($rows as $row) {
+                $code = trim((string) ($row->kode_kegiatan ?? ''));
+                $key = $code !== '' ? $code : '__TANPA_KODE_KEGIATAN__';
+                $name = trim((string) ($row->nama_kegiatan ?? ''));
+                $amount = (int) ($row->total ?? 0);
+
+                if (!isset($result[$key])) {
+                    $result[$key] = [
+                        'kode_kegiatan' => $code !== '' ? $code : null,
+                        'nama_kegiatan' => $name,
+                        'total' => 0,
+                    ];
+                }
+
+                $result[$key]['total'] += $amount;
+
+                if ($result[$key]['nama_kegiatan'] === '' && $name !== '') {
+                    $result[$key]['nama_kegiatan'] = $name;
+                }
+            }
+
+            return $result;
+        };
+
+        $rkaActivities = $normalizeRows($rkaRows);
+        $renjaActivities = $normalizeRows($renjaRows);
+
+        $keys = array_values(array_unique(array_merge(
+            array_keys($rkaActivities),
+            array_keys($renjaActivities)
+        )));
+
+        usort($keys, function (string $left, string $right): int {
+            $blankKey = '__TANPA_KODE_KEGIATAN__';
+
+            if ($left === $blankKey) {
+                return $right === $blankKey ? 0 : 1;
+            }
+
+            if ($right === $blankKey) {
+                return -1;
+            }
+
+            return strnatcasecmp($left, $right);
+        });
+
+        $details = [];
+        $findings = [];
+        $selisihTerjelaskan = 0;
+        $jumlahPenyebab = 0;
+
+        foreach ($keys as $key) {
+            $rkaExists = array_key_exists($key, $rkaActivities);
+            $renjaExists = array_key_exists($key, $renjaActivities);
+            $rka = $rkaActivities[$key] ?? null;
+            $renja = $renjaActivities[$key] ?? null;
+
+            $rkaAmount = (int) ($rka['total'] ?? 0);
+            $renjaAmount = (int) ($renja['total'] ?? 0);
+            $difference = $rkaAmount - $renjaAmount;
+
+            if ($difference === 0) {
+                continue;
+            }
+
+            $jumlahPenyebab++;
+            $selisihTerjelaskan += $difference;
+
+            $code = (string) ($rka['kode_kegiatan'] ?? $renja['kode_kegiatan'] ?? '');
+            $name = trim((string) ($rka['nama_kegiatan'] ?? $renja['nama_kegiatan'] ?? ''));
+
+            if ($code === '') {
+                $label = 'Baris tanpa kode Kegiatan';
+            } else {
+                $label = $name !== ''
+                    ? "Kegiatan {$code} - {$name}"
+                    : "Kegiatan {$code}";
+            }
+
+            if ($rkaExists && !$renjaExists) {
+                $details[] = sprintf(
+                    '%s sebesar %s terdapat pada RKA tetapi tidak ditemukan pada RENJA',
+                    $label,
+                    $this->formatRupiah($rkaAmount)
+                );
+
+                $findings[] = [
+                    'jenis_temuan' => 'B1_KEGIATAN_HANYA_DI_RKA',
+                    'status_sistem' => 'TIDAK_SESUAI',
+                    'documentID_sumber' => $renjaID,
+                    'documentID_pembanding' => $rkaID,
+                    'kode_kegiatan' => $code !== '' ? $code : null,
+                    'nilai_sumber_nominal' => null,
+                    'nilai_pembanding_nominal' => $rkaAmount,
+                    'selisih_nominal' => $difference,
+                    'pesan_sistem' => 'Kegiatan terdapat pada RKA tetapi tidak ditemukan pada RENJA dan menjadi penyebab selisih Total Pagu.',
+                    'metadata_json' => [
+                        'nama_kegiatan' => $name,
+                        'diagnostic_level' => 'KEGIATAN',
+                    ],
+                ];
+                continue;
+            }
+
+            if (!$rkaExists && $renjaExists) {
+                $details[] = sprintf(
+                    '%s sebesar %s terdapat pada RENJA tetapi tidak ditemukan pada RKA',
+                    $label,
+                    $this->formatRupiah($renjaAmount)
+                );
+
+                $findings[] = [
+                    'jenis_temuan' => 'B1_KEGIATAN_HANYA_DI_RENJA',
+                    'status_sistem' => 'TIDAK_SESUAI',
+                    'documentID_sumber' => $renjaID,
+                    'documentID_pembanding' => $rkaID,
+                    'kode_kegiatan' => $code !== '' ? $code : null,
+                    'nilai_sumber_nominal' => $renjaAmount,
+                    'nilai_pembanding_nominal' => null,
+                    'selisih_nominal' => $difference,
+                    'pesan_sistem' => 'Kegiatan terdapat pada RENJA tetapi tidak ditemukan pada RKA dan menjadi penyebab selisih Total Pagu.',
+                    'metadata_json' => [
+                        'nama_kegiatan' => $name,
+                        'diagnostic_level' => 'KEGIATAN',
+                    ],
+                ];
+                continue;
+            }
+
+            $details[] = sprintf(
+                '%s memiliki pagu berbeda: RENJA = %s; RKA = %s; selisih RKA - RENJA = %s',
+                $label,
+                $this->formatRupiah($renjaAmount),
+                $this->formatRupiah($rkaAmount),
+                $this->formatRupiah($difference)
+            );
+
+            $findings[] = [
+                'jenis_temuan' => 'B1_PAGU_KEGIATAN_TIDAK_SESUAI',
                 'status_sistem' => 'TIDAK_SESUAI',
                 'documentID_sumber' => $renjaID,
                 'documentID_pembanding' => $rkaID,
-                'nilai_sumber_nominal' => $renjaTotal,
-                'nilai_pembanding_nominal' => $rkaTotal,
-                'selisih_nominal' => $selisih,
-                'pesan_sistem' => 'Total Pagu RENJA dan Total Pagu RKA berbeda.',
-            ]],
+                'kode_kegiatan' => $code !== '' ? $code : null,
+                'nilai_sumber_nominal' => $renjaAmount,
+                'nilai_pembanding_nominal' => $rkaAmount,
+                'selisih_nominal' => $difference,
+                'pesan_sistem' => 'Pagu Kegiatan pada RKA berbeda dengan pagu Kegiatan bersesuaian pada RENJA dan menjadi penyebab selisih Total Pagu.',
+                'metadata_json' => [
+                    'nama_kegiatan' => $name,
+                    'diagnostic_level' => 'KEGIATAN',
+                ],
+            ];
+        }
+
+        return [
+            'details' => $details,
+            'findings' => $findings,
+            'jumlah_kegiatan_penyebab' => $jumlahPenyebab,
+            'selisih_terjelaskan' => $selisihTerjelaskan,
         ];
     }
 
@@ -7972,19 +8286,600 @@ class PenelitianResearchService
         ];
     }
 
-    private function evaluateB3(): array
+    /**
+     * B.3 Pagu Prioritas Nasional.
+     *
+     * Business rule PN terbaru:
+     * KRO dengan huruf pertama kode P, Q, R, S, T, atau U adalah KRO PN.
+     * - RKA   : SUM(jumlah_biaya) pada seluruh KRO PN.
+     * - RENJA : SUM(alokasi_komponen_0) x 1.000 pada seluruh KRO PN.
+     *
+     * Jika total berbeda, penyebab selisih ditelusuri kembali pada level KRO
+     * supaya B.3 tidak hanya menyatakan selisih nominal, tetapi juga sumbernya.
+     */
+    private function evaluateB3(object $penelitian, array $documents): array
     {
-        return [
-            'status' => 'SESUAI',
-            'explanation' => $this->formatExplanation(
-                'Pagu PN ditetapkan SESUAI sebagai default MVP karena RENJA memiliki informasi/tag Prioritas Nasional (PN), sedangkan RKA belum memiliki atribut pembanding yang ekuivalen'
-            ),
-            'metadata' => [
-                'automatic_check' => false,
-                'default_status_mvp' => 'SESUAI',
-                'rka_comparator_available' => false,
+        $rkaID = $documents['RKA'] ?? null;
+        $renjaID = $documents['RENJA'] ?? null;
+
+        $pnBudget = $this->calculatePrioritasNasionalBudget(
+            $penelitian,
+            $documents
+        );
+        $kroBreakdownDetails = $this->buildPrioritasNasionalKroBreakdownDetails(
+            $pnBudget
+        );
+
+        if (!$pnBudget['rka_available']) {
+            return [
+                'status' => 'PERLU_KONFIRMASI',
+                'explanation' => $this->formatExplanation(
+                    'Data RKA tidak ditemukan untuk Satker dan Tahun Anggaran penelitian sehingga Pagu Prioritas Nasional belum dapat diperiksa',
+                    $kroBreakdownDetails
+                ),
+                'metadata' => $this->prioritasNasionalMetadata($pnBudget, [
+                    'automatic_check' => false,
+                    'reason' => 'RKA_DATA_NOT_AVAILABLE',
+                ]),
+                'findings' => [[
+                    'jenis_temuan' => 'B3_DATA_RKA_TIDAK_DITEMUKAN',
+                    'status_sistem' => 'PERLU_KONFIRMASI',
+                    'documentID_pembanding' => $rkaID,
+                    'pesan_sistem' => 'Data RKA sesuai Satker/Tahun Anggaran tidak ditemukan untuk pemeriksaan Pagu Prioritas Nasional.',
+                    'metadata_json' => [
+                        'classification_method' => 'KRO_PREFIX_P_TO_U',
+                        'pn_kro_prefixes' => self::PN_KRO_PREFIXES,
+                    ],
+                ]],
+            ];
+        }
+
+        if (!$renjaID) {
+            return [
+                'status' => 'PERLU_KONFIRMASI',
+                'explanation' => $this->formatExplanation(
+                    sprintf(
+                        'Dokumen RENJA belum dipilih sehingga Pagu Prioritas Nasional RKA sebesar %s belum dapat dibandingkan dengan RENJA',
+                        $this->formatRupiah($pnBudget['pagu_rka'])
+                    ),
+                    $kroBreakdownDetails
+                ),
+                'metadata' => $this->prioritasNasionalMetadata($pnBudget, [
+                    'automatic_check' => false,
+                    'reason' => 'RENJA_NOT_SELECTED',
+                ]),
+                'findings' => [[
+                    'jenis_temuan' => 'B3_RENJA_BELUM_DIPILIH',
+                    'status_sistem' => 'PERLU_KONFIRMASI',
+                    'documentID_pembanding' => $rkaID,
+                    'pesan_sistem' => 'Dokumen RENJA belum dipilih untuk pemeriksaan Pagu Prioritas Nasional.',
+                    'metadata_json' => [
+                        'classification_method' => 'KRO_PREFIX_P_TO_U',
+                        'pn_kro_prefixes' => self::PN_KRO_PREFIXES,
+                        'pagu_pn_rka' => $pnBudget['pagu_rka'],
+                    ],
+                ]],
+            ];
+        }
+
+        if (!$pnBudget['renja_available']) {
+            return [
+                'status' => 'PERLU_KONFIRMASI',
+                'explanation' => $this->formatExplanation(
+                    sprintf(
+                        'Data RENJA untuk Satker %s pada TA %s tidak ditemukan sehingga Pagu Prioritas Nasional belum dapat dibandingkan',
+                        $penelitian->nama_satker,
+                        $penelitian->tahun_anggaran
+                    ),
+                    $kroBreakdownDetails
+                ),
+                'metadata' => $this->prioritasNasionalMetadata($pnBudget, [
+                    'automatic_check' => false,
+                    'reason' => 'RENJA_DATA_NOT_AVAILABLE',
+                ]),
+                'findings' => [[
+                    'jenis_temuan' => 'B3_DATA_RENJA_TIDAK_DITEMUKAN',
+                    'status_sistem' => 'PERLU_KONFIRMASI',
+                    'documentID_sumber' => $renjaID,
+                    'documentID_pembanding' => $rkaID,
+                    'pesan_sistem' => 'Data RENJA sesuai Satker/Tahun Anggaran tidak ditemukan untuk pemeriksaan Pagu Prioritas Nasional.',
+                    'metadata_json' => [
+                        'classification_method' => 'KRO_PREFIX_P_TO_U',
+                        'pn_kro_prefixes' => self::PN_KRO_PREFIXES,
+                    ],
+                ]],
+            ];
+        }
+
+        $renjaTotal = $pnBudget['pagu_renja'];
+        $rkaTotal = $pnBudget['pagu_rka'];
+        $selisih = $pnBudget['selisih'];
+
+        if ($selisih === 0) {
+            if ($renjaTotal === 0) {
+                $summary = 'Tidak terdapat alokasi Prioritas Nasional berdasarkan KRO dengan prefix P sampai U pada RENJA maupun RKA';
+            } else {
+                $summary = sprintf(
+                    'Pagu Prioritas Nasional berdasarkan KRO dengan prefix P sampai U pada RKA sebesar %s telah sesuai dengan RENJA sebesar %s',
+                    $this->formatRupiah($rkaTotal),
+                    $this->formatRupiah($renjaTotal)
+                );
+            }
+
+            return [
+                'status' => 'SESUAI',
+                'explanation' => $this->formatExplanation(
+                    $summary,
+                    $kroBreakdownDetails
+                ),
+                'metadata' => $this->prioritasNasionalMetadata($pnBudget, [
+                    'automatic_check' => true,
+                    'diagnostic_level' => 'KRO',
+                    'diagnostic_reconciled' => true,
+                ]),
+                'findings' => [],
+            ];
+        }
+
+        $diagnostic = $this->buildPrioritasNasionalKroDiagnostics(
+            $pnBudget,
+            $renjaID,
+            $rkaID
+        );
+
+        $detail = sprintf(
+            'Pagu PN RENJA = %s; Pagu PN RKA = %s; selisih RKA - RENJA = %s',
+            $this->formatRupiah($renjaTotal),
+            $this->formatRupiah($rkaTotal),
+            $this->formatRupiah($selisih)
+        );
+
+        $findings = [[
+            'jenis_temuan' => 'B3_PAGU_PN_TIDAK_SESUAI',
+            'status_sistem' => 'TIDAK_SESUAI',
+            'documentID_sumber' => $renjaID,
+            'documentID_pembanding' => $rkaID,
+            'nilai_sumber_nominal' => $renjaTotal,
+            'nilai_pembanding_nominal' => $rkaTotal,
+            'selisih_nominal' => $selisih,
+            'pesan_sistem' => 'Pagu Prioritas Nasional berdasarkan KRO prefix P sampai U berbeda antara RENJA dan RKA.',
+            'metadata_json' => [
+                'classification_method' => 'KRO_PREFIX_P_TO_U',
+                'pn_kro_prefixes' => self::PN_KRO_PREFIXES,
+                'diagnostic_level' => 'KRO',
+                'jumlah_kro_penyebab' => $diagnostic['jumlah_kro_penyebab'],
+                'selisih_kro_terjelaskan' => $diagnostic['selisih_terjelaskan'],
+                'diagnostic_reconciled' => $diagnostic['selisih_terjelaskan'] === $selisih,
             ],
-            'findings' => [],
+        ]];
+
+        $findings = array_merge($findings, $diagnostic['findings']);
+
+        return [
+            'status' => 'TIDAK_SESUAI',
+            'explanation' => $this->formatExplanation(
+                'Ditemukan perbedaan Pagu Prioritas Nasional antara RENJA dan RKA. Rincian seluruh KRO PN ditampilkan agar komposisi pagu dan sumber selisih dapat ditelusuri',
+                array_merge([$detail], $kroBreakdownDetails)
+            ),
+            'metadata' => $this->prioritasNasionalMetadata($pnBudget, [
+                'automatic_check' => true,
+                'diagnostic_level' => 'KRO',
+                'jumlah_kro_penyebab' => $diagnostic['jumlah_kro_penyebab'],
+                'selisih_kro_terjelaskan' => $diagnostic['selisih_terjelaskan'],
+                'diagnostic_reconciled' => $diagnostic['selisih_terjelaskan'] === $selisih,
+            ]),
+            'findings' => $findings,
+        ];
+    }
+
+    /**
+     * Satu sumber perhitungan PN untuk B.3 dan D.3.
+     *
+     * Data availability ditentukan dari keberadaan data scoped RKA/RENJA secara
+     * keseluruhan, bukan dari keberadaan KRO PN. Dengan demikian kondisi data
+     * tersedia tetapi tidak ada KRO prefix P-U merupakan hasil PN Rp0 yang valid,
+     * bukan kondisi data tidak tersedia.
+     */
+    private function calculatePrioritasNasionalBudget(
+        object $penelitian,
+        array $documents
+    ): array {
+        $rkaID = $documents['RKA'] ?? null;
+        $renjaID = $documents['RENJA'] ?? null;
+
+        $rkaAvailable = false;
+        $renjaAvailable = false;
+        $rkaByKro = [];
+        $renjaByKro = [];
+
+        if ($rkaID) {
+            $rkaBase = $this->rkaScopedQuery($penelitian, $rkaID);
+            $rkaAvailable = (clone $rkaBase)->count() > 0;
+
+            if ($rkaAvailable) {
+                $rows = (clone $rkaBase)
+                    ->whereNotNull('kode_kro')
+                    ->select([
+                        'kode_kro',
+                        DB::raw('MAX(nama_kro) AS nama_kro'),
+                        DB::raw('SUM(COALESCE(jumlah_biaya, 0)) AS total'),
+                    ])
+                    ->groupBy('kode_kro')
+                    ->get();
+
+                $rkaByKro = $this->normalizePrioritasNasionalKroRows($rows);
+            }
+        }
+
+        if ($renjaID) {
+            $renjaBase = $this->renjaScopedQuery($penelitian, $renjaID);
+            $renjaAvailable = (clone $renjaBase)->count() > 0;
+
+            if ($renjaAvailable) {
+                $rows = (clone $renjaBase)
+                    ->whereNotNull('kode_kro')
+                    ->select([
+                        'kode_kro',
+                        DB::raw('MAX(kro) AS nama_kro'),
+                        DB::raw('SUM(COALESCE(alokasi_komponen_0, 0)) * 1000 AS total'),
+                    ])
+                    ->groupBy('kode_kro')
+                    ->get();
+
+                $renjaByKro = $this->normalizePrioritasNasionalKroRows($rows);
+            }
+        }
+
+        $paguRka = array_sum(array_column($rkaByKro, 'total'));
+        $paguRenja = array_sum(array_column($renjaByKro, 'total'));
+
+        return [
+            'rka_available' => $rkaAvailable,
+            'renja_available' => $renjaAvailable,
+            'pagu_rka' => (int) $paguRka,
+            'pagu_renja' => (int) $paguRenja,
+            'selisih' => (int) $paguRka - (int) $paguRenja,
+            'rka_by_kro' => $rkaByKro,
+            'renja_by_kro' => $renjaByKro,
+            'jumlah_kro_rka' => count($rkaByKro),
+            'jumlah_kro_renja' => count($renjaByKro),
+        ];
+    }
+
+    /**
+     * Normalisasi hasil GROUP BY KRO dan sisakan hanya KRO PN prefix P-U.
+     * Kode dinormalisasi uppercase agar data sumber dengan variasi case/spacing
+     * tetap masuk ke kategori KRO yang sama.
+     */
+    private function normalizePrioritasNasionalKroRows(Collection $rows): array
+    {
+        $result = [];
+
+        foreach ($rows as $row) {
+            $code = strtoupper(trim((string) ($row->kode_kro ?? '')));
+
+            if (!$this->isPrioritasNasionalKroCode($code)) {
+                continue;
+            }
+
+            $name = trim((string) ($row->nama_kro ?? ''));
+            $amount = (int) ($row->total ?? 0);
+
+            if (!isset($result[$code])) {
+                $result[$code] = [
+                    'kode_kro' => $code,
+                    'nama_kro' => $name,
+                    'total' => 0,
+                ];
+            }
+
+            $result[$code]['total'] += $amount;
+
+            if ($result[$code]['nama_kro'] === '' && $name !== '') {
+                $result[$code]['nama_kro'] = $name;
+            }
+        }
+
+        ksort($result, SORT_NATURAL | SORT_FLAG_CASE);
+
+        return $result;
+    }
+
+    private function isPrioritasNasionalKroCode(?string $kodeKro): bool
+    {
+        $code = strtoupper(trim((string) $kodeKro));
+
+        if ($code === '') {
+            return false;
+        }
+
+        return in_array(substr($code, 0, 1), self::PN_KRO_PREFIXES, true);
+    }
+
+    private function prioritasNasionalMetadata(
+        array $pnBudget,
+        array $extra = []
+    ): array {
+        return array_merge([
+            'automatic_check' => true,
+            'classification_method' => 'KRO_PREFIX_P_TO_U',
+            'pn_kro_prefixes' => self::PN_KRO_PREFIXES,
+            'renja_allocation_source' => 'alokasi_komponen_0',
+            'renja_multiplier' => 1000,
+            'pagu_renja' => (int) ($pnBudget['pagu_renja'] ?? 0),
+            'pagu_rka' => (int) ($pnBudget['pagu_rka'] ?? 0),
+            'selisih' => (int) ($pnBudget['selisih'] ?? 0),
+            'jumlah_kro_renja' => (int) ($pnBudget['jumlah_kro_renja'] ?? 0),
+            'jumlah_kro_rka' => (int) ($pnBudget['jumlah_kro_rka'] ?? 0),
+            'rka_available' => (bool) ($pnBudget['rka_available'] ?? false),
+            'renja_available' => (bool) ($pnBudget['renja_available'] ?? false),
+        ], $extra);
+    }
+
+    /**
+     * Bangun rincian seluruh KRO Prioritas Nasional untuk penjelasan B.3/D.3.
+     *
+     * Daftar merupakan union KRO PN RENJA dan RKA, diurutkan berdasarkan kode.
+     * Setiap baris menampilkan alokasi kedua sumber sehingga komposisi total PN
+     * dapat diverifikasi langsung dari penjelasan tanpa membuka rincian lain.
+     * KRO dengan nilai Rp0 pada kedua sumber tidak ditampilkan karena tidak
+     * membentuk pagu PN.
+     */
+    private function buildPrioritasNasionalKroBreakdownDetails(
+        array $pnBudget
+    ): array {
+        $rkaRows = (array) ($pnBudget['rka_by_kro'] ?? []);
+        $renjaRows = (array) ($pnBudget['renja_by_kro'] ?? []);
+
+        $keys = array_values(array_unique(array_merge(
+            array_keys($rkaRows),
+            array_keys($renjaRows)
+        )));
+        natcasesort($keys);
+        $keys = array_values($keys);
+
+        $details = [];
+
+        foreach ($keys as $code) {
+            $rkaExists = array_key_exists($code, $rkaRows);
+            $renjaExists = array_key_exists($code, $renjaRows);
+            $rka = $rkaRows[$code] ?? null;
+            $renja = $renjaRows[$code] ?? null;
+
+            $rkaAmount = (int) ($rka['total'] ?? 0);
+            $renjaAmount = (int) ($renja['total'] ?? 0);
+
+            if ($rkaAmount === 0 && $renjaAmount === 0) {
+                continue;
+            }
+
+            $difference = $rkaAmount - $renjaAmount;
+            $name = trim((string) (
+                $rka['nama_kro']
+                ?? $renja['nama_kro']
+                ?? ''
+            ));
+            $label = $name !== ''
+                ? "KRO {$code} - {$name}"
+                : "KRO {$code}";
+
+            if ($rkaExists && !$renjaExists) {
+                $details[] = sprintf(
+                    '%s: RENJA = Rp0; RKA = %s; hanya terdapat pada RKA',
+                    $label,
+                    $this->formatRupiah($rkaAmount)
+                );
+                continue;
+            }
+
+            if (!$rkaExists && $renjaExists) {
+                $details[] = sprintf(
+                    '%s: RENJA = %s; RKA = Rp0; hanya terdapat pada RENJA',
+                    $label,
+                    $this->formatRupiah($renjaAmount)
+                );
+                continue;
+            }
+
+            if ($difference === 0) {
+                $details[] = sprintf(
+                    '%s: RENJA = %s; RKA = %s; sesuai',
+                    $label,
+                    $this->formatRupiah($renjaAmount),
+                    $this->formatRupiah($rkaAmount)
+                );
+                continue;
+            }
+
+            $details[] = sprintf(
+                '%s: RENJA = %s; RKA = %s; selisih RKA - RENJA = %s',
+                $label,
+                $this->formatRupiah($renjaAmount),
+                $this->formatRupiah($rkaAmount),
+                $this->formatRupiah($difference)
+            );
+        }
+
+        return $details;
+    }
+
+    /**
+     * Diagnostic B.3 pada level KRO PN. Seluruh KRO PN dari RKA dan RENJA
+     * di-union lalu selisih masing-masing KRO direkonsiliasi ke selisih total PN.
+     */
+    private function buildPrioritasNasionalKroDiagnostics(
+        array $pnBudget,
+        ?string $renjaID,
+        ?string $rkaID
+    ): array {
+        $rkaRows = (array) ($pnBudget['rka_by_kro'] ?? []);
+        $renjaRows = (array) ($pnBudget['renja_by_kro'] ?? []);
+
+        $keys = array_values(array_unique(array_merge(
+            array_keys($rkaRows),
+            array_keys($renjaRows)
+        )));
+        natcasesort($keys);
+        $keys = array_values($keys);
+
+        $details = [];
+        $findings = [];
+        $selisihTerjelaskan = 0;
+        $jumlahPenyebab = 0;
+
+        foreach ($keys as $code) {
+            $rkaExists = array_key_exists($code, $rkaRows);
+            $renjaExists = array_key_exists($code, $renjaRows);
+            $rka = $rkaRows[$code] ?? null;
+            $renja = $renjaRows[$code] ?? null;
+
+            $rkaAmount = (int) ($rka['total'] ?? 0);
+            $renjaAmount = (int) ($renja['total'] ?? 0);
+            $difference = $rkaAmount - $renjaAmount;
+
+            if ($difference === 0) {
+                continue;
+            }
+
+            $jumlahPenyebab++;
+            $selisihTerjelaskan += $difference;
+
+            $name = trim((string) ($rka['nama_kro'] ?? $renja['nama_kro'] ?? ''));
+            $label = $name !== '' ? "KRO {$code} - {$name}" : "KRO {$code}";
+
+            if ($rkaExists && !$renjaExists) {
+                $details[] = sprintf(
+                    '%s sebesar %s terdapat pada RKA tetapi tidak ditemukan pada RENJA',
+                    $label,
+                    $this->formatRupiah($rkaAmount)
+                );
+
+                $findings[] = [
+                    'jenis_temuan' => 'B3_KRO_PN_HANYA_DI_RKA',
+                    'status_sistem' => 'TIDAK_SESUAI',
+                    'documentID_sumber' => $renjaID,
+                    'documentID_pembanding' => $rkaID,
+                    'kode_kro' => $code,
+                    'nilai_sumber_nominal' => null,
+                    'nilai_pembanding_nominal' => $rkaAmount,
+                    'selisih_nominal' => $difference,
+                    'pesan_sistem' => 'KRO Prioritas Nasional terdapat pada RKA tetapi tidak ditemukan pada RENJA dan menjadi penyebab selisih Pagu PN.',
+                    'metadata_json' => [
+                        'nama_kro' => $name,
+                        'diagnostic_level' => 'KRO',
+                        'classification_method' => 'KRO_PREFIX_P_TO_U',
+                    ],
+                ];
+                continue;
+            }
+
+            if (!$rkaExists && $renjaExists) {
+                $details[] = sprintf(
+                    '%s sebesar %s terdapat pada RENJA tetapi tidak ditemukan pada RKA',
+                    $label,
+                    $this->formatRupiah($renjaAmount)
+                );
+
+                $findings[] = [
+                    'jenis_temuan' => 'B3_KRO_PN_HANYA_DI_RENJA',
+                    'status_sistem' => 'TIDAK_SESUAI',
+                    'documentID_sumber' => $renjaID,
+                    'documentID_pembanding' => $rkaID,
+                    'kode_kro' => $code,
+                    'nilai_sumber_nominal' => $renjaAmount,
+                    'nilai_pembanding_nominal' => null,
+                    'selisih_nominal' => $difference,
+                    'pesan_sistem' => 'KRO Prioritas Nasional terdapat pada RENJA tetapi tidak ditemukan pada RKA dan menjadi penyebab selisih Pagu PN.',
+                    'metadata_json' => [
+                        'nama_kro' => $name,
+                        'diagnostic_level' => 'KRO',
+                        'classification_method' => 'KRO_PREFIX_P_TO_U',
+                    ],
+                ];
+                continue;
+            }
+
+            $details[] = sprintf(
+                '%s memiliki pagu berbeda: RENJA = %s; RKA = %s; selisih RKA - RENJA = %s',
+                $label,
+                $this->formatRupiah($renjaAmount),
+                $this->formatRupiah($rkaAmount),
+                $this->formatRupiah($difference)
+            );
+
+            $findings[] = [
+                'jenis_temuan' => 'B3_PAGU_KRO_PN_TIDAK_SESUAI',
+                'status_sistem' => 'TIDAK_SESUAI',
+                'documentID_sumber' => $renjaID,
+                'documentID_pembanding' => $rkaID,
+                'kode_kro' => $code,
+                'nilai_sumber_nominal' => $renjaAmount,
+                'nilai_pembanding_nominal' => $rkaAmount,
+                'selisih_nominal' => $difference,
+                'pesan_sistem' => 'Pagu KRO Prioritas Nasional pada RKA berbeda dengan pagu KRO bersesuaian pada RENJA dan menjadi penyebab selisih Pagu PN.',
+                'metadata_json' => [
+                    'nama_kro' => $name,
+                    'diagnostic_level' => 'KRO',
+                    'classification_method' => 'KRO_PREFIX_P_TO_U',
+                ],
+            ];
+        }
+
+        return [
+            'details' => $details,
+            'findings' => $findings,
+            'jumlah_kro_penyebab' => $jumlahPenyebab,
+            'selisih_terjelaskan' => $selisihTerjelaskan,
+        ];
+    }
+
+    /**
+     * Bangun system result D.3 Prioritas Nasional dari kalkulator PN yang sama
+     * dengan B.3. Bagian D bersifat numeric, sehingga ketika RENJA tidak tersedia
+     * nilai RENJA tetap ditampilkan Rp0 disertai penjelasan bahwa pembandingan
+     * belum dapat dilakukan; Pagu RKA PN tetap dihitung dari data RKA.
+     */
+    private function buildPartD3PrioritasNasionalEvaluation(array $pnBudget): array
+    {
+        $paguRenja = (int) ($pnBudget['pagu_renja'] ?? 0);
+        $paguRka = (int) ($pnBudget['pagu_rka'] ?? 0);
+        $selisih = $paguRka - $paguRenja;
+        $details = $this->buildPrioritasNasionalKroBreakdownDetails(
+            $pnBudget
+        );
+
+        if (!$pnBudget['rka_available']) {
+            $summary = 'Data RKA tidak tersedia untuk menghitung Pagu Prioritas Nasional';
+        } elseif (!$pnBudget['renja_available']) {
+            $summary = sprintf(
+                'Pagu Prioritas Nasional RKA berdasarkan KRO prefix P sampai U sebesar %s. Data RENJA tidak tersedia sehingga Pagu PN RENJA ditampilkan Rp0 dan belum dapat dibandingkan',
+                $this->formatRupiah($paguRka)
+            );
+        } elseif ($paguRenja === 0 && $paguRka === 0) {
+            $summary = 'Tidak terdapat alokasi Prioritas Nasional berdasarkan KRO dengan prefix P sampai U pada RENJA maupun RKA';
+        } elseif ($selisih === 0) {
+            $summary = sprintf(
+                'Pagu Prioritas Nasional berdasarkan KRO dengan prefix P sampai U telah sesuai antara RENJA dan RKA sebesar %s',
+                $this->formatRupiah($paguRka)
+            );
+        } else {
+            $summary = sprintf(
+                'Prioritas Nasional dihitung berdasarkan seluruh KRO dengan prefix P sampai U. Pagu PN RENJA sebesar %s dan Pagu PN RKA sebesar %s, sehingga terdapat selisih RKA - RENJA sebesar %s',
+                $this->formatRupiah($paguRenja),
+                $this->formatRupiah($paguRka),
+                $this->formatRupiah($selisih)
+            );
+        }
+
+        return [
+            'pagu_renja' => $paguRenja,
+            'pagu_rka' => $paguRka,
+            'explanation' => $this->formatExplanation($summary, $details),
+            'metadata' => $this->prioritasNasionalMetadata($pnBudget, [
+                'automatic_check' => true,
+                'budget_tagging_category' => 'D3',
+                'automatic_tagging' => true,
+            ]),
         ];
     }
 
@@ -8109,6 +9004,24 @@ class PenelitianResearchService
             ->where('documentID', $rkaID)
             ->where('kode_satker', $penelitian->kode_satker)
             ->where('tahun_anggaran', $penelitian->tahun_anggaran);
+    }
+
+    /**
+     * Format kuantitas/unit tanpa trailing decimal yang tidak perlu.
+     * Contoh: 10.00 -> 10, 12.50 -> 12,5.
+     * Nilai sumber tetap disimpan sebagai decimal; perubahan ini hanya untuk narasi.
+     */
+    private function formatQuantity($value): string
+    {
+        $number = (float) $value;
+
+        if (abs($number - round($number)) < 0.00001) {
+            return number_format((int) round($number), 0, ',', '.');
+        }
+
+        $formatted = number_format($number, 2, ',', '.');
+
+        return rtrim(rtrim($formatted, '0'), ',');
     }
 
     private function formatRupiah(int $value): string
@@ -8414,9 +9327,245 @@ class PenelitianResearchService
     }
 
     /**
-     * Exact text comparison hanya menormalisasi formatting teknis:
+     * Perbandingan Sasaran Program/Kegiatan yang toleran terhadap typo minor.
+     *
+     * Guardrail sengaja konservatif:
+     * - exact/case/punctuation normalization tetap dianggap sama;
+     * - jumlah dan urutan token harus tetap sama;
+     * - maksimal satu token boleh berbeda;
+     * - token berbeda minimal 7 karakter dan hanya boleh memiliki satu edit
+     *   (insert/delete/substitute) atau satu transposisi karakter bersebelahan;
+     * - penambahan/pengurangan kata atau perubahan kata yang lebih besar tetap
+     *   dianggap perbedaan substantif.
+     *
+     * Tujuannya hanya menghindari false mismatch karena salah ketik ringan,
+     * bukan melakukan semantic/fuzzy matching bebas.
+     */
+    private function compareObjectiveText($source, $comparison): array
+    {
+        $sourceNormalized = $this->normalizeComparableText($source);
+        $comparisonNormalized = $this->normalizeComparableText($comparison);
+
+        if ($sourceNormalized === $comparisonNormalized) {
+            return [
+                'match' => true,
+                'method' => 'EXACT',
+                'differences' => [],
+            ];
+        }
+
+        $sourceCanonical = $this->normalizeObjectiveTextForTypoCheck($sourceNormalized);
+        $comparisonCanonical = $this->normalizeObjectiveTextForTypoCheck($comparisonNormalized);
+
+        if ($sourceCanonical !== '' && $sourceCanonical === $comparisonCanonical) {
+            return [
+                'match' => true,
+                'method' => 'TECHNICAL_NORMALIZATION',
+                'differences' => [],
+            ];
+        }
+
+        $sourceTokens = $sourceCanonical === ''
+            ? []
+            : preg_split('/\s+/u', $sourceCanonical, -1, PREG_SPLIT_NO_EMPTY);
+        $comparisonTokens = $comparisonCanonical === ''
+            ? []
+            : preg_split('/\s+/u', $comparisonCanonical, -1, PREG_SPLIT_NO_EMPTY);
+
+        if (
+            !is_array($sourceTokens)
+            || !is_array($comparisonTokens)
+            || count($sourceTokens) !== count($comparisonTokens)
+            || empty($sourceTokens)
+        ) {
+            return [
+                'match' => false,
+                'method' => 'SUBSTANTIVE_DIFFERENCE',
+                'differences' => [],
+            ];
+        }
+
+        $differences = [];
+
+        foreach ($sourceTokens as $index => $sourceToken) {
+            $comparisonToken = (string) ($comparisonTokens[$index] ?? '');
+
+            if ($sourceToken === $comparisonToken) {
+                continue;
+            }
+
+            if (!$this->isMinorObjectiveTokenTypo($sourceToken, $comparisonToken)) {
+                return [
+                    'match' => false,
+                    'method' => 'SUBSTANTIVE_DIFFERENCE',
+                    'differences' => [[
+                        'position' => $index + 1,
+                        'source' => $sourceToken,
+                        'comparison' => $comparisonToken,
+                    ]],
+                ];
+            }
+
+            $differences[] = [
+                'position' => $index + 1,
+                'source' => $sourceToken,
+                'comparison' => $comparisonToken,
+            ];
+
+            // Satu typo minor per kalimat adalah batas konservatif.
+            if (count($differences) > 1) {
+                return [
+                    'match' => false,
+                    'method' => 'SUBSTANTIVE_DIFFERENCE',
+                    'differences' => $differences,
+                ];
+            }
+        }
+
+        if (count($differences) === 1) {
+            return [
+                'match' => true,
+                'method' => 'TYPO_TOLERANT',
+                'differences' => $differences,
+            ];
+        }
+
+        return [
+            'match' => false,
+            'method' => 'SUBSTANTIVE_DIFFERENCE',
+            'differences' => [],
+        ];
+    }
+
+    private function normalizeObjectiveTextForTypoCheck(string $value): string
+    {
+        $text = function_exists('mb_strtolower')
+            ? mb_strtolower($value, 'UTF-8')
+            : strtolower($value);
+
+        // Tanda baca hanya dianggap formatting teknis; kata dan urutannya tetap utuh.
+        $text = preg_replace('/[^\p{L}\p{N}]+/u', ' ', $text) ?? $text;
+
+        return trim(preg_replace('/\s+/u', ' ', $text) ?? $text);
+    }
+
+    private function isMinorObjectiveTokenTypo(string $source, string $comparison): bool
+    {
+        $sourceLength = function_exists('mb_strlen')
+            ? mb_strlen($source, 'UTF-8')
+            : strlen($source);
+        $comparisonLength = function_exists('mb_strlen')
+            ? mb_strlen($comparison, 'UTF-8')
+            : strlen($comparison);
+
+        // Kata pendek terlalu berisiko: satu huruf dapat mengubah makna sepenuhnya.
+        if (min($sourceLength, $comparisonLength) < 7) {
+            return false;
+        }
+
+        if (abs($sourceLength - $comparisonLength) > 1) {
+            return false;
+        }
+
+        $sourceAscii = $this->asciiForTypoDistance($source);
+        $comparisonAscii = $this->asciiForTypoDistance($comparison);
+
+        if ($sourceAscii === '' || $comparisonAscii === '') {
+            return false;
+        }
+
+        // Guardrail tambahan: typo minor harus tetap mempertahankan karakter
+        // awal dan akhir kata agar substitusi kata yang kebetulan mirip tidak
+        // terlalu mudah dianggap sebagai typo.
+        if (
+            $sourceAscii[0] !== $comparisonAscii[0]
+            || $sourceAscii[strlen($sourceAscii) - 1]
+                !== $comparisonAscii[strlen($comparisonAscii) - 1]
+        ) {
+            return false;
+        }
+
+        if (levenshtein($sourceAscii, $comparisonAscii) === 1) {
+            return true;
+        }
+
+        return $this->isSingleAdjacentTransposition($sourceAscii, $comparisonAscii);
+    }
+
+    private function asciiForTypoDistance(string $value): string
+    {
+        if (preg_match('/^[\x20-\x7E]+$/', $value)) {
+            return $value;
+        }
+
+        if (function_exists('iconv')) {
+            $converted = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $value);
+            if (is_string($converted) && $converted !== '') {
+                return strtolower($converted);
+            }
+        }
+
+        return '';
+    }
+
+    private function isSingleAdjacentTransposition(string $source, string $comparison): bool
+    {
+        if (strlen($source) !== strlen($comparison) || $source === $comparison) {
+            return false;
+        }
+
+        $differences = [];
+        $length = strlen($source);
+
+        for ($i = 0; $i < $length; $i++) {
+            if ($source[$i] !== $comparison[$i]) {
+                $differences[] = $i;
+                if (count($differences) > 2) {
+                    return false;
+                }
+            }
+        }
+
+        if (count($differences) !== 2 || $differences[1] !== $differences[0] + 1) {
+            return false;
+        }
+
+        [$first, $second] = $differences;
+
+        return $source[$first] === $comparison[$second]
+            && $source[$second] === $comparison[$first];
+    }
+
+    private function formatObjectiveTypoDifferences(array $differences): string
+    {
+        if (empty($differences)) {
+            return '';
+        }
+
+        $labels = collect($differences)
+            ->map(function ($difference) {
+                $source = trim((string) ($difference['source'] ?? ''));
+                $comparison = trim((string) ($difference['comparison'] ?? ''));
+
+                if ($source === '' || $comparison === '') {
+                    return null;
+                }
+
+                return sprintf('"%s" ↔ "%s"', $source, $comparison);
+            })
+            ->filter()
+            ->values()
+            ->all();
+
+        return empty($labels)
+            ? ''
+            : ' (' . implode(', ', $labels) . ')';
+    }
+
+    /**
+     * Normalisasi dasar untuk teks pembanding:
      * trim + line break/tab/repeated whitespace menjadi satu spasi.
-     * Tidak mengubah huruf, tanda baca, atau kata.
+     * Normalisasi typo yang lebih lanjut dilakukan oleh compareObjectiveText().
      */
     private function normalizeComparableText($value): string
     {
