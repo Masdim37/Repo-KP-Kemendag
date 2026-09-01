@@ -305,6 +305,19 @@ class PenelitianChpService
             ->orderBy('urutan')
             ->get()
             ->map(function ($row) {
+                foreach ([
+                    'rkbmn_pemeliharaan_unit',
+                    'alokasi_pemeliharaan_vol',
+                    'alokasi_pemeliharaan_pagu',
+                    'alokasi_pengadaan_vol',
+                    'alokasi_pengadaan_pagu',
+                ] as $field) {
+                    $userField = $field . '_user';
+                    $row->{$field . '_efektif'} = $row->{$userField} !== null
+                        ? (float) $row->{$userField}
+                        : (float) $row->{$field};
+                }
+
                 $row->penjelasan_efektif =
                     $row->penjelasan_user !== null
                         ? $row->penjelasan_user

@@ -505,6 +505,14 @@
             color: #294866;
         }
 
+        .research-d2-number-input {
+            width: 100%;
+            min-width: 78px;
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+            font-weight: 700;
+        }
+
         .research-d2-group-header {
             text-align: center;
             line-height: 1.25;
@@ -1476,7 +1484,7 @@
 
                             <div class="card-body">
                                 {{-- <div class="research-note">
-                                    D.1 dihitung secara deterministic tanpa Gemini. Mapping KRO: <strong>ABO/PBO</strong> Rekomendasi Kebijakan; <strong>CAN/RAN</strong> Pengadaan Sarana; <strong>CCL/RCL</strong> Pemeliharaan Sarana; <strong>CBT/RBT</strong> Pengadaan Prasarana; <strong>CDS/RDS</strong> Pemeliharaan Prasarana; <strong>FAB/UAB</strong> Sistem Informasi Pemerintah; dan <strong>BMA/QMA</strong> Data dan Informasi Publik. RENJA TA aktif menggunakan <strong>alokasi_komponen_0 × 1.000</strong>. Angka bersifat read-only; hanya PENJELASAN yang dapat diedit user selama DRAFT.
+                                    Tampilan default merupakan hasil temuan sistem. Selama DRAFT, user dapat mengoreksi <strong>PAGU RENJA, PAGU RKA, dan PENJELASAN</strong>. <strong>SELISIH selalu dihitung otomatis dari PAGU RKA efektif - PAGU RENJA efektif dan tidak dapat diedit.</strong> Nilai sistem tetap tersimpan untuk traceability.
                                 </div> --}}
                                 <div class="research-note">
                                     Tampilan default setelah menjalankan pemeriksaan bagian D.1 merupakan hasil temuan sistem. <strong>Namun user tetap dapat melakukan perubahan secara manual.</strong>
@@ -1504,30 +1512,82 @@
                                                     @php
                                                         $kodeBarisD1 = (string) $hasil->kode_baris;
                                                         $isChildD1 = (int) ($hasil->level_baris ?? 0) > 0;
-                                                        $renjaD1 = (int) ($hasil->pagu_renja_sistem ?? 0);
-                                                        $rkaD1 = (int) ($hasil->pagu_rka_sistem ?? 0);
+
+                                                        $renjaD1 = (int) old(
+                                                            "hasil_d1.{$kodeBarisD1}.pagu_renja",
+                                                            $hasil->pagu_renja_efektif ?? $hasil->pagu_renja_sistem ?? 0
+                                                        );
+                                                        $rkaD1 = (int) old(
+                                                            "hasil_d1.{$kodeBarisD1}.pagu_rka",
+                                                            $hasil->pagu_rka_efektif ?? $hasil->pagu_rka_sistem ?? 0
+                                                        );
                                                         $selisihD1 = $rkaD1 - $renjaD1;
                                                         $penjelasanD1 = old(
                                                             "hasil_d1.{$kodeBarisD1}.penjelasan",
                                                             $hasil->penjelasan_efektif ?? $hasil->penjelasan_sistem ?? ''
                                                         );
-                                                        $overrideD1 = $hasil->penjelasan_user !== null;
+
+                                                        $renjaOverrideD1 = $hasil->pagu_renja_user !== null;
+                                                        $rkaOverrideD1 = $hasil->pagu_rka_user !== null;
+                                                        $penjelasanOverrideD1 = $hasil->penjelasan_user !== null;
+                                                        $hasD1Override = $renjaOverrideD1 || $rkaOverrideD1 || $penjelasanOverrideD1;
                                                     @endphp
 
-                                                    <tr class="{{ !$isChildD1 ? 'research-parent-row' : '' }}">
+                                                    <tr class="{{ !$isChildD1 ? 'research-parent-row' : '' }}" data-d1-row="{{ $kodeBarisD1 }}">
                                                         <td class="research-no">
                                                             {{ $kodeBarisD1 === 'D1.TOTAL' ? '1' : '' }}
                                                         </td>
                                                         <td class="research-uraian {{ $isChildD1 ? 'is-child' : '' }}">
                                                             {{ $hasil->uraian }}
-                                                            @if ($overrideD1)
-                                                                <div class="research-c-system research-c-override-active">Override PENJELASAN user aktif.</div>
+                                                            @if ($hasD1Override)
+                                                                <div class="research-c-system research-c-override-active">Override user aktif pada baris ini.</div>
                                                             @endif
                                                         </td>
-                                                        <td class="research-currency">{{ $formatRupiahC($renjaD1) }}</td>
-                                                        <td class="research-currency">{{ $formatRupiahC($rkaD1) }}</td>
-                                                        <td class="research-currency {{ $selisihD1 < 0 ? 'research-c-negative' : '' }}">
+                                                        <td class="research-c-editable">
+                                                            <input
+                                                                type="number"
+                                                                min="0"
+                                                                step="1"
+                                                                inputmode="numeric"
+                                                                class="form-control research-c-amount-input"
+                                                                name="hasil_d1[{{ $kodeBarisD1 }}][pagu_renja]"
+                                                                value="{{ $renjaD1 }}"
+                                                                data-d1-renja
+                                                                aria-label="Pagu RENJA D.1 {{ $hasil->uraian }}"
+                                                            >
+                                                            <div class="research-c-system">
+                                                                Hasil sistem: {{ $formatRupiahC((int) ($hasil->pagu_renja_sistem ?? 0)) }}
+                                                                @if ($renjaOverrideD1)
+                                                                    · <span class="research-c-override-active">diubah user</span>
+                                                                @endif
+                                                            </div>
+                                                        </td>
+                                                        <td class="research-c-editable">
+                                                            <input
+                                                                type="number"
+                                                                min="0"
+                                                                step="1"
+                                                                inputmode="numeric"
+                                                                class="form-control research-c-amount-input"
+                                                                name="hasil_d1[{{ $kodeBarisD1 }}][pagu_rka]"
+                                                                value="{{ $rkaD1 }}"
+                                                                data-d1-rka
+                                                                aria-label="Pagu RKA D.1 {{ $hasil->uraian }}"
+                                                            >
+                                                            <div class="research-c-system">
+                                                                Hasil sistem: {{ $formatRupiahC((int) ($hasil->pagu_rka_sistem ?? 0)) }}
+                                                                @if ($rkaOverrideD1)
+                                                                    · <span class="research-c-override-active">diubah user</span>
+                                                                @endif
+                                                            </div>
+                                                        </td>
+                                                        <td
+                                                            class="research-c-difference {{ $selisihD1 < 0 ? 'is-negative' : '' }}"
+                                                            data-d1-selisih
+                                                            data-d1-selisih-value="{{ $selisihD1 }}"
+                                                        >
                                                             {{ $formatRupiahC($selisihD1) }}
+                                                            <div class="research-c-system">Otomatis · tidak dapat diedit</div>
                                                         </td>
                                                         <td class="research-explanation-cell">
                                                             <textarea
@@ -1536,9 +1596,9 @@
                                                                 maxlength="65000"
                                                             >{{ $penjelasanD1 }}</textarea>
                                                             <div class="research-c-system">
-                                                                Angka hasil sistem bersifat read-only.
-                                                                @if ($overrideD1)
-                                                                    <span class="research-c-override-active">PENJELASAN diubah user.</span>
+                                                                PENJELASAN sistem tetap tersimpan untuk traceability.
+                                                                @if ($penjelasanOverrideD1)
+                                                                    <span class="research-c-override-active">Override user aktif.</span>
                                                                 @endif
                                                             </div>
                                                         </td>
@@ -1560,7 +1620,6 @@
                                     <div class="card-icon"><i class="bi bi-cpu"></i></div>
                                     <div>
                                         <div class="card-title">D.2 Indentifikasi Aset Bidang Teknologi Informasi dan Komunikasi</div>
-                                        {{-- <div class="card-subtitle">Menghubungkan RKBMN Pemeliharaan dengan alokasi pemeliharaan dan pengadaan aset TIK pada RKA.</div> --}}
                                     </div>
                                 </div>
                                 <div class="research-header-actions">
@@ -1573,11 +1632,12 @@
 
                             <div class="card-body">
                                 {{-- <div class="research-note">
-                                    Gemini hanya digunakan untuk <strong>klasifikasi semantik</strong> nomenklatur aset RKBMN dan detail RKA ke kategori D.2 serta membedakan pemeliharaan/pengadaan. Gemini <strong>tidak menerima tugas menghitung volume atau pagu</strong>. Seluruh angka dihitung deterministic dari database. Jika Gemini gagal, engine tetap berjalan menggunakan fallback keyword. Kolom angka read-only; hanya PENJELASAN dapat diedit selama DRAFT.
+                                    Tampilan default merupakan hasil temuan sistem. Selama DRAFT, user dapat mengoreksi <strong>Pemeliharaan RKBMN, Volume/Pagu Alokasi Pemeliharaan, Volume/Pagu Alokasi Pengadaan, dan Penjelasan</strong>. Nilai sistem tetap tersimpan untuk traceability.
                                 </div> --}}
                                 <div class="research-note">
                                     Tampilan default setelah menjalankan pemeriksaan bagian D.2 merupakan hasil temuan sistem. <strong>Namun user tetap dapat melakukan perubahan secara manual.</strong>
                                 </div>
+
 
                                 @if ($hasilD2->isEmpty())
                                     <div class="research-empty">
@@ -1611,11 +1671,39 @@
                                                         $groupNumberD2 = !$isChildD2
                                                             ? (in_array($kelompokD2, ['PPD', 'PERANGKAT_PENGOLAH_DATA'], true) ? '1' : '2')
                                                             : '';
+
+                                                        $rkbmnD2 = old(
+                                                            "hasil_d2.{$kodeD2}.rkbmn_pemeliharaan_unit",
+                                                            $hasil->rkbmn_pemeliharaan_unit_efektif ?? $hasil->rkbmn_pemeliharaan_unit ?? 0
+                                                        );
+                                                        $pemVolD2 = old(
+                                                            "hasil_d2.{$kodeD2}.alokasi_pemeliharaan_vol",
+                                                            $hasil->alokasi_pemeliharaan_vol_efektif ?? $hasil->alokasi_pemeliharaan_vol ?? 0
+                                                        );
+                                                        $pemPaguD2 = old(
+                                                            "hasil_d2.{$kodeD2}.alokasi_pemeliharaan_pagu",
+                                                            $hasil->alokasi_pemeliharaan_pagu_efektif ?? $hasil->alokasi_pemeliharaan_pagu ?? 0
+                                                        );
+                                                        $pengVolD2 = old(
+                                                            "hasil_d2.{$kodeD2}.alokasi_pengadaan_vol",
+                                                            $hasil->alokasi_pengadaan_vol_efektif ?? $hasil->alokasi_pengadaan_vol ?? 0
+                                                        );
+                                                        $pengPaguD2 = old(
+                                                            "hasil_d2.{$kodeD2}.alokasi_pengadaan_pagu",
+                                                            $hasil->alokasi_pengadaan_pagu_efektif ?? $hasil->alokasi_pengadaan_pagu ?? 0
+                                                        );
                                                         $penjelasanD2 = old(
                                                             "hasil_d2.{$kodeD2}.penjelasan",
                                                             $hasil->penjelasan_efektif ?? $hasil->penjelasan_sistem ?? ''
                                                         );
-                                                        $overrideD2 = $hasil->penjelasan_user !== null;
+
+                                                        $rkbmnOverrideD2 = $hasil->rkbmn_pemeliharaan_unit_user !== null;
+                                                        $pemVolOverrideD2 = $hasil->alokasi_pemeliharaan_vol_user !== null;
+                                                        $pemPaguOverrideD2 = $hasil->alokasi_pemeliharaan_pagu_user !== null;
+                                                        $pengVolOverrideD2 = $hasil->alokasi_pengadaan_vol_user !== null;
+                                                        $pengPaguOverrideD2 = $hasil->alokasi_pengadaan_pagu_user !== null;
+                                                        $penjelasanOverrideD2 = $hasil->penjelasan_user !== null;
+                                                        $hasD2Override = $rkbmnOverrideD2 || $pemVolOverrideD2 || $pemPaguOverrideD2 || $pengVolOverrideD2 || $pengPaguOverrideD2 || $penjelasanOverrideD2;
                                                     @endphp
 
                                                     <tr class="{{ !$isChildD2 ? 'research-parent-row' : '' }}">
@@ -1625,24 +1713,64 @@
                                                             @if ((bool) ($hasil->is_dynamic ?? false))
                                                                 <div class="research-c-system">Kategori dinamis hasil identifikasi aset.</div>
                                                             @endif
-                                                            @if ($overrideD2)
-                                                                <div class="research-c-system research-c-override-active">Override PENJELASAN user aktif.</div>
+                                                            @if ($hasD2Override)
+                                                                <div class="research-c-system research-c-override-active">Override user aktif pada baris ini.</div>
                                                             @endif
                                                         </td>
-                                                        <td class="research-d2-number">
-                                                            {{ $formatVolumeD2($hasil->rkbmn_pemeliharaan_unit ?? 0) }}
+                                                        <td class="research-c-editable">
+                                                            <input type="number" min="0" step="0.01" inputmode="decimal"
+                                                                class="form-control research-d2-number-input"
+                                                                name="hasil_d2[{{ $kodeD2 }}][rkbmn_pemeliharaan_unit]"
+                                                                value="{{ $rkbmnD2 }}"
+                                                                aria-label="Pemeliharaan RKBMN D.2 {{ $hasil->uraian }}">
+                                                            <div class="research-c-system">
+                                                                Sistem: {{ $formatVolumeD2($hasil->rkbmn_pemeliharaan_unit ?? 0) }}
+                                                                @if ($rkbmnOverrideD2) · <span class="research-c-override-active">diubah user</span> @endif
+                                                            </div>
                                                         </td>
-                                                        <td class="research-d2-number">
-                                                            {{ $formatVolumeD2($hasil->alokasi_pemeliharaan_vol ?? 0) }}
+                                                        <td class="research-c-editable">
+                                                            <input type="number" min="0" step="0.01" inputmode="decimal"
+                                                                class="form-control research-d2-number-input"
+                                                                name="hasil_d2[{{ $kodeD2 }}][alokasi_pemeliharaan_vol]"
+                                                                value="{{ $pemVolD2 }}"
+                                                                aria-label="Volume pemeliharaan D.2 {{ $hasil->uraian }}">
+                                                            <div class="research-c-system">
+                                                                Sistem: {{ $formatVolumeD2($hasil->alokasi_pemeliharaan_vol ?? 0) }}
+                                                                @if ($pemVolOverrideD2) · <span class="research-c-override-active">diubah user</span> @endif
+                                                            </div>
                                                         </td>
-                                                        <td class="research-currency">
-                                                            {{ $formatRupiahC((int) round((float) ($hasil->alokasi_pemeliharaan_pagu ?? 0))) }}
+                                                        <td class="research-c-editable">
+                                                            <input type="number" min="0" step="0.01" inputmode="decimal"
+                                                                class="form-control research-d2-number-input"
+                                                                name="hasil_d2[{{ $kodeD2 }}][alokasi_pemeliharaan_pagu]"
+                                                                value="{{ $pemPaguD2 }}"
+                                                                aria-label="Pagu pemeliharaan D.2 {{ $hasil->uraian }}">
+                                                            <div class="research-c-system">
+                                                                Sistem: {{ $formatRupiahC((int) round((float) ($hasil->alokasi_pemeliharaan_pagu ?? 0))) }}
+                                                                @if ($pemPaguOverrideD2) · <span class="research-c-override-active">diubah user</span> @endif
+                                                            </div>
                                                         </td>
-                                                        <td class="research-d2-number">
-                                                            {{ $formatVolumeD2($hasil->alokasi_pengadaan_vol ?? 0) }}
+                                                        <td class="research-c-editable">
+                                                            <input type="number" min="0" step="0.01" inputmode="decimal"
+                                                                class="form-control research-d2-number-input"
+                                                                name="hasil_d2[{{ $kodeD2 }}][alokasi_pengadaan_vol]"
+                                                                value="{{ $pengVolD2 }}"
+                                                                aria-label="Volume pengadaan D.2 {{ $hasil->uraian }}">
+                                                            <div class="research-c-system">
+                                                                Sistem: {{ $formatVolumeD2($hasil->alokasi_pengadaan_vol ?? 0) }}
+                                                                @if ($pengVolOverrideD2) · <span class="research-c-override-active">diubah user</span> @endif
+                                                            </div>
                                                         </td>
-                                                        <td class="research-currency">
-                                                            {{ $formatRupiahC((int) round((float) ($hasil->alokasi_pengadaan_pagu ?? 0))) }}
+                                                        <td class="research-c-editable">
+                                                            <input type="number" min="0" step="0.01" inputmode="decimal"
+                                                                class="form-control research-d2-number-input"
+                                                                name="hasil_d2[{{ $kodeD2 }}][alokasi_pengadaan_pagu]"
+                                                                value="{{ $pengPaguD2 }}"
+                                                                aria-label="Pagu pengadaan D.2 {{ $hasil->uraian }}">
+                                                            <div class="research-c-system">
+                                                                Sistem: {{ $formatRupiahC((int) round((float) ($hasil->alokasi_pengadaan_pagu ?? 0))) }}
+                                                                @if ($pengPaguOverrideD2) · <span class="research-c-override-active">diubah user</span> @endif
+                                                            </div>
                                                         </td>
                                                         <td class="research-explanation-cell">
                                                             <textarea
@@ -1651,12 +1779,12 @@
                                                                 maxlength="65000"
                                                             >{{ $penjelasanD2 }}</textarea>
                                                             <div class="research-c-system">
-                                                                Angka hasil sistem bersifat read-only.
+                                                                PENJELASAN sistem tetap tersimpan untuk traceability.
                                                                 @if (!blank($hasil->classification_source ?? null))
-                                                                    Klasifikasi: {{ $hasil->classification_source }}.
+                                                                    Klasifikasi sistem: {{ $hasil->classification_source }}.
                                                                 @endif
-                                                                @if ($overrideD2)
-                                                                    <span class="research-c-override-active">PENJELASAN diubah user.</span>
+                                                                @if ($penjelasanOverrideD2)
+                                                                    <span class="research-c-override-active">Override user aktif.</span>
                                                                 @endif
                                                             </div>
                                                         </td>
@@ -2958,6 +3086,32 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         refreshCDifference(row);
+    });
+
+
+    function refreshD1Difference(row) {
+        const renjaInput = row.querySelector('[data-d1-renja]');
+        const rkaInput = row.querySelector('[data-d1-rka]');
+        const differenceCell = row.querySelector('[data-d1-selisih]');
+
+        if (!renjaInput || !rkaInput || !differenceCell) {
+            return;
+        }
+
+        const difference = readCAmount(rkaInput) - readCAmount(renjaInput);
+
+        differenceCell.dataset.d1SelisihValue = String(difference);
+        differenceCell.classList.toggle('is-negative', difference < 0);
+        differenceCell.innerHTML = `${formatCurrencyForModal(difference)}<div class="research-c-system">Otomatis · tidak dapat diedit</div>`;
+    }
+
+    document.querySelectorAll('[data-d1-row]').forEach((row) => {
+        row.querySelectorAll('[data-d1-renja], [data-d1-rka]').forEach((input) => {
+            input.addEventListener('input', () => refreshD1Difference(row));
+            input.addEventListener('change', () => refreshD1Difference(row));
+        });
+
+        refreshD1Difference(row);
     });
 
 

@@ -251,8 +251,8 @@ class penelitianController extends Controller
                 );
             }
 
-            // Bagian D.1: hanya PENJELASAN yang dapat di-override user.
-            // PAGU RENJA, PAGU RKA, dan SELISIH tetap read-only hasil sistem.
+            // Bagian D.1: PAGU RENJA, PAGU RKA, dan PENJELASAN dapat di-override user.
+            // SELISIH tetap otomatis = PAGU RKA efektif - PAGU RENJA efektif.
             if (!$result['source_changed'] && !empty($validated['hasil_d1'] ?? [])) {
                 $researchService->savePartD1Overrides(
                     $penelitianID,
@@ -261,7 +261,8 @@ class penelitianController extends Controller
                 );
             }
 
-            // Bagian D.2: hanya PENJELASAN dapat di-override user.
+            // Bagian D.2: seluruh angka yang tampil dan PENJELASAN dapat di-override user.
+            // Nilai hasil sistem tetap disimpan; koreksi user disimpan pada kolom *_user.
             if (!$result['source_changed'] && !empty($validated['hasil_d2'] ?? [])) {
                 $researchService->savePartD2Overrides(
                     $penelitianID,
@@ -866,13 +867,21 @@ class penelitianController extends Controller
             'hasil_d.*.penjelasan' => 'nullable|string|max:65000',
 
 
-            // D.1 hanya mengizinkan override PENJELASAN.
+            // D.1: PAGU RENJA, PAGU RKA, dan PENJELASAN dapat di-override.
+            // SELISIH tidak mempunyai input user dan selalu dihitung otomatis.
             'hasil_d1' => 'nullable|array',
+            'hasil_d1.*.pagu_renja' => 'nullable|integer|min:0|max:999999999999999999',
+            'hasil_d1.*.pagu_rka' => 'nullable|integer|min:0|max:999999999999999999',
             'hasil_d1.*.penjelasan' => 'nullable|string|max:65000',
 
 
-            // D.2 hanya mengizinkan override PENJELASAN.
+            // D.2: semua kolom numerik dan PENJELASAN dapat di-override user.
             'hasil_d2' => 'nullable|array',
+            'hasil_d2.*.rkbmn_pemeliharaan_unit' => 'nullable|numeric|min:0|max:999999999999999999.99',
+            'hasil_d2.*.alokasi_pemeliharaan_vol' => 'nullable|numeric|min:0|max:999999999999999999.99',
+            'hasil_d2.*.alokasi_pemeliharaan_pagu' => 'nullable|numeric|min:0|max:999999999999999999.99',
+            'hasil_d2.*.alokasi_pengadaan_vol' => 'nullable|numeric|min:0|max:999999999999999999.99',
+            'hasil_d2.*.alokasi_pengadaan_pagu' => 'nullable|numeric|min:0|max:999999999999999999.99',
             'hasil_d2.*.penjelasan' => 'nullable|string|max:65000',
 
 

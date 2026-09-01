@@ -388,7 +388,7 @@
                         $groupNo = $row->kelompok === 'PERANGKAT_PENGOLAH_DATA' ? '1' : '2';
                     }
                 @endphp
-                <tr><td class="no">{{ $groupNo }}</td><td class="{{ (int) $row->level_baris > 0 ? 'child' : '' }}">{{ $row->uraian }}</td><td class="money">{{ $volume($row->rkbmn_pemeliharaan_unit) }}</td><td class="money">{{ $volume($row->alokasi_pemeliharaan_vol) }}</td><td class="money">{{ $rupiah($row->alokasi_pemeliharaan_pagu) }}</td><td class="money">{{ $volume($row->alokasi_pengadaan_vol) }}</td><td class="money">{{ $rupiah($row->alokasi_pengadaan_pagu) }}</td><td class="preline">{{ $row->penjelasan_efektif }}</td></tr>
+                <tr><td class="no">{{ $groupNo }}</td><td class="{{ (int) $row->level_baris > 0 ? 'child' : '' }}">{{ $row->uraian }}</td><td class="money">{{ $volume($row->rkbmn_pemeliharaan_unit_efektif) }}</td><td class="money">{{ $volume($row->alokasi_pemeliharaan_vol_efektif) }}</td><td class="money">{{ $rupiah($row->alokasi_pemeliharaan_pagu_efektif) }}</td><td class="money">{{ $volume($row->alokasi_pengadaan_vol_efektif) }}</td><td class="money">{{ $rupiah($row->alokasi_pengadaan_pagu_efektif) }}</td><td class="preline">{{ $row->penjelasan_efektif }}</td></tr>
             @endforeach
         </tbody>
     </table>

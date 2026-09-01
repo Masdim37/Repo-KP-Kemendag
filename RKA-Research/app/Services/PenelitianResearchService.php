@@ -320,8 +320,10 @@ class PenelitianResearchService
     /**
      * Ambil hasil D.1 Identifikasi KRO Belanja TIK.
      *
-     * Angka D.1 bersifat hasil sistem/read-only.
-     * User hanya dapat meng-override PENJELASAN selama DRAFT.
+     * User dapat meng-override PAGU RENJA, PAGU RKA, dan PENJELASAN selama
+     * penelitian masih DRAFT. Nilai sistem tetap tersimpan pada kolom *_sistem.
+     * SELISIH tidak memiliki override dan selalu dihitung dari nilai efektif:
+     * PAGU RKA efektif - PAGU RENJA efektif.
      */
     public function partD1Results(int $penelitianID): Collection
     {
@@ -331,9 +333,16 @@ class PenelitianResearchService
             ->orderBy('urutan')
             ->get()
             ->map(function ($row) {
-                $row->pagu_renja_efektif = (int) $row->pagu_renja_sistem;
-                $row->pagu_rka_efektif = (int) $row->pagu_rka_sistem;
-                $row->selisih_efektif = $row->pagu_rka_efektif - $row->pagu_renja_efektif;
+                $row->pagu_renja_efektif = $row->pagu_renja_user !== null
+                    ? (int) $row->pagu_renja_user
+                    : (int) $row->pagu_renja_sistem;
+
+                $row->pagu_rka_efektif = $row->pagu_rka_user !== null
+                    ? (int) $row->pagu_rka_user
+                    : (int) $row->pagu_rka_sistem;
+
+                $row->selisih_efektif =
+                    $row->pagu_rka_efektif - $row->pagu_renja_efektif;
 
                 $row->penjelasan_efektif = $row->penjelasan_user !== null
                     ? $row->penjelasan_user
@@ -347,7 +356,8 @@ class PenelitianResearchService
     /**
      * Ambil hasil D.2 Identifikasi Aset TIK.
      *
-     * Semua volume/pagu read-only. Hanya PENJELASAN yang dapat di-override user.
+     * Lima kolom numerik dan PENJELASAN dapat memiliki override user selama
+     * DRAFT. Kolom tanpa suffix _user tetap merupakan hasil sistem.
      */
     public function partD2Results(int $penelitianID): Collection
     {
@@ -356,6 +366,19 @@ class PenelitianResearchService
             ->orderBy('urutan')
             ->get()
             ->map(function ($row) {
+                foreach ([
+                    'rkbmn_pemeliharaan_unit',
+                    'alokasi_pemeliharaan_vol',
+                    'alokasi_pemeliharaan_pagu',
+                    'alokasi_pengadaan_vol',
+                    'alokasi_pengadaan_pagu',
+                ] as $field) {
+                    $userField = $field . '_user';
+                    $row->{$field . '_efektif'} = $row->{$userField} !== null
+                        ? (float) $row->{$userField}
+                        : (float) $row->{$field};
+                }
+
                 $row->penjelasan_efektif = $row->penjelasan_user !== null
                     ? $row->penjelasan_user
                     : $row->penjelasan_sistem;
@@ -2606,10 +2629,16 @@ class PenelitianResearchService
 
 
     /**
-     * Simpan override PENJELASAN D.1 selama DRAFT.
+     * Simpan override user D.1 selama status penelitian masih DRAFT.
      *
-     * PAGU RENJA, PAGU RKA, dan SELISIH tetap read-only karena merupakan hasil
-     * kalkulasi deterministic dari RENJA/RKA.
+     * Field yang dapat diubah:
+     * - PAGU RENJA  -> pagu_renja_user
+     * - PAGU RKA    -> pagu_rka_user
+     * - PENJELASAN  -> penjelasan_user
+     *
+     * SELISIH tidak menerima input user dan tidak memiliki kolom override.
+     * Nilai efektifnya selalu dihitung dari PAGU RKA efektif - PAGU RENJA efektif.
+     * Nilai hasil sistem pada pagu_renja_sistem/pagu_rka_sistem tidak diubah.
      */
     public function savePartD1Overrides(
         int $penelitianID,
@@ -2647,35 +2676,76 @@ class PenelitianResearchService
                 $kodeBaris = (string) $kodeBaris;
 
                 if (!$rows->has($kodeBaris)) {
+                    // Input browser tidak boleh membuat baris D.1 baru.
                     continue;
                 }
 
                 $row = $rows->get($kodeBaris);
                 $input = is_array($input) ? $input : [];
 
+                // Blank amount = kembali ke hasil sistem.
+                $submittedRenja = array_key_exists('pagu_renja', $input)
+                    && $input['pagu_renja'] !== null
+                    && $input['pagu_renja'] !== ''
+                        ? (int) $input['pagu_renja']
+                        : (int) $row->pagu_renja_sistem;
+
+                $submittedRka = array_key_exists('pagu_rka', $input)
+                    && $input['pagu_rka'] !== null
+                    && $input['pagu_rka'] !== ''
+                        ? (int) $input['pagu_rka']
+                        : (int) $row->pagu_rka_sistem;
+
+                if ($submittedRenja < 0 || $submittedRka < 0) {
+                    throw new \RuntimeException("Pagu D.1 pada {$kodeBaris} tidak boleh bernilai negatif.");
+                }
+
+                $renjaUser = $submittedRenja === (int) $row->pagu_renja_sistem
+                    ? null
+                    : $submittedRenja;
+
+                $rkaUser = $submittedRka === (int) $row->pagu_rka_sistem
+                    ? null
+                    : $submittedRka;
+
+                // String kosong adalah override penjelasan yang valid.
                 if (array_key_exists('penjelasan', $input)) {
-                    $submitted = trim((string) ($input['penjelasan'] ?? ''));
+                    $submittedExplanation = trim((string) ($input['penjelasan'] ?? ''));
                 } else {
-                    $submitted = $row->penjelasan_user !== null
+                    $submittedExplanation = $row->penjelasan_user !== null
                         ? (string) $row->penjelasan_user
                         : (string) ($row->penjelasan_sistem ?? '');
                 }
 
                 $systemExplanation = trim((string) ($row->penjelasan_sistem ?? ''));
-
-                $userExplanation = $submitted === $systemExplanation
+                $explanationUser = $submittedExplanation === $systemExplanation
                     ? null
-                    : $submitted;
+                    : $submittedExplanation;
 
-                $currentUserExplanation = $row->penjelasan_user !== null
+                $currentRenjaUser = $row->pagu_renja_user !== null
+                    ? (int) $row->pagu_renja_user
+                    : null;
+
+                $currentRkaUser = $row->pagu_rka_user !== null
+                    ? (int) $row->pagu_rka_user
+                    : null;
+
+                $currentExplanationUser = $row->penjelasan_user !== null
                     ? (string) $row->penjelasan_user
                     : null;
 
-                if ($userExplanation !== $currentUserExplanation) {
+                if (
+                    $renjaUser !== $currentRenjaUser
+                    || $rkaUser !== $currentRkaUser
+                    || $explanationUser !== $currentExplanationUser
+                ) {
                     DB::table('penelitian_hasil_nilai')
                         ->where('hasilNilaiID', $row->hasilNilaiID)
                         ->update([
-                            'penjelasan_user' => $userExplanation,
+                            'pagu_renja_user' => $renjaUser,
+                            'pagu_rka_user' => $rkaUser,
+                            'penjelasan_user' => $explanationUser,
+                            // Kolom selisih tidak disentuh: hasil sistem tetap utuh.
                             'updated_at' => now(),
                         ]);
 
@@ -2689,13 +2759,17 @@ class PenelitianResearchService
                     $penelitianID,
                     'DRAFT_DISIMPAN',
                     $user->userID,
-                    sprintf('%s memperbarui PENJELASAN D.1 pada DRAFT penelitian.', $user->name),
+                    sprintf('%s memperbarui override Bagian D.1 pada DRAFT penelitian.', $user->name),
                     [
                         'bagian' => 'D1',
                         'jumlah_baris_diubah' => $changed,
-                        'kode_baris_diubah' => $changedRows,
-                        'field_override' => ['penjelasan_user'],
-                        'numeric_override' => false,
+                        'kode_baris_diubah' => array_values(array_unique($changedRows)),
+                        'field_override' => [
+                            'pagu_renja_user',
+                            'pagu_rka_user',
+                            'penjelasan_user',
+                        ],
+                        'selisih_manual' => false,
                     ]
                 );
             }
@@ -3023,8 +3097,8 @@ class PenelitianResearchService
     }
 
     /**
-     * Upsert D.1. Angka user tidak dipakai; hanya PENJELASAN user yang
-     * dipertahankan pada rerun.
+     * Upsert hasil SISTEM D.1. Kolom override user tidak disentuh saat rerun,
+     * sehingga koreksi PAGU RENJA/PAGU RKA/PENJELASAN tetap dipertahankan.
      */
     private function upsertPartD1Result(
         int $penelitianID,
@@ -3079,9 +3153,11 @@ class PenelitianResearchService
 
 
     /**
-     * Simpan override PENJELASAN D.2 selama DRAFT.
+     * Simpan override seluruh kolom numerik dan PENJELASAN D.2 selama DRAFT.
      *
-     * Angka hasil sistem tidak dapat diedit user.
+     * Kolom hasil sistem tidak pernah ditimpa. Nilai koreksi disimpan pada
+     * pasangan kolom *_user. Jika nilai user sama dengan hasil sistem, *_user
+     * dikembalikan menjadi NULL agar override dianggap tidak aktif.
      */
     public function savePartD2Overrides(
         int $penelitianID,
@@ -3111,40 +3187,85 @@ class PenelitianResearchService
                 ->get()
                 ->keyBy('kode_baris');
 
+            $numericFields = [
+                'rkbmn_pemeliharaan_unit',
+                'alokasi_pemeliharaan_vol',
+                'alokasi_pemeliharaan_pagu',
+                'alokasi_pengadaan_vol',
+                'alokasi_pengadaan_pagu',
+            ];
+
             $changed = 0;
             $changedRows = [];
+            $changedFields = [];
 
             foreach ($payload as $kodeBaris => $input) {
                 $kodeBaris = (string) $kodeBaris;
 
                 if (!$rows->has($kodeBaris)) {
+                    // Input browser tidak boleh membuat baris D.2 baru.
                     continue;
                 }
 
                 $row = $rows->get($kodeBaris);
                 $input = is_array($input) ? $input : [];
+                $updates = [];
 
-                if (array_key_exists('penjelasan', $input)) {
-                    $submitted = trim((string) ($input['penjelasan'] ?? ''));
-                } else {
-                    $submitted = $row->penjelasan_user !== null
-                        ? (string) $row->penjelasan_user
-                        : (string) ($row->penjelasan_sistem ?? '');
+                foreach ($numericFields as $field) {
+                    if (!array_key_exists($field, $input)) {
+                        continue;
+                    }
+
+                    $systemValue = round((float) ($row->{$field} ?? 0), 2);
+                    $raw = $input[$field];
+
+                    // Blank = reset ke hasil sistem.
+                    $submitted = ($raw === null || $raw === '')
+                        ? $systemValue
+                        : round((float) $raw, 2);
+
+                    if ($submitted < 0) {
+                        throw new \RuntimeException("Nilai D.2 pada {$kodeBaris} tidak boleh negatif.");
+                    }
+
+                    $userValue = abs($submitted - $systemValue) < 0.00001
+                        ? null
+                        : $submitted;
+
+                    $userColumn = $field . '_user';
+                    $currentUserValue = $row->{$userColumn} !== null
+                        ? round((float) $row->{$userColumn}, 2)
+                        : null;
+
+                    if ($userValue !== $currentUserValue) {
+                        $updates[$userColumn] = $userValue;
+                        $changedFields[] = $userColumn;
+                    }
                 }
 
-                $system = trim((string) ($row->penjelasan_sistem ?? ''));
-                $userExplanation = $submitted === $system ? null : $submitted;
-                $current = $row->penjelasan_user !== null
-                    ? (string) $row->penjelasan_user
-                    : null;
+                if (array_key_exists('penjelasan', $input)) {
+                    $submittedExplanation = trim((string) ($input['penjelasan'] ?? ''));
+                    $systemExplanation = trim((string) ($row->penjelasan_sistem ?? ''));
+                    $explanationUser = $submittedExplanation === $systemExplanation
+                        ? null
+                        : $submittedExplanation;
 
-                if ($userExplanation !== $current) {
+                    $currentExplanationUser = $row->penjelasan_user !== null
+                        ? (string) $row->penjelasan_user
+                        : null;
+
+                    if ($explanationUser !== $currentExplanationUser) {
+                        $updates['penjelasan_user'] = $explanationUser;
+                        $changedFields[] = 'penjelasan_user';
+                    }
+                }
+
+                if (!empty($updates)) {
+                    $updates['updated_at'] = now();
+
                     DB::table('penelitian_hasil_d2')
                         ->where('hasilD2ID', $row->hasilD2ID)
-                        ->update([
-                            'penjelasan_user' => $userExplanation,
-                            'updated_at' => now(),
-                        ]);
+                        ->update($updates);
 
                     $changed++;
                     $changedRows[] = $kodeBaris;
@@ -3156,13 +3277,13 @@ class PenelitianResearchService
                     $penelitianID,
                     'DRAFT_DISIMPAN',
                     $user->userID,
-                    sprintf('%s memperbarui PENJELASAN D.2 pada DRAFT penelitian.', $user->name),
+                    sprintf('%s memperbarui override Bagian D.2 pada DRAFT penelitian.', $user->name),
                     [
                         'bagian' => 'D2',
                         'jumlah_baris_diubah' => $changed,
-                        'kode_baris_diubah' => $changedRows,
-                        'field_override' => ['penjelasan_user'],
-                        'numeric_override' => false,
+                        'kode_baris_diubah' => array_values(array_unique($changedRows)),
+                        'field_override' => array_values(array_unique($changedFields)),
+                        'numeric_override' => true,
                     ]
                 );
             }
@@ -4015,6 +4136,10 @@ class PenelitianResearchService
         return null;
     }
 
+    /**
+     * Upsert hasil SISTEM D.2. Payload hanya menyentuh kolom hasil sistem;
+     * seluruh kolom *_user dipertahankan pada rerun untuk traceability.
+     */
     private function upsertPartD2Result(
         int $penelitianID,
         array $row,
@@ -4073,6 +4198,11 @@ class PenelitianResearchService
             'penelitianID' => $penelitianID,
             'kode_baris' => (string) $row['kode'],
             ...$payload,
+            'rkbmn_pemeliharaan_unit_user' => null,
+            'alokasi_pemeliharaan_vol_user' => null,
+            'alokasi_pemeliharaan_pagu_user' => null,
+            'alokasi_pengadaan_vol_user' => null,
+            'alokasi_pengadaan_pagu_user' => null,
             'penjelasan_user' => null,
             'created_at' => now(),
         ]);
